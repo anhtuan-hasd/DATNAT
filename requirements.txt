@@ -1,0 +1,25 @@
+# Rule Engine / lõi tính toán — không phụ thuộc gì ngoài Python chuẩn.
+pytest>=8.0
+
+# Input Adapter (Phase 2) — đọc Excel/CSV không schema cố định.
+pandas>=2.2
+openpyxl>=3.1
+
+# AutoCAD Tool — 100% qua AutoCAD COM Automation (pywin32); ezdxf đã bị loại
+# bỏ hoàn toàn khỏi repo (CHANGE_REQUESTS.md mục 2) — mọi test/chạy liên quan
+# tới vẽ từ nay cần máy có AutoCAD cài sẵn và đang mở, kể cả khi chạy pytest
+# (các test đụng COM tự đánh dấu skip khi máy không có pywin32/AutoCAD).
+pywin32>=306; sys_platform == "win32"
+
+# Webapp (giao diện web nội bộ cho toàn bộ pipeline) — chỉ chạy local, không public.
+# matplotlib (render DXF -> PNG) đã bỏ cùng ezdxf — webapp giờ phục vụ trực
+# tiếp PDF do AutoCAD COM xuất, không cần render ảnh riêng nữa.
+flask>=3.0
+python-dotenv>=1.0  # tự nạp OPENAI_API_KEY từ file .env ở gốc dự án — dùng bởi webapp/app.py VÀ scripts/*.py
+
+# Agent điều phối (Phase 4) — LLM duy nhất dùng trong toàn hệ thống là OpenAI GPT.
+openai>=1.50
+# anthropic vẫn để lại (ClaudeChatProvider/ClaudeMappingProvider) như 1 cài đặt
+# thay thế cùng Protocol NhaCungCapChat/NhaCungCapLLM — không phải lựa chọn
+# chính thức của đồ án hiện tại (xem docs/TONGQUAN_AI_AGENT.md mục 4/7).
+anthropic>=0.40

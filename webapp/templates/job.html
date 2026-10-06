@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Đang xử lý — {{ ten_file }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="khung">
+    <h1>{{ ten_file }}</h1>
+    <p class="mo-ta">
+      Trạng thái: <span id="trang-thai" class="trang-thai dang_cho">đang chờ</span>
+      &nbsp;·&nbsp; <a href="{{ url_for('trang_chu') }}" style="color:var(--nhan)">← Tải file khác</a>
+    </p>
+
+    <div class="the">
+      <strong>Nhật ký xử lý (Agent điều phối)</strong>
+      <div class="nhat-ky" id="nhat-ky"></div>
+    </div>
+
+    <div class="the" id="the-cau-hoi" style="display:none">
+      <strong id="noi-dung-cau-hoi"></strong>
+      <div id="lua-chon-nhanh"></div>
+      <div class="hop-tra-loi">
+        <input type="text" id="o-tra-loi" placeholder="Nhập câu trả lời, hoặc 'đồng ý'...">
+        <button onclick="guiTraLoi()">Gửi</button>
+      </div>
+    </div>
+
+    <div class="the" id="the-ket-qua" style="display:none">
+      <strong>Bản vẽ khung tổng thể</strong>
+      <p id="tom-tat-ket-qua"></p>
+      <iframe id="xem-truoc-pdf" style="width:100%;height:600px;border:1px solid var(--vien);display:none"></iframe>
+      <div id="tai-ve-dwg" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <script>
+    const jobId = {{ job_id | tojson }};
+    let soDongLogDaHien = 0;
+    let dangChoTraLoi = false;
+
+    function guiTraLoi() {
+      const o = document.getElementById('o-tra-loi');
+      const traLoi = o.value.trim();
+      if (!traLoi) return;
+      fetch(`/api/job/${jobId}/answer`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({tra_loi: traLoi}),
+      }).then(() => {
+        o.value = '';
+        document.getElementById('the-cau-hoi').style.display = 'none';
+        dangChoTraLoi = false;
+      });
+    }
+
+    function capNhat() {
+      fetch(`/api/job/${jobId}/status`).then(r => r.json()).then(du => {
+        const elTrangThai = document.getElementById('trang-thai');
+        elTrangThai.className = 'trang-thai ' + du.trang_thai;
+        elTrangThai.textContent = {
+          dang_cho: 'đang chờ', dang_chay: 'đang chạy', can_tra_loi: 'CẦN BẠN TRẢ LỜI',
+          xong: 'hoàn tất', loi: 'lỗi',
+        }[du.trang_thai] || du.trang_thai;
+
+        const hopLog = document.getElementById('nhat-ky');
+        for (let i = soDongLogDaHien; i < du.nhat_ky.length; i++) {
+          const m = du.nhat_ky[i];
+          const dong = document.createElement('div');
+          dong.className = 'dong-log ' + m.loai;
+          let nhan = {he_thong: 'ℹ', tool: '🔧', cau_hoi: '❓', tra_loi: '💬', loi: '✖', ket_thuc: '✔'}[m.loai] || '';
+          let noiDung = m.noi_dung;
+          if (m.loai === 'tool' && m.chi_tiet) {
+            noiDung = `${m.noi_dung}(${JSON.stringify(m.chi_tiet.dau_vao)}) -> ${JSON.stringify(m.chi_tiet.ket_qua)}`;
+          }
+          dong.textContent = `${nhan} ${noiDung}`;
+          hopLog.appendChild(dong);
+        }
+        soDongLogDaHien = du.nhat_ky.length;
+        hopLog.scrollTop = hopLog.scrollHeight;
+
+        const theCauHoi = document.getElementById('the-cau-hoi');
+        if (du.cau_hoi_dang_cho && !dangChoTraLoi) {
+          dangChoTraLoi = true;
+          document.getElementById('noi-dung-cau-hoi').textContent = du.cau_hoi_dang_cho.cau_hoi;
+          const hopLuaChon = document.getElementById('lua-chon-nhanh');
+          hopLuaChon.innerHTML = '';
+          (du.cau_hoi_dang_cho.lua_chon || []).forEach(lc => {
+            const nut = document.createElement('button');
+            nut.textContent = lc;
+            nut.onclick = () => { document.getElementById('o-tra-loi').value = lc; guiTraLoi(); };
+            hopLuaChon.appendChild(nut);
+          });
+          theCauHoi.style.display = 'block';
+        } else if (!du.cau_hoi_dang_cho) {
+          theCauHoi.style.display = 'none';
+        }
+
+        if (du.co_pdf || du.co_dwg) {
+          const theKetQua = document.getElementById('the-ket-qua');
+          theKetQua.style.display = 'block';
+
+          document.getElementById('tom-tat-ket-qua').textContent =
+            `${du.so_phan_tu_dat}/${du.tong_so_phan_tu} phần tử đạt tự kiểm tra + kiểm chứng bản vẽ.`;
+
+          const khungXem = document.getElementById('xem-truoc-pdf');
+          if (du.co_pdf && khungXem.style.display === 'none') {
+            khungXem.src = `/job/${jobId}/pdf`;
+            khungXem.style.display = 'block';
+          }
+
+          const hopDwg = document.getElementById('tai-ve-dwg');
+          if (du.co_dwg && hopDwg.children.length === 0) {
+            const a = document.createElement('a');
+            a.className = 'tai-ve';
+            a.href = `/job/${jobId}/dwg`;
+            a.textContent = 'Tải file DWG gốc';
+            hopDwg.appendChild(a);
+          }
+        }
+
+        if (du.trang_thai !== 'xong' && du.trang_thai !== 'loi') {
+          setTimeout(capNhat, 1200);
+        }
+      });
+    }
+
+    document.getElementById('o-tra-loi').addEventListener('keydown', e => {
+      if (e.key === 'Enter') guiTraLoi();
+    });
+
+    capNhat();
+  </script>
+</body>
+</html>

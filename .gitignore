@@ -1,0 +1,24 @@
+# Bytecode / cache do Python tự sinh — không phải mã nguồn, không cần theo dõi.
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Kết quả chạy (DXF/DWG/PDF/PNG do script/agent sinh ra) — tái tạo được bằng
+# cách chạy lại scripts/chay_pipeline_day_du.py hoặc các smoke test, không
+# phải nguồn để lưu vĩnh viễn trong lịch sử git.
+output/
+
+# Thư mục tạm của fixture `thu_muc_tam` (tests/conftest.py) — sinh ra mỗi
+# lần chạy pytest, không phải nguồn.
+tests/_tmp_test_output/
+
+# Khoá API và biến môi trường cá nhân — KHÔNG BAO GIỜ commit (webapp/app.py
+# tự nạp file này qua python-dotenv).
+.env
+
+# File tải lên tạm thời của webapp (Excel/CSV người dùng gửi qua giao diện).
+output/webapp_upload/
+
+# Thư mục ảo Python (nếu ai đó tạo venv/.venv ngay trong repo).
+venv/
+.venv/

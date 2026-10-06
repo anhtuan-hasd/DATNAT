@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <title>Thiết kế khung BTCT tự động</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="khung">
+    <h1>Thiết kế khung BTCT tự động — 4 Agent</h1>
+    <p class="mo-ta">
+      Tải lên 1 file Excel/CSV kiểu ETABS (As yêu cầu, M, N, Q, tiết diện, vật
+      liệu theo từng phần tử — hoặc báo cáo ETABS THẬT, tự nhận diện). 4 agent
+      (Input Adapter → Rule Engine → Drawing → Verification) tự chạy tuần tự
+      cho từng phần tử tìm thấy — hỏi lại bạn qua khung chat khi không chắc
+      chắn — rồi hiển thị bản vẽ khung tổng thể (PDF) ngay trên trang này.
+    </p>
+
+    {% if loi %}<p class="loi">{{ loi }}</p>{% endif %}
+
+    <div class="the">
+      <form action="{{ url_for('tai_file_len') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".xlsx,.xls,.csv" required>
+        <br>
+        <input type="submit" value="Tải lên & bắt đầu xử lý">
+      </form>
+    </div>
+
+    <p class="mo-ta">
+      Lưu ý: cần mở sẵn AutoCAD (vẽ 100% qua AutoCAD COM) và đặt biến môi
+      trường <code>OPENAI_API_KEY</code> trước khi chạy
+      <code>python webapp/app.py</code> (xem docs/HUONG_DAN_CHAY.md). Mỗi lần
+      chạy tốn 1 khoản phí API nhỏ. Server chỉ chạy local, phục vụ 1 người
+      dùng tại 1 thời điểm — nhiều job tải lên cùng lúc sẽ tự xếp hàng chạy
+      lần lượt (AutoCAD chỉ vẽ được 1 việc tại 1 thời điểm).
+    </p>
+  </div>
+</body>
+</html>
