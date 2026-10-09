@@ -375,15 +375,23 @@ def chon_to_hop_thep_doc(
 
 @dataclass(frozen=True)
 class ToHopThepChuViCot:
-    duong_kinh: int
+    duong_kinh_goc: int
+    duong_kinh_giua_b: int
+    duong_kinh_giua_h: int
     so_thanh_canh_b: int  # số thanh trên MỖI cạnh song song trục b (kể cả 2 góc)
     so_thanh_canh_h: int  # số thanh trên MỖI cạnh song song trục h (kể cả 2 góc)
     tong_so_thanh: int  # đã trừ 4 thanh góc dùng chung, không đếm 2 lần
     As_thuc_moi_phia: float  # mm² — diện tích 1 cạnh chịu lực chính (As = A's dùng ở mục 2.5)
     As_thuc_tong: float  # mm² — tổng toàn bộ thanh quanh chu vi
 
+    @property
+    def duong_kinh(self) -> int:
+        return self.duong_kinh_goc  # backward compatibility
+
     def mo_ta(self) -> str:
-        return f"{self.tong_so_thanh}Ø{self.duong_kinh} (đều chu vi, {self.so_thanh_canh_b}/cạnh b, {self.so_thanh_canh_h}/cạnh h)"
+        s = f"{self.tong_so_thanh} thanh (đều chu vi, {self.so_thanh_canh_b}/cạnh b, {self.so_thanh_canh_h}/cạnh h). "
+        s += f"Góc: Ø{self.duong_kinh_goc}, Giữa b: Ø{self.duong_kinh_giua_b}, Giữa h: Ø{self.duong_kinh_giua_h}"
+        return s
 
 
 def so_thanh_toi_thieu_theo_khoang_cach_cot(
@@ -403,10 +411,9 @@ def _sinh_ung_vien_chu_vi_cot(
     As_target_moi_phia: float, b: float, h: float, cover: float, duong_kinh_cho_phep: list[int],
     duong_kinh_dai_du_kien: float,
 ) -> list[ToHopThepChuViCot]:
-    """Sinh mọi ứng viên hợp lệ cho 1 bộ `duong_kinh_cho_phep` — tách khỏi
-    `chon_to_hop_thep_chu_vi_cot` để hàm đó có thể gọi lại 2 lần (ưu tiên rồi
-    fallback) mà không lặp logic."""
     ung_vien: list[ToHopThepChuViCot] = []
+    
+    # 1 loại đường kính
     for d in sorted(duong_kinh_cho_phep):
         as1 = vat_lieu.dien_tich_1_thanh(d)
         so_thanh_toi_thieu_b = so_thanh_toi_thieu_theo_khoang_cach_cot(b, cover, duong_kinh_dai_du_kien, d)
@@ -415,10 +422,6 @@ def _sinh_ung_vien_chu_vi_cot(
         so_thanh_canh_b = max(so_thanh_can_theo_As, so_thanh_toi_thieu_b)
         so_thanh_canh_h = max(2, so_thanh_toi_thieu_h)
 
-        # Kiểm tra khả thi vật lý: số thanh cần có thực sự xếp vừa trong bề
-        # rộng b không (dùng lại so_thanh_toi_da_1_lop, mục 4.4) — thiếu bước
-        # này sẽ không bao giờ raise ValueError khi As_target quá lớn so với
-        # tiết diện, vì math.ceil() không tự biết giới hạn vật lý.
         so_thanh_toi_da_kha_thi = so_thanh_toi_da_1_lop(b, cover, duong_kinh_dai_du_kien, d)
         if so_thanh_canh_b > so_thanh_toi_da_kha_thi:
             continue
@@ -429,7 +432,36 @@ def _sinh_ung_vien_chu_vi_cot(
 
         tong_so_thanh = 2 * so_thanh_canh_b + 2 * (so_thanh_canh_h - 2)
         As_thuc_tong = tong_so_thanh * as1
-        ung_vien.append(ToHopThepChuViCot(d, so_thanh_canh_b, so_thanh_canh_h, tong_so_thanh, As_thuc_moi_phia, As_thuc_tong))
+        ung_vien.append(ToHopThepChuViCot(d, d, d, so_thanh_canh_b, so_thanh_canh_h, tong_so_thanh, As_thuc_moi_phia, As_thuc_tong))
+        
+    # 2 loại đường kính (d1 ở góc, d2 ở giữa, d1 > d2, d1-d2 <= 6)
+    for i, d1 in enumerate(sorted(duong_kinh_cho_phep, reverse=True)):
+        as1 = vat_lieu.dien_tich_1_thanh(d1)
+        for d2 in sorted(duong_kinh_cho_phep, reverse=True):
+            if d2 >= d1 or d1 - d2 > 6 or abs(d1 - d2) == 1:
+                continue
+            as2 = vat_lieu.dien_tich_1_thanh(d2)
+            
+            # Thử n thanh giữa cho mặt b (từ 1 đến 4)
+            for n_giua_b in range(1, 5):
+                so_thanh_canh_b = 2 + n_giua_b
+                so_thanh_toi_da_kha_thi = so_thanh_toi_da_1_lop(b, cover, duong_kinh_dai_du_kien, d1)
+                if so_thanh_canh_b > so_thanh_toi_da_kha_thi:
+                    continue
+                
+                As_thuc_moi_phia = 2 * as1 + n_giua_b * as2
+                if As_thuc_moi_phia < As_target_moi_phia:
+                    continue
+                
+                # Cạnh h chỉ cần đủ khoảng cách tối thiểu (thường đặt thép cấu tạo d_cau_tao)
+                # Nhưng để đơn giản ta cho d2 hoặc d1
+                so_thanh_canh_h = max(2, so_thanh_toi_thieu_theo_khoang_cach_cot(h, cover, duong_kinh_dai_du_kien, d1))
+                tong_so_thanh = 2 * so_thanh_canh_b + 2 * (so_thanh_canh_h - 2)
+                As_thuc_tong = 4 * as1 + 2 * n_giua_b * as2 + 2 * (so_thanh_canh_h - 2) * as2
+                
+                ung_vien.append(ToHopThepChuViCot(d1, d2, d2, so_thanh_canh_b, so_thanh_canh_h, tong_so_thanh, As_thuc_moi_phia, As_thuc_tong))
+                break # Đủ As rồi thì không tăng n_giua_b nữa
+
     return ung_vien
 
 

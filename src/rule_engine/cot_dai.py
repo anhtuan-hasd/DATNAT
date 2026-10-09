@@ -188,9 +188,11 @@ def buoc_dai_max_cot(d_doc_min: float, dieu_kien_dac_biet: bool) -> float:
     """Bước đai tối đa — cột. Mục 5.3.
 
     dieu_kien_dac_biet=True (μ_dọc > 1,5% một mặt, hoặc trong đoạn nối chồng):
-    min(10d_dọc,min; 300). Ngược lại: min(15d_dọc,min; 500).
+    min(10d_dọc,min; 300). Ngược lại: min(15d_dọc,min; 500). Làm tròn xuống bội số 50.
     """
-    return min(10 * d_doc_min, 300.0) if dieu_kien_dac_biet else min(15 * d_doc_min, 500.0)
+    val = min(10 * d_doc_min, 300.0) if dieu_kien_dac_biet else min(15 * d_doc_min, 500.0)
+    import math
+    return math.floor(val / 50.0) * 50.0
 
 
 def can_dai_phu_cho_cot(b: float, so_thanh_1_canh: int) -> bool:

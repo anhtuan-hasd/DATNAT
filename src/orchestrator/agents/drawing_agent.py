@@ -55,8 +55,11 @@ def ve_mat_cat(nc: NguCanhDrawing, dau_vao: dict) -> dict:
         bv = geometry.ve_mat_cat_cot(
             nhan, b=dau_vao["b"], h=dau_vao["h"], cover=dau_vao.get("cover", 40.0),
             duong_kinh_dai=dau_vao.get("duong_kinh_dai", 8.0),
-            so_thanh_canh_b=dau_vao["so_thanh_canh_b"], duong_kinh_canh_b=dau_vao["duong_kinh_canh_b"],
-            so_thanh_canh_h=dau_vao["so_thanh_canh_h"], duong_kinh_canh_h=dau_vao["duong_kinh_canh_h"],
+            so_thanh_canh_b=dau_vao["so_thanh_canh_b"], duong_kinh_canh_b=dau_vao.get("duong_kinh", 0),
+            so_thanh_canh_h=dau_vao["so_thanh_canh_h"], duong_kinh_canh_h=dau_vao.get("duong_kinh", 0),
+            duong_kinh_goc=dau_vao.get("duong_kinh_goc", 0),
+            duong_kinh_giua_b=dau_vao.get("duong_kinh_giua_b", 0),
+            duong_kinh_giua_h=dau_vao.get("duong_kinh_giua_h", 0),
         )
     else:
         return _loi(f"loai phải là 'dam' hoặc 'cot', nhận '{loai}'.")

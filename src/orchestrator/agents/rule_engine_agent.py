@@ -201,6 +201,9 @@ def chon_thep_doc(nc: NguCanhRuleEngine, dau_vao: dict) -> dict:
         nc.duong_kinh_da_dung.add(to_hop_cot.duong_kinh)
         return {
             "duong_kinh": to_hop_cot.duong_kinh,
+            "duong_kinh_goc": to_hop_cot.duong_kinh_goc,
+            "duong_kinh_giua_b": to_hop_cot.duong_kinh_giua_b,
+            "duong_kinh_giua_h": to_hop_cot.duong_kinh_giua_h,
             "so_thanh_canh_b": to_hop_cot.so_thanh_canh_b, "so_thanh_canh_h": to_hop_cot.so_thanh_canh_h,
             "tong_so_thanh": to_hop_cot.tong_so_thanh,
             "As_thuc_moi_phia": to_hop_cot.As_thuc_moi_phia, "As_thuc_tong": to_hop_cot.As_thuc_tong,

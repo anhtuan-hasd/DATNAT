@@ -317,17 +317,14 @@ def ve_mat_cat_dam(
 
 def toa_do_thep_chu_vi_hcn(
     b: float, h: float, cover: float, duong_kinh_dai: float,
-    so_thanh_canh_b: int, duong_kinh_canh_b: int,
-    so_thanh_canh_h: int, duong_kinh_canh_h: int,
+    so_thanh_canh_b: int, duong_kinh_goc: int, duong_kinh_giua_b: int,
+    so_thanh_canh_h: int, duong_kinh_giua_h: int,
 ) -> list[tuple[Diem, int]]:
-    """Toạ độ thép bố trí ĐỀU CHU VI tiết diện chữ nhật (cột) — mục 4.2
-    "Cột: bố trí đối xứng theo chu vi". so_thanh_canh_b: tổng số thanh trên
-    MỖI cạnh song song trục b (kể cả 2 thanh góc); so_thanh_canh_h: tương tự
-    cho cạnh h. 4 thanh góc dùng chung cho cả 2 cạnh (không nhân đôi)."""
-    x_min = cover + duong_kinh_dai + duong_kinh_canh_b / 2
-    x_max = b - cover - duong_kinh_dai - duong_kinh_canh_b / 2
-    y_min = cover + duong_kinh_dai + duong_kinh_canh_h / 2
-    y_max = h - cover - duong_kinh_dai - duong_kinh_canh_h / 2
+    """Toạ độ thép bố trí ĐỀU CHU VI tiết diện chữ nhật (cột)."""
+    x_min = cover + duong_kinh_dai + duong_kinh_goc / 2
+    x_max = b - cover - duong_kinh_dai - duong_kinh_goc / 2
+    y_min = cover + duong_kinh_dai + duong_kinh_goc / 2
+    y_max = h - cover - duong_kinh_dai - duong_kinh_goc / 2
 
     diem: dict[tuple[float, float], int] = {}
 
@@ -337,12 +334,14 @@ def toa_do_thep_chu_vi_hcn(
         buoc = (gt_max - gt_min) / (n - 1)
         return [gt_min + i * buoc for i in range(n)]
 
-    for x in _rai_deu(x_min, x_max, so_thanh_canh_b):
-        diem[(round(x, 6), round(y_min, 6))] = duong_kinh_canh_b
-        diem[(round(x, 6), round(y_max, 6))] = duong_kinh_canh_b
-    for y in _rai_deu(y_min, y_max, so_thanh_canh_h):
-        diem.setdefault((round(x_min, 6), round(y, 6)), duong_kinh_canh_h)
-        diem.setdefault((round(x_max, 6), round(y, 6)), duong_kinh_canh_h)
+    for i, x in enumerate(_rai_deu(x_min, x_max, so_thanh_canh_b)):
+        d = duong_kinh_goc if i == 0 or i == so_thanh_canh_b - 1 else duong_kinh_giua_b
+        diem[(round(x, 6), round(y_min, 6))] = d
+        diem[(round(x, 6), round(y_max, 6))] = d
+    for i, y in enumerate(_rai_deu(y_min, y_max, so_thanh_canh_h)):
+        d = duong_kinh_goc if i == 0 or i == so_thanh_canh_h - 1 else duong_kinh_giua_h
+        diem.setdefault((round(x_min, 6), round(y, 6)), d)
+        diem.setdefault((round(x_max, 6), round(y, 6)), d)
 
     return [(Diem(x, y), d) for (x, y), d in diem.items()]
 
@@ -357,6 +356,9 @@ def ve_mat_cat_cot(
     duong_kinh_canh_b: int,
     so_thanh_canh_h: int,
     duong_kinh_canh_h: int,
+    duong_kinh_goc: int = 0,
+    duong_kinh_giua_b: int = 0,
+    duong_kinh_giua_h: int = 0,
 ) -> BanVe:
     """Vẽ 1 mặt cắt ngang cột (chữ nhật, thép bố trí đều chu vi)."""
     bv = BanVe(ten=nhan)
@@ -370,8 +372,12 @@ def ve_mat_cat_cot(
     bv.doan_thang.extend(doan_thang_dai)
     bv.cung.extend(cung_dai)
 
+    d_goc = duong_kinh_goc if duong_kinh_goc > 0 else duong_kinh_canh_b
+    d_gb = duong_kinh_giua_b if duong_kinh_giua_b > 0 else duong_kinh_canh_b
+    d_gh = duong_kinh_giua_h if duong_kinh_giua_h > 0 else duong_kinh_canh_h
+
     for tam, d in toa_do_thep_chu_vi_hcn(
-        b, h, cover, duong_kinh_dai, so_thanh_canh_b, duong_kinh_canh_b, so_thanh_canh_h, duong_kinh_canh_h
+        b, h, cover, duong_kinh_dai, so_thanh_canh_b, d_goc, d_gb, so_thanh_canh_h, d_gh
     ):
         bv.vong_tron.append(VeVongTron(tam, d / 2, layers.REBAR_MAIN.ten))
 
