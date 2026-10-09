@@ -77,11 +77,28 @@ def test_khung_truc_5_trong_module_09():
     assert "Khung Trục 5" in _module("09")
 
 
-def test_phu_luc_b_du_31_hang():
+NGUON = AGENTS / "_nguon_tai_lieu_chon_thep" / "NOI_DUNG_GOC.md"
+
+
+def _bo_dinh_dang(t: str) -> str:
+    return re.sub(r"[`*_$\{}]", "", re.sub(r"\s+", " ", t)).lower()
+
+
+def test_phu_luc_b_31_hang_nguon_deu_co_trong_skill():
+    """Mỗi dòng trong bảng Phụ lục B của nguồn (31 dòng) phải có chữ cột 2 trong bộ skill (cùng cách kiểm của kiem_tra_do_phu.py)."""
+    nguon = NGUON.read_text(encoding="utf-8")
+    m = re.search(r"# PHỤ LỤC B(.*?)# PHỤ LỤC C", nguon, flags=re.S)
+    assert m, "không tìm thấy Phụ lục B trong nguồn"
+    hang = re.findall(r"^\| (\d+) \| ([^|]+)\|", m.group(1), flags=re.M)
+    assert len(hang) == 31, len(hang)
+    skill = _bo_dinh_dang(_tat_ca_chon_thep() + _doc(NHAP) + _doc(KIEM_CHUNG))
+    thieu = [n for n, t in hang if _bo_dinh_dang(t.strip())[:30] not in skill]
+    assert not thieu, f"thiếu hàng Phụ lục B: {thieu}"
+
+
+def test_phu_luc_b_bo_sung_b1_den_b17():
     m09 = _module("09")
-    # hàng bảng Phụ lục B đánh số B1…B31
-    so_hang = {int(n) for n in re.findall(r"^\|\s*B(\d{1,2})\s*\|", m09, re.M)}
-    assert set(range(1, 32)) <= so_hang or len(so_hang) >= 17, so_hang
+    assert {int(n) for n in re.findall(r"^\|\s*B(\d{1,2})\s*\|", m09, re.M)} == set(range(1, 18))
 
 
 def test_bang_nut_khung_nk_dm_ct_day_du():
