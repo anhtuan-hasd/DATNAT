@@ -359,25 +359,28 @@ def tinh_eta(N: float, Ncr: float) -> float:
 # Công thức đơn giản hoá cột đối xứng, e0 ≤ h/30, L0/h ≤ 20 (mục 2.7)
 # ---------------------------------------------------------------------------
 
-# Bảng 16 (trích) — chỉ 2 điểm được tài liệu cho rõ, nội suy tuyến tính giữa
-# 2 điểm này theo đúng RULES_TCVN5574.md mục 2.7. KHÔNG ngoại suy ra ngoài
-# [10, 20] vì tài liệu không cho thêm điểm nào khác — ngoài khoảng này phải
-# tra bảng 16 đầy đủ trong TCVN 5574:2018 (chưa có trong phạm vi dữ liệu).
-_BANG16_DIEM_DA_BIET_DAI_HAN = {10: 0.90, 20: 0.70}
+# Bảng 16 (D Bảng 6.1) — cập nhật theo Chương 8 Bước 10b của tài liệu mới
+_BANG16_DIEM_DA_BIET_DAI_HAN = {6: 0.92, 10: 0.90, 15: 0.83, 20: 0.70}
 _BANG16_DIEM_DA_BIET_NGAN_HAN = {10: 0.90, 20: 0.85}
 
-
 def tra_phi_bang16(L0_h: float, tai_dai_han: bool = True) -> float:
-    """φ tra Bảng 16 theo độ mảnh L0/h — mục 2.7 (chỉ nội suy trong [10,20])."""
+    """φ tra Bảng 16 theo độ mảnh L0/h — mục 2.7 / Bước 10b."""
     diem = _BANG16_DIEM_DA_BIET_DAI_HAN if tai_dai_han else _BANG16_DIEM_DA_BIET_NGAN_HAN
-    if not (10 <= L0_h <= 20):
+    keys = sorted(diem.keys())
+    if L0_h < keys[0] or L0_h > keys[-1]:
         raise ValueError(
-            "RULES_TCVN5574.md mục 2.7 chỉ cho 2 điểm tra Bảng 16 tại L0/h=10 và "
-            "L0/h=20 — L0/h nằm ngoài khoảng này cần tra bảng 16 đầy đủ trong "
-            "TCVN 5574:2018 (chưa nằm trong dữ liệu hiện có), không tự ngoại suy."
+            f"Độ mảnh L0/h={L0_h} nằm ngoài khoảng nội suy cho phép {keys[0]}-{keys[-1]} "
+            f"của bảng tra hiện tại."
         )
-    phi_10, phi_20 = diem[10], diem[20]
-    return phi_10 + (phi_20 - phi_10) * (L0_h - 10) / (20 - 10)
+    
+    # Tìm đoạn nội suy
+    for i in range(len(keys) - 1):
+        if keys[i] <= L0_h <= keys[i+1]:
+            x1, y1 = keys[i], diem[keys[i]]
+            x2, y2 = keys[i+1], diem[keys[i+1]]
+            return y1 + (y2 - y1) * (L0_h - x1) / (x2 - x1)
+    
+    return diem[keys[-1]]
 
 
 def kiem_tra_don_gian_hoa(

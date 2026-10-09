@@ -84,3 +84,52 @@ def tra_yeu_cau_nut(loai_nut: str) -> YeuCauCauTaoNut:
             f"(hỗ trợ: {sorted(BANG_CAU_TAO_NUT)})."
         )
     return BANG_CAU_TAO_NUT[loai_nut]
+
+
+def kiem_tra_lot_khe_nut(
+    bc: float,
+    d_cot: list[float],
+    d_dam: float,
+    so_thanh_dam_mot_lop: int,
+    c_cot: float = 20.0,
+    d_dai_cot: float = 8.0,
+    delta: float = 10.0
+) -> bool:
+    """Kiểm tra thép dầm có lọt qua thép cột không (Chương 14.2 / Luật R41).
+    
+    Args:
+        bc: bề rộng cột (mm).
+        d_cot: danh sách đường kính các thanh dọc cột nằm trên một mặt (mm).
+        d_dam: đường kính thanh dầm cần lọt qua (mm).
+        so_thanh_dam_mot_lop: số thanh thép dầm trong một lớp cần lọt qua khe.
+        c_cot: lớp bảo vệ của cột (mm).
+        d_dai_cot: đường kính cốt đai cột (mm).
+        delta: dung sai đầm bê tông (mm), mặc định >= 10.
+        
+    Returns:
+        True nếu số thanh dầm trong một lớp <= số khe lọt được.
+    """
+    if len(d_cot) < 2:
+        return True
+        
+    # 1. Tọa độ thanh cột theo bề rộng
+    y0_bien = bc / 2 - c_cot - d_dai_cot
+    y_trai = -(y0_bien - d_cot[0] / 2)
+    y_phai = y0_bien - d_cot[-1] / 2
+    
+    if len(d_cot) == 2:
+        toado_cot = [y_trai, y_phai]
+    else:
+        khoang_cach = (y_phai - y_trai) / (len(d_cot) - 1)
+        toado_cot = [y_trai + i * khoang_cach for i in range(len(d_cot))]
+        
+    # 2. Tính số khe lọt được
+    khe_lot = 0
+    for i in range(len(d_cot) - 1):
+        wi = (toado_cot[i+1] - toado_cot[i]) - (d_cot[i] + d_cot[i+1]) / 2
+        # 3. Một thanh dầm Db chỉ lọt khe i khi wi >= db + 2*delta
+        if wi >= d_dam + 2 * delta:
+            khe_lot += 1
+            
+    # 4. Số thanh dầm trong một lớp <= số khe lọt được
+    return so_thanh_dam_mot_lop <= khe_lot
