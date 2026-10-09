@@ -39,6 +39,7 @@ class CauHinhToVe:
     rong_to_giay_mm: float = 841.0  # A1
     cao_to_giay_mm: float = 594.0
     ten_khung_truc: str = ""  # tên trục khung (vd "5") — ghi trên mặt cắt/mặt đứng
+    co_dinh_ty_le: bool = False  # True: giữ `ty_le` (chỉ thử A1→A0), không tự đổi tỷ lệ
     # --- Giả định (CHƯA có trong dữ liệu ETABS) — mặc định theo bản mẫu, ghi chú trên tờ vẽ ---
     day_san: float = 100.0
     cao_do_ton_nen_tren_dinh_mong: float = 1000.0  # COS ±0.000 cao hơn đỉnh móng (Mong) bao nhiêu
@@ -71,6 +72,7 @@ class KetQuaToVe:
     canh_bao: list[str]
     kho_giay: str = "A1"
     so_da_giac_outline: int = 0
+    ty_le_in: float = 50.0
 
 
 # ---------------------------------------------------------------------------

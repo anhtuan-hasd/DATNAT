@@ -2,9 +2,9 @@
 
 Agent thứ 3 trong chuỗi 4 agent. Cài đặt tại `src/orchestrator/agents/drawing_agent.py`. Vẽ **100% qua
 AutoCAD thật (COM Automation, `src/drawing/backend_com.py`)** — không dùng `ezdxf` (đã xoá khỏi repo).
-Chạy 2 giai đoạn: (1) vẽ từng mặt cắt ngay khi Rule Engine Agent bàn giao xong 1 phần tử; (2) sau khi TOÀN
-BỘ phần tử trong 1 khung đã có mặt cắt, lắp ráp mặt đứng khung tổng thể + bảng thống kê + khung tên, rồi
-xuất PDF/DWG.
+Từ phiên bản "tờ vẽ bố trí thép theo bản mẫu" (nhánh `feat/ban-ve-theo-mau-khung-truc5`): agent **lắp ráp MỘT TỜ VẼ ĐẦY ĐỦ**
+bằng 1 lần gọi `lap_rap_mat_dung_khung` rồi xuất PDF/DWG; không còn vòng "vẽ từng mặt cắt qua LLM rồi kiểm chứng từng cái".
+Hình học và số liệu do mã tất định quyết định (`src/drawing/to_ve/`), LLM chỉ chọn tool và đọc `canh_bao`.
 
 ## Vị trí trong pipeline
 
@@ -16,23 +16,31 @@ xuất PDF/DWG.
 
 | Tool | Khi nào gọi | Điểm cần chú ý |
 | --- | --- | --- |
-| `ve_mat_cat` | Cho MỖI vị trí của 1 phần tử, ngay sau khi Rule Engine Agent bàn giao xong phần tử đó | `loai="dam"`: `thanh_duoi`/`thanh_tren` là mảng ĐƯỜNG KÍNH từng thanh, LẶP LẠI 1 phần tử/thanh — KHÔNG phải số lượng (vd `1Ø16+4Ø18` → `[16, 18, 18, 18, 18]`). `loai="cot"`: dùng `so_thanh_canh_b/h, duong_kinh_canh_b/h` lấy THẲNG từ `chon_thep_doc`. Vẽ vào Document COM đang mở CHUNG cho cả khung — KHÔNG mở Document mới cho mỗi mặt cắt. |
-| `lap_rap_mat_dung_khung` | Sau khi TOÀN BỘ phần tử trong 1 khung đã có `ve_mat_cat` cho đủ vị trí VÀ đã qua Verification Agent | Nhận `toa_do_truc`/`cao_do_moc` từ Input Adapter Agent (KHÔNG hard-code) và danh sách phần tử+thép từ Rule Engine Agent. Nhãn thép mỗi dầm PHẢI gộp đúng cả 3 vị trí (gối trái/giữa nhịp/gối phải) thành 1 chuỗi — KHÔNG chỉ giữ nhãn của vị trí cuối cùng xử lý. |
-| `xuat_ban_ve` | Sau khi `lap_rap_mat_dung_khung` xong | Xuất cả PDF (`backend_com.xuat_pdf`) và DWG (`backend_com.luu_file_dwg`). |
-| `hoi_nguoi_dung` | Khi thiếu thông tin để vẽ (vd thiếu vị trí nào đó của 1 phần tử) | Không tự suy đoán, không vẽ thiếu rồi báo "xong". |
+| `lap_rap_mat_dung_khung` | ĐÚNG 1 lần, khi Rule Engine đã xong mọi phần tử | **Không cần truyền tham số**: pipeline đã nạp dữ liệu khung (đã qua Rule Engine, gồm `thep_doc`/`neo_noi`/`cot_dai`) vào `PhienCAD.du_lieu_lap_rap`. Tool vẽ cả tờ: mặt đứng (dầm treo dưới cốt sàn, thép trên suốt + gia cường, đai theo vùng, thép chờ + móng, COS), lưới mặt cắt đã khử trùng (dầm chữ T, cột), chi tiết nút 3D, bảng thống kê 8 cột, ghi chú, khung tên. Trả `canh_bao` (giả định/khổ giấy/nhãn chưa tránh được chồng) — phải nêu lại trong tóm tắt. |
+| `xuat_ban_ve` | Sau `lap_rap_mat_dung_khung` | PDF (khổ A1/A0 theo nội dung, in đen trắng `monochrome.ctb`) + DWG. |
+| `ve_mat_cat` | Chỉ khi cần vẽ RỜI 1 mặt cắt (không thuộc luồng chính nữa) | Giữ nguyên hành vi cũ: `thanh_duoi`/`thanh_tren` là mảng ĐƯỜNG KÍNH từng thanh. |
+| `hoi_nguoi_dung` | Khi thiếu dữ liệu để vẽ | Không tự suy đoán, không vẽ thiếu rồi báo "xong". |
 
 ## Quy trình từng bước
 
-1. Với 1 phần tử vừa nhận từ Rule Engine Agent: với MỖI vị trí trong `vi_tri[]`, gọi `ve_mat_cat(...)`.
-   Đặt `nhan` theo quy ước dễ truy vết: `"<ten_phan_tu>/<vi_tri>"`.
-2. Bàn giao kết quả mỗi lần vẽ sang Verification Agent để kiểm chứng NGAY (không đợi vẽ hết cả khung) —
-   nếu Verification Agent báo lệch, xem mục "Xử lý phản hồi" bên dưới trước khi tiếp tục sang phần tử kế.
-3. Sau khi TẤT CẢ phần tử trong 1 khung đã vẽ xong mặt cắt và được Verification Agent xác nhận đạt: gọi
-   `lap_rap_mat_dung_khung(...)`.
-4. Vẽ bảng thống kê thép (8 cột theo mục 3.9 `KY_HIEU_NET_VE_QUY_TAC_BO_TRI.md`) và khung tên — đã được
-   gộp sẵn vào `lap_rap_mat_dung_khung`.
-5. Gọi `xuat_ban_ve(...)` để xuất PDF và DWG.
-6. Bàn giao Document/file cho Verification Agent kiểm chứng lần cuối trên bản vẽ tổng thể.
+1. Pipeline nạp `du_lieu_lap_rap` + `cau_hinh_to_ve` (tên trục khung, khung tên) vào `PhienCAD`.
+2. Gọi `lap_rap_mat_dung_khung()` (không tham số). Tool dựng `KeHoach` (`to_ve/ke_hoach.py`): đặt cột/dầm theo lưới
+   trục + cao độ THẬT, thanh dọc dầm (B2–B8 của skill 06), đai theo vùng (`rule_engine/bo_tri_dai.py`), cấp số hiệu thanh
+   dùng chung mặt đứng ↔ mặt cắt ↔ bảng thống kê, khử trùng mặt cắt; rồi vẽ (`mat_dung.py`, `mat_cat.py`, `chi_tiet_nut.py`,
+   `bang.py`) và xếp bố cục (`bo_cuc.py`: tự chọn khổ A1/A0 và tỷ lệ 1:50/75/100 nhỏ nhất đủ chỗ).
+3. Gọi `xuat_ban_ve(ten_file)`.
+4. Verification Agent kiểm chứng tổng thể: kỳ vọng (số đa giác OUTLINE, số vòng tròn số hiệu, kích thước từng mặt cắt
+   trên bản vẽ) do chính bộ lắp ráp ghi vào `PhienCAD.ky_vong_to_ve`, không phụ thuộc LLM chép số.
+
+## Quy tắc hình học rút từ bản vẽ mẫu (đã khoá bằng test `tests/test_ban_ve_khung.py`)
+
+- **Mặt trên mọi dầm bằng cốt sàn**; dầm cao/thấp đều treo xuống (cũ: dầm đối xứng qua cốt sàn — SAI).
+- COS ±0.000 = đỉnh móng + 1000 (`CauHinhToVe.cao_do_ton_nen_tren_dinh_mong`); COS tự nhiên thấp hơn 450. **Đây là GIẢ ĐỊNH**
+  (dữ liệu ETABS không có) — ghi rõ trong khối ghi chú của tờ vẽ cùng kích thước đài/lót/dày sàn.
+- Thanh trên: 2 thanh chạy suốt chuỗi dầm liền nhau (móc xuống cột ở đầu biên); thanh gia cường gối cắt ở L/4 thông thuỷ.
+  Thanh dưới chạy hết thông thuỷ, neo vào cột. Bố trí SƠ BỘ [thực hành] — cần kỹ sư xác nhận.
+- Đai dầm: gối L/4 (`s ≤ min(h/2;300)` hoặc `min(h/3;500)` khi h>450), giữa nhịp `s ≤ min(3h/4;500;15d)`; đai cột hai đầu `10d`,
+  giữa `15d`. Ghi dạng `1300(Ø6a150)`.
 
 ## Xử lý phản hồi từ Verification Agent
 
@@ -55,7 +63,7 @@ Nếu Verification Agent báo `dat=false` kèm `vi_pham[]`:
 }
 ```
 
-Sau khi lắp ráp + xuất bản vẽ xong:
+Sau khi lắp ráp + xuất bản vẽ xong (kết quả tool `lap_rap_mat_dung_khung` + `xuat_ban_ve`):
 
 ```json
 {
@@ -74,3 +82,15 @@ Sau khi lắp ráp + xuất bản vẽ xong:
 3. `backend_com.py` từng chưa có hàm xuất DWG — đã thêm `luu_file_dwg`.
 4. Script lắp ráp cũ có lỗi ghi đè nhãn thép (mỗi dầm chỉ giữ nhãn vị trí cuối cùng) — tool
    `lap_rap_mat_dung_khung` mới gộp tường minh cả 3 vị trí trước khi gọi `khung_ve.lap_rap_mat_dung_khung`.
+5. (Tờ vẽ bố trí thép) Dầm từng bị vẽ đối xứng qua cốt sàn, đai chỉ là vạch minh hoạ cách đều 450, không có móng/COS/mặt
+   cắt chữ T/chi tiết nút — nay tất cả có trong `src/drawing/to_ve/`; xem `docs/agents/_bao_cao_skill_v2/BAO_CAO_SO_SANH_BAN_VE_MAU.md`.
+6. `backend_com`: gán thuộc tính (Layer…) trong cùng hàm với `AddLine` được thử lại cả khối ⇒ đối tượng mồ côi trên layer
+   "0" khi COM bận — đã tách bước tạo/gán (mỗi bước tự thử lại).
+
+## Chưa có (nêu rõ để không hiểu nhầm)
+
+- **Mặt bằng kết cấu sàn**: cần dữ liệu toàn nhà (lưới Y, bố trí dầm/ô sàn) — file ETABS mẫu chỉ có 1 khung phẳng nên chưa vẽ.
+- Chi tiết 3D nút là hình trục đo sơ đồ (lồng thép), chưa vẽ đầy đủ mọi thanh/móc của từng nút.
+- Hình học móng chỉ minh hoạ (không có bản vẽ móng).
+- Số hiệu/ghi chú trên mặt đứng còn nhãn chồng nhau ở vài chỗ (số chồng được báo trong `canh_bao`).
+
