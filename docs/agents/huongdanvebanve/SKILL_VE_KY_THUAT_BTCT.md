@@ -675,3 +675,25 @@ Phần hình học hoạ hình thuần tuý của giáo trình nguồn (vẽ hì
 động bỏ qua — đây là kỹ thuật dựng hình bằng tay cho người học vẽ kỹ thuật cơ bản, không phục vụ trực tiếp
 việc AutoCAD dựng hình từ toạ độ/kích thước đã tính sẵn (không cần giải bài toán tìm hình chiếu thứ ba hay
 giao tuyến vật thể bằng phương pháp hoạ hình thủ công).
+
+---
+
+## Phần Q — Tờ vẽ bố trí thép do mã lắp ráp (cách dùng tool, quy tắc hình học đã chốt)
+
+> Thêm cùng nhánh `feat/ban-ve-theo-mau-khung-truc5`. Phần này mô tả CÁI MÃ ĐÃ VẼ (`src/drawing/to_ve/`); agent không tự vẽ tay.
+
+**Cách làm việc:** pipeline nạp dữ liệu khung vào phiên CAD; bạn gọi `lap_rap_mat_dung_khung` MỘT lần (không tham số), rồi
+`xuat_ban_ve`. Tool dựng cả tờ: mặt đứng + mặt cắt (đã khử trùng) + chi tiết nút 3D + bảng thống kê 8 cột + ghi chú + khung tên.
+Không gọi `ve_mat_cat` cho từng vị trí nữa. Đọc `canh_bao` và nêu lại: giả định COS/móng/sàn dày, khổ giấy tự chọn (A1 hoặc A0,
+tỷ lệ 1:50/75/100), nhãn chưa tránh được chồng.
+
+**Quy tắc hình học đã chốt (đối chiếu bản mẫu `data/samples/BoTriThep_KhungTruc5_mau.pdf`):**
+1. **Mặt trên mọi dầm bằng cốt sàn**; dầm cao/thấp đều treo xuống. Nếu thấy dầm đối xứng qua cốt sàn là LỖI.
+2. Thép trên: 2 thanh chạy suốt chuỗi dầm liền nhau, **móc xuống cột** ở đầu biên; thanh gia cường gối cắt ở L/4 thông thuỷ.
+   Thép dưới chạy hết thông thuỷ rồi neo vào cột. Đây là bố trí SƠ BỘ — kỹ sư phải xác nhận.
+3. Đai theo vùng, ghi dạng `1300(Ø6a150)`: dầm gối L/4 + giữa nhịp; cột hai đầu + giữa; đai cột chạy qua nút.
+4. Cột đi xuống đài, thép chờ bẻ chữ L; có COS tôn nền / tự nhiên / đỉnh móng. **COS ±0.000 = đỉnh móng + 1000 là GIẢ ĐỊNH.**
+5. Số hiệu thanh dùng CHUNG mặt đứng ↔ mặt cắt ↔ bảng; ký hiệu mặt cắt trên mặt đứng là "số + vạch đậm đứng".
+6. Mặt cắt dầm là chữ T (cánh sàn dày 100), ghi lớp bảo vệ / bề rộng trong / tổng, cốt sàn, trục khung.
+
+**Chưa có:** mặt bằng kết cấu sàn (cần dữ liệu toàn nhà), bản vẽ móng thật, chi tiết uốn móc từng thanh.

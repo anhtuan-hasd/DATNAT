@@ -53,6 +53,8 @@ class _Cho:
         self.v = v
         self.hop: list[tuple[float, float, float, float]] = []
         self.loi_chong = 0
+        self.rut_gon = 0
+        self.that_bai: list[tuple[str, float, float]] = []
 
     def vat_can(self, x0, y0, x1, y1):
         self.hop.append((min(x0, x1), min(y0, y1), max(x0, x1), max(y0, y1)))
@@ -73,20 +75,32 @@ class _Cho:
         return True
 
     def dat(self, xa, ya, x, y, so, noi_dung, huong=1, dys=(0.0,), dxs=(0.0, 300.0, -300.0, 600.0, -600.0)) -> bool:
+        """Thử các độ lệch (dọc rồi ngang), cả hai hướng chữ; hết cách thì vẽ ở vị trí gốc và ghi nhận chồng."""
+        for hg in (huong, -huong):
+            for dy in dys:
+                for dx in dxs:
+                    b = self.hop_the(x + dx, y + dy, noi_dung, hg)
+                    if self.trong(b):
+                        _the(self.v, xa, ya, x + dx, y + dy, so, noi_dung, hg)
+                        self.hop.append(b)
+                        return True
+        # rút gọn: chỉ vòng tròn số hiệu (chữ mô tả đã có trong bảng thống kê)
         for dy in dys:
-            for dx in dxs:
-                b = self.hop_the(x + dx, y + dy, noi_dung, huong)
+            for dx in (0.0, 300.0, -300.0, 600.0, -600.0, 900.0, -900.0):
+                b = self.hop_the(x + dx, y + dy, "", huong)
                 if self.trong(b):
-                    _the(self.v, xa, ya, x + dx, y + dy, so, noi_dung, huong)
+                    _the(self.v, xa, ya, x + dx, y + dy, so, "", huong)
                     self.hop.append(b)
+                    self.rut_gon += 1
                     return True
         b = self.hop_the(x, y, noi_dung, huong)
         _the(self.v, xa, ya, x, y, so, noi_dung, huong)
         self.hop.append(b)
         self.loi_chong += 1
+        self.that_bai.append((f"{so} {noi_dung}", x, y))
         return False
 
-    def vach(self, v: _Ve, x, y, so, huong=1, dys=(0.0,), dxs=(0.0,), bat_buoc=True) -> bool:
+    def vach(self, v: _Ve, x, y, so, huong=1, dys=(0.0,), dxs=(0.0, 400.0, -400.0, 800.0, -800.0), bat_buoc=True) -> bool:
         w = 0.9 * v.cfg.ty_le * 2.4 + len(str(so)) * 0.7 * v.h_chu * 1.25
         for dy in dys:
             for dx in dxs:
@@ -100,6 +114,7 @@ class _Cho:
             return False
         _vach_mat_cat(v, x, y, so, huong)
         self.loi_chong += 1
+        self.that_bai.append((f"VACH {so}", x, y))
         return False
 
 
@@ -327,9 +342,15 @@ def ve_mat_dung(kh: KeHoach, v: _Ve) -> dict:
             v.doan(xb, yC - 110, xb, yC + 110, L_DIM)
             cho.vat_can(xa, yC - 60, xb, yC + 330)
         # ký hiệu mặt cắt (hàng D)
+        so_da_vach: set[int] = set()
         for ben, xs_ in (("trai", xf1 + 0.08 * d.l_tt), ("giua", xm + 900.0), ("phai", xf2 - 0.08 * d.l_tt)):
             so = kh.gan_mat_cat_dam[(d.ten, ben)]
-            cho.vach(v, xs_, yt + HD, so, huong=1, dys=(0, 250, -250))
+            if so in so_da_vach:
+                continue  # cùng 1 mặt cắt ở nhiều vị trí: ghi 1 ký hiệu (nhịp ngắn không đủ chỗ cho 3)
+            so_da_vach.add(so)
+            if d.l_tt < 3000:
+                xs_ = xm  # nhịp ngắn: đặt giữa
+            cho.vach(v, xs_, yt + HD, so, huong=1, dys=(0, 250, -250, 500, -500))
 
     # ---- 6. nhãn cột (quét tìm chỗ trống theo chiều cao) ----
     for c in kh.cots:
@@ -343,26 +364,28 @@ def ve_mat_dung(kh: KeHoach, v: _Ve) -> dict:
         ymid = c.y0 + (c.y1 - c.y0) * 0.5
         y_lo, y_hi = c.y0 + 250.0, c.y1 - hb - 250.0
         quet = [0.0]
-        for k in range(1, 12):
-            quet += [k * 300.0, -k * 300.0]
+        for k in range(1, 24):
+            quet += [k * 150.0, -k * 150.0]
 
         def dat_cot(y_neo, so, noi_dung):
             """Thử bên ưu tiên rồi bên kia, quét theo chiều cao quanh y_neo."""
             nonlocal n_so_hieu
-            for cho_trai in (trai, not trai):
-                x_bar = (xn if cho_trai else xf) if noi_dung.startswith(f"{n_tong}Ø") else (x0 + cv_c if cho_trai else x1 - cv_c)
-                x_tag = (x0 - 500.0) if cho_trai else (x1 + 500.0)
-                for dy in quet:
-                    y_ = y_neo + dy
-                    if y_ < y_lo or y_ > y_hi:
-                        continue
-                    b = cho.hop_the(x_tag, y_, noi_dung, -1 if cho_trai else 1)
-                    if cho.trong(b):
-                        _the(v, x_bar, y_neo, x_tag, y_, so, noi_dung, -1 if cho_trai else 1)
-                        cho.hop.append(b)
-                        n_so_hieu += 1
-                        return True
+            for dx in (0.0, 350.0, 700.0, 1050.0, 1400.0):
+                for cho_trai in (trai, not trai):
+                    x_bar = (xn if cho_trai else xf) if noi_dung.startswith(f"{n_tong}Ø") else (x0 + cv_c if cho_trai else x1 - cv_c)
+                    x_tag = (x0 - 500.0 - dx) if cho_trai else (x1 + 500.0 + dx)
+                    for dy in quet:
+                        y_ = y_neo + dy
+                        if y_ < y_lo or y_ > y_hi:
+                            continue
+                        b = cho.hop_the(x_tag, y_, noi_dung, -1 if cho_trai else 1)
+                        if cho.trong(b):
+                            _the(v, x_bar, y_neo, x_tag, y_, so, noi_dung, -1 if cho_trai else 1)
+                            cho.hop.append(b)
+                            n_so_hieu += 1
+                            return True
             cho.loi_chong += 1
+            cho.that_bai.append((f"COT {c.ten} {so} {noi_dung}", xc, y_neo))
             return False
 
         dat_cot(ymid, so_h, f"{n_tong}Ø{c.d}")
@@ -433,5 +456,5 @@ def ve_mat_dung(kh: KeHoach, v: _Ve) -> dict:
 
     # tên bản vẽ
     v.chu((x_min + x_max) / 2, y_k2 - 2500.0, f"BỐ TRÍ THÉP KHUNG TRỤC {cfg.ten_khung_truc}".strip(), v.h_chu * 1.8, giua=True)
-    return {"so_vong_tron_so_hieu": n_so_hieu, "loi_chong_nhan": cho.loi_chong, "x_trai": x_trai_cuoi, "x_phai": x_phai_cuoi, "y_thap": y_k2 - 3200.0,
+    return {"so_vong_tron_so_hieu": n_so_hieu, "loi_chong_nhan": cho.loi_chong, "nhan_chong": cho.that_bai, "nhan_rut_gon": cho.rut_gon, "x_trai": x_trai_cuoi, "x_phai": x_phai_cuoi, "y_thap": y_k2 - 3200.0,
             "y_cao": y_top + 2600.0}

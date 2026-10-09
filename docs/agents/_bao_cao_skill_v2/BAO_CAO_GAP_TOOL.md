@@ -16,3 +16,19 @@ Nhiệm vụ cấm thêm tool mới; báo cáo này chỉ **đặc tả** để 
 | G10 | Tool đọc thép dọc/đai từ bản vẽ (Verification) | bản vẽ | KC-08/KC-09 (mã dành sẵn) | Verification | `kiem_chung_ban_ve` chỉ có `mat_cat`, `mat_dung_khung` | Trung bình |
 
 Mọi hàng trên chưa triển khai; không có hàng nào được thêm trong đợt này.
+
+## Cập nhật sau khi mở khoá vùng Vẽ (nhánh `feat/ban-ve-theo-mau-khung-truc5`)
+
+Đã làm **ở lớp Vẽ** (không thêm tool cho agent): bố trí sơ bộ theo skill 06 nằm trong `src/drawing/to_ve/ke_hoach.py` và
+`src/rule_engine/bo_tri_dai.py` (hàm thuần Python, có test):
+
+| Mã | Trạng thái |
+|:-:|:--|
+| G4 (bố trí theo chiều dài) | **Một phần, ở lớp Vẽ**: thanh trên suốt + gia cường cắt L/4, thanh dưới chạy suốt, đai theo vùng (B8/C4). Chưa có: hình bao vật liệu, điểm cắt theo Mu, nối thép, cắt thép dưới. Chưa là tool của Rule Engine. |
+| G3 (chi tiết nút) | **Một phần, ở lớp Vẽ**: móc thanh trên/dưới vào cột đầu biên, đai cột qua nút, hình 3D nút. Chưa có: tool sinh cấu tạo 20 loại nút (NK-01…20), cổng hình học 14.2/14.3. |
+| G1 (cốt treo) | Chưa vẽ (dầm phụ gác dầm chính chưa có trong dữ liệu mẫu). |
+| G2 (η cột) | Không đổi. |
+| Mới | Móng/COS/sàn dày là **giả định** (`CauHinhToVe`) — dữ liệu ETABS không có; cần đưa vào Input Adapter nếu muốn thật. Mặt bằng sàn cần dữ liệu toàn nhà. |
+
+Lưu ý: bảng băm 36 file Vẽ ở `_nguon_tai_lieu_chon_thep/_bang_bam_ve_truoc.txt` **không còn là điều kiện** (người dùng đã cho phép sửa vùng Vẽ); bảng giữ nguyên làm tư liệu lịch sử.
+

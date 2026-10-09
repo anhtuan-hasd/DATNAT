@@ -37,3 +37,19 @@ Skill chỉ vào **system prompt của LLM**; hình học do mã tất định q
 5. Thêm tool bố trí theo chiều dài/điểm cắt và chi tiết nút (GAP G3, G4) để có dữ liệu cho (2)–(4).
 6. Bố cục tờ vẽ: khổ giấy, tỷ lệ, lưới mặt cắt, nét bảng, khung tên.
 7. Verification: thêm kiểm tra hình học (cốt đỉnh dầm bằng nhau, có COS, có đai theo vùng…) — hiện KC-08/KC-09 để trống cho việc này.
+
+## Trạng thái sau khi sửa (cùng ngày, nhánh `feat/ban-ve-theo-mau-khung-truc5`)
+
+| # | Hiện tượng | Trạng thái |
+|:-:|:--|:--|
+| 1 | Dầm đối xứng qua cốt sàn | **Đã sửa**: mặt trên = cốt sàn, dầm treo xuống (test `test_mat_tren_moi_dam_bang_cot_san_dam_treo_xuong`) |
+| 2 | Đai minh hoạ 450 | **Đã sửa**: đai theo vùng, ghi `1300(Ø6a150)` |
+| 3 | Thép dầm 1 đường, không móc/điểm cắt | **Một phần**: suốt + gia cường L/4 + móc biên; chưa có hình bao vật liệu |
+| 4 | Không móng/COS | **Đã vẽ** (móng minh hoạ + COS; giả định ghi trên tờ) |
+| 5 | Không chi tiết 3D, ký hiệu mặt cắt, khung CHI TIẾT | **Đã vẽ** (4 chi tiết trục đo, vạch + số, khung nét đứt) |
+| 5b | Không mặt bằng kết cấu | **Chưa** — thiếu dữ liệu toàn nhà |
+| 6 | Mặt cắt chữ nhật trần | **Đã sửa**: chữ T, cốt sàn, kích thước, trục, `n-n` |
+| 7 | Cao độ vẽ đều nhau | **Đã sửa**: vẽ theo toạ độ thật |
+| 8 | Bảng đen, khung tên không đọc được, tờ nhỏ xíu | **Đã sửa**: tờ A1/A0 có khung, bảng đọc được, PDF đen trắng |
+| 9 | Ghi chú vật liệu, bảng K | Ghi chú vật liệu **đã có** (tra từ `vat_lieu`); bảng K **chưa** |
+

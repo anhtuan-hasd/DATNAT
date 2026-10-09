@@ -194,6 +194,8 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
         canh_bao.append("Bảng thống kê + ghi chú chạm khung tên — cần khổ giấy/tỷ lệ lớn hơn.")
     if info.get("loi_chong_nhan"):
         canh_bao.append(f"{info['loi_chong_nhan']} nhãn trên mặt đứng chưa tránh được chồng nhau — cần xem bằng mắt/dời tay.")
+    if info.get("nhan_rut_gon"):
+        canh_bao.append(f"{info['nhan_rut_gon']} nhãn thép ở nhịp ngắn chỉ ghi số hiệu (đủ chữ xem bảng thống kê).")
     if not vua:
         canh_bao.append(f"Không đủ chỗ trên khổ {kho} (1:{T:g}): có thể tràn {tran:.0f} mm.")
     elif T != 50.0 or kho != "A1":
