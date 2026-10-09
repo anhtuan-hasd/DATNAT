@@ -35,10 +35,10 @@ Prompt Rule Engine chế độ gọn: dầm ≈ 138k ký tự, cột ≈ 140k (g
 - **Đề bài bị cắt ngang**: văn bản yêu cầu nhận được dừng sau mục 12.3 điểm 8; phần còn lại của 12.3 và toàn bộ **Phần 13 (mẫu báo cáo cuối) chưa bao giờ nhận được**. Báo cáo này theo cấu trúc hợp lý, **không phải mẫu gốc**; nếu mẫu khác, cần bổ sung.
 - `kiem_tra_do_phu.py` có lỗi nhỏ `m[0]` khi `findall` chỉ có 1 nhóm (vô hại, tôi **không sửa** vì là tệp nguồn).
 - Không chạy AutoCAD/COM; không `git push`; không thêm tool; không sửa `src/rule_engine/**`, `src/drawing/**`, test cũ.
-- Đối chiếu code–tài liệu: một phần dựa trên các phiên trước (xem lưu ý trong báo cáo đối chiếu); khoảng hở thanh cột 50 mm chưa đối chiếu với `src/drawing`.
+- Đối chiếu code–tài liệu: một phần dựa trên các phiên trước (xem lưu ý trong báo cáo đối chiếu); khoảng hở thanh cột 50 mm đã đối chiếu `src/drawing` (chỉ có hằng số khoảng hở đứng 25 mm, không mâu thuẫn trực tiếp).
 - Mâu thuẫn skill–Vẽ (uốn móc, đai trong móng, 7 vs 8 cột thống kê) **chưa được giải quyết** vì skill Vẽ bị khoá — cần người quyết.
 - Các ⚠ còn lại đều chờ kỹ sư xác nhận; **tài liệu này hỗ trợ tra cứu, không phải hồ sơ thiết kế**.
-- Loader không bắt `IsADirectoryError`/`PermissionError` khi đường dẫn là thư mục (chỉ bắt file không tồn tại) — hiện không xảy ra vì đường dẫn cố định.
+- Loader nay cũng trả `""` khi đường dẫn là thư mục/không đủ quyền (đã sửa và có test).
 
 ## 6. Commit (tiếng Việt, theo pha)
 `c9226b5` Pha 0 nạp gói nguồn · `a98ba72` bộ skill + 14 hình · `03e281e` loader + 3 agent + bản đồ phủ · `9dc27cc` test · `5fedd3d` hợp đồng · (commit báo cáo ngay sau).

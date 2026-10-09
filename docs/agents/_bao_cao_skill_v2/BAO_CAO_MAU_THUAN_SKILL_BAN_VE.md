@@ -12,5 +12,5 @@ Skill Vẽ (`docs/agents/huongdanvebanve/**`, `DRAWING_AGENT.md`, `drawing_agent
 
 ## Ghi chú
 - Mục 5: cần xác nhận cột thứ 8 là cột nào; skill chọn thép không xuất bảng ⇒ lệch này không làm sai số liệu thép, chỉ ảnh hưởng định dạng.
-- Khoảng hở thanh cột (50 mm trong skill chọn thép) **chưa được đối chiếu** với hằng số trong `src/drawing`; không khẳng định lệch hay khớp — để mở.
+- Đã đối chiếu (chỉ đọc) `src/drawing`: `geometry.py:177` dùng khoảng hở **đứng** tối thiểu giữa 2 lớp = 25 mm (trùng `cot_doc.py:72`); không có hằng số khoảng hở ngang thanh cột 50 mm trong `src/drawing` ⇒ 50 mm của skill chọn thép là yêu cầu thêm, không mâu thuẫn trực tiếp với code Vẽ. Hàng 5 xác nhận: `verify_drawing.py:250` kiểm bảng thống kê **8 cột**.
 - Không có mục nào thay đổi số liệu thép của Rule Engine; Drawing vẫn nhận `PhuongAnThepPhanTu` như cũ (hợp đồng dữ liệu không đổi).

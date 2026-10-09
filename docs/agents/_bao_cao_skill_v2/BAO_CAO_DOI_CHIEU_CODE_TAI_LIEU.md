@@ -3,7 +3,7 @@
 Phạm vi: `src/rule_engine/**` và tool của Rule Engine Agent so với tài liệu nguồn (`NOI_DUNG_GOC.md`, PDF 115 trang, TCVN 5574:2018 ở Phụ lục A/D).
 **Không sửa code** (ràng buộc của nhiệm vụ). Quy ước xử lý trong skill: khi hai nguồn lệch, **lấy giá trị an toàn hơn** làm mặc định và ghi rõ chỗ lệch ở module 09 (Phụ lục B bổ sung) / module 08 (Phần Q).
 
-Cách kiểm: đọc code tại dòng nêu dưới đây; các dòng có dấu (*) được đọc lại ở phiên cuối, các dòng còn lại do đối chiếu ở các phiên trước (cần rà lại nếu code đã đổi).
+Cách kiểm: đọc code tại dòng nêu dưới đây; các dòng có dấu (*) được đọc lại ở phiên cuối. Hàng 8 đã xác nhận lại: `cot_doc.py:51` `MU_MAX_COT_MOI_PHIA_PHAN_TRAM = 3.0` (μ mỗi phía ≤ 3 %). Hàng 3, 4 xác nhận ở trên (neo_noi.py:53, :87-88); hàng 12 (`chon_thep_doc` đơn đường kính) vẫn dựa trên phiên trước.
 
 | # | Nội dung | Code | Tài liệu | Mức | Xử lý trong skill |
 |:-:|:--|:--|:--|:-:|:--|

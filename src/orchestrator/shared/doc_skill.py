@@ -50,7 +50,7 @@ def doc_file_skill(duong_dan: Path, bo_anh: bool = True) -> str:
     """Đọc 1 file skill UTF-8. Trả "" nếu không có file. `bo_anh=True`: thay ảnh bằng chú thích."""
     try:
         van_ban = Path(duong_dan).read_text(encoding="utf-8")
-    except (FileNotFoundError, NotADirectoryError):
+    except (FileNotFoundError, NotADirectoryError, IsADirectoryError, PermissionError):
         return ""
     return thay_anh_bang_chu_thich(van_ban) if bo_anh else van_ban
 

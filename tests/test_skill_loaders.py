@@ -23,6 +23,7 @@ def test_thay_anh_bang_chu_thich_bo_duong_dan_giu_alt():
 
 def test_doc_file_skill_thieu_file_tra_rong(thu_muc_tam: Path):
     assert ds.doc_file_skill(thu_muc_tam / "khong_co.md") == ""
+    assert ds.doc_file_skill(thu_muc_tam) == ""  # đường dẫn là thư mục: không raise
 
 
 def test_liet_ke_module_theo_ten_va_bo_qua_file_khac(thu_muc_tam: Path):
