@@ -107,6 +107,20 @@ Nếu bất kỳ bước nào báo `False`/`loi` — đọc kỹ `vi_pham`/`loi`
 KHÔNG hẳn là lỗi hệ thống (có thể model chưa self-correct đúng, xem
 `so_lan_tu_sua_con_lai`/`so_lan_con_lai`).
 
+### Chạy toàn trình KHÔNG tốn API (LLM giả)
+
+```powershell
+python scripts/chay_pipeline_llm_gia.py            # → output/chay_llm_gia/KHUNG_TRUC5.pdf/.dwg
+```
+
+Đi đúng `pipeline.chay_toan_bo_khung` (4 agent) nhưng LLM là một bộ luật giả lập đi theo quy trình trong prompt/skill; mọi tool,
+hợp đồng dữ liệu, tờ vẽ AutoCAD, kiểm chứng là code thật. Dùng sau khi sửa code để kiểm lại điều phối mà không tốn phí/không gửi
+dữ liệu ra ngoài. Lưu ý: system prompt của Rule Engine nay là bộ skill 00–09 (~140 nghìn ký tự) nên chạy LLM thật tốn token hơn
+bản cũ khoảng 2 lần.
+
+Bản vẽ ra là **tờ bố trí thép đầy đủ** (A1/A0 tự chọn): mặt đứng + mặt cắt + chi tiết nút + bảng thống kê + ghi chú + khung tên;
+xem `docs/agents/DRAWING_AGENT.md`.
+
 ## Bước 4 — Tự đọc lại số liệu, đối chiếu tay với sách
 
 Mở `output/khung_truc5_day_du/KHUNG_TRUC5.pdf` (hoặc `.dwg` bằng AutoCAD), so

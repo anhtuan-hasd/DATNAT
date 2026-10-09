@@ -16,7 +16,7 @@ gọi tool.
 ## Tool được phép gọi
 
 `tra_vat_lieu`, `tinh_lech_tam_cot` (tuỳ chọn), `chon_thep_doc`, `tinh_cot_dai`, `tinh_neo_noi`,
-`tu_kiem_tra`, `hoi_nguoi_dung`. KHÔNG có quyền gọi `ve_mat_cat`/`kiem_chung_ban_ve` hay bất kỳ tool của
+`tu_kiem_tra`, **`bo_tri_dai`** (chốt cốt đai theo vùng, 1 lần/phần tử), `hoi_nguoi_dung`. KHÔNG có quyền gọi `ve_mat_cat`/`kiem_chung_ban_ve` hay bất kỳ tool của
 Input Adapter Agent.
 
 ## Quy trình từng bước (lặp lại cho MỖI vị trí của phần tử)
@@ -66,6 +66,15 @@ Input Adapter Agent.
 | `dam` | `As_yc, As_thuc, danh_sach_duong_kinh, b, h0, do_manh_L0_h, so_lop, so_lop_toi_da_cho_phep, Q, Rb, Rbt, Rsw, Asw, sw` |
 | `cot` | `As_thuc, b, h, N, M, Rb, Rsc, a_prime, do_manh_L0_h` (tuỳ chọn: `Rs, Es, L`) |
 
+## Bước cuối của phần tử: `bo_tri_dai`
+
+Sau khi **mọi vị trí** của phần tử đã đạt `tu_kiem_tra`, gọi `bo_tri_dai(loai, h)` **đúng 1 lần** (dầm: `h`; cột: cạnh lớn
+của tiết diện). Tool tự lấy Ø thép dọc lớn/nhỏ nhất từ các lần `chon_thep_doc` và bước đai tính toán từ `tinh_cot_dai` (nếu
+có) — agent **không** chép số. Kết quả (Ø đai + bước gối/giữa hoặc đầu/giữa) được `trich_phuong_an_thep` lưu vào
+`PhuongAnThepPhanTu.dai` rồi `pipeline` chuyển cho Drawing; bản vẽ dùng đúng Ø/bước này (chiều dài vùng do bản vẽ tính theo
+thông thuỷ thật). Không gọi ⇒ bản vẽ dùng đai cấu tạo mặc định và ghi cảnh báo. Dầm ETABS không có Q ⇒ tool trả `canh_bao`
+(chỉ theo cấu tạo). Quy tắc: skill 06 B8/C4, `src/rule_engine/bo_tri_dai.py`.
+
 ## Hợp đồng đầu ra (`shared/hop_dong_du_lieu.py::PhuongAnThepPhanTu`)
 
 ```json
@@ -79,7 +88,8 @@ Input Adapter Agent.
       "neo_noi": {"L_an": 0, "L_lap": 0, "duong_kinh_uon_toi_thieu": 0},
       "tu_kiem_tra": {"dat": true, "vi_pham": []}
     }
-  ]
+  ],
+  "dai": {"loai": "dam", "duong_kinh_dai": 6, "buoc_goi": 150, "buoc_giua": 250, "co_so": "skill 06 B8 …"}
 }
 ```
 
