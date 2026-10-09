@@ -466,6 +466,10 @@ def chay_toan_bo_khung(
             dat=bool(ket_qua_kiem_chung.get("dat")), vi_pham=ket_qua_kiem_chung.get("vi_pham", []),
         )
         ket_qua_khung.ghi(f"Kiểm chứng bản vẽ bố trí khung: {'ĐẠT' if ket_qua_kiem_chung.get('dat') else 'CHƯA ĐẠT'} — {ket_qua_kiem_chung.get('vi_pham')}")
+    elif any(kq.rule_engine_dat for kq in ket_qua_khung.ket_qua_phan_tu):
+        # Rule Engine đã đạt nhưng bước LẮP RÁP bản vẽ không thành (tool lap_rap_mat_dung_khung lỗi — vd AutoCAD COM
+        # "RPC server is unavailable"): KHÔNG nói "không có phần tử nào đạt Rule Engine" (sai sự thật).
+        ket_qua_khung.ghi("Rule Engine ĐẠT nhưng Drawing Agent KHÔNG lắp ráp được bản vẽ (xem log 'drawing' — thường là lỗi AutoCAD COM).")
     else:
         ket_qua_khung.ghi("KHÔNG có phần tử nào đạt Rule Engine — không lắp ráp được bản vẽ bố trí khung.")
     if ket_qua_xuat is not None:
@@ -482,7 +486,11 @@ def chay_toan_bo_khung(
             continue
         kq_pt.trang_thai = "dat" if dat_tong else "leo_thang"
         if not dat_tong:
-            kq_pt.ghi_chu = "Rule Engine đạt nhưng kiểm chứng tổng thể bản vẽ chưa đạt — xem vi_pham."
+            kq_pt.ghi_chu = (
+                "Rule Engine đạt nhưng kiểm chứng tổng thể bản vẽ chưa đạt — xem vi_pham."
+                if ket_qua_kiem_chung is not None
+                else "Rule Engine đạt nhưng CHƯA lắp ráp được bản vẽ (lỗi Drawing/AutoCAD) nên chưa kiểm chứng."
+            )
         ket_qua_khung.ghi(f"Phần tử '{kq_pt.ten_phan_tu}': {kq_pt.trang_thai.upper()} ({len(kq_pt.phuong_an_thep.vi_tri)} vị trí, mặt cắt trong tờ vẽ).")
 
     return ket_qua_khung
