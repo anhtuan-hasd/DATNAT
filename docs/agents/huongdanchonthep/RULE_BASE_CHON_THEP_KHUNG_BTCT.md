@@ -73,12 +73,65 @@ Nếu thông số Input có đánh dấu các trường hợp sau, hãy cẩn tr
 
 ## VI. HÌNH ẢNH MINH HỌA CHO DRAWING AGENT
 
-*(Lưu ý cho Drawing Agent: Hãy sử dụng cấu trúc CAD hoặc các mẫu dưới đây để vẽ các cấu tạo chi tiết. Bạn có thể tham khảo thư mục `docs/agents/huongdanchonthep/img/`)*
+*(Lưu ý cho Drawing Agent: Hãy sử dụng cấu trúc CAD hoặc các mẫu dưới đây để vẽ các cấu tạo chi tiết. Thư mục gốc chứa toàn bộ ảnh là `docs/agents/huongdanchonthep/img/`)*
 
-- **Khoảng hở thông thủy dầm:** ![Hở dầm](img/f_54_section.png)
+<details>
+<summary><b>1. Mặt cắt cấu kiện và Khoảng hở</b></summary>
+
 - **Mặt cắt cột và đai phụ (ví dụ Cột 22):** ![Mặt cắt cột](img/col22_section.png)
-- **Cấu tạo giật đứt dầm phụ:** ![Dầm phụ](img/f_52.png)
+- **Các trường hợp đai phụ cột:** ![Đai phụ cột](img/f_510_col.png)
+- **Khoảng hở thông thủy dầm:** ![Hở dầm](img/f_54_section.png)
+- **Mặt cắt xoắn dầm:** ![Xoắn dầm](img/tor_section.png)
+
+</details>
+
+<details>
+<summary><b>2. Cấu tạo Nút Khung (Bẻ mỏ, neo, uốn)</b></summary>
+
 - **Nút góc tầng mái (Uốn thép):** ![Nút góc mái](img/joint_corner_roof.png)
-- **Biểu đồ tương tác Cột:** ![Biểu đồ](img/interaction_c22.png)
+- **Nút góc mái (các trường hợp a, b, c, d, e):** 
+  ![513a](img/f_513a.png) ![513b](img/f_513b.png) ![513c](img/f_513c.png) ![513d](img/f_513d.png) ![513e](img/f_513e.png)
+- **Nút góc mái mở (a, b):** ![515a](img/f_515a.png) ![515b](img/f_515b.png)
+- **Nút giữa tầng mái:** ![516](img/f_516.png)
+- **Nút biên tầng trung gian (a, b, c):** ![517a](img/f_517a.png) ![517b](img/f_517b.png) ![517c](img/f_517c.png)
+- **Nút giữa tầng trung gian (dầm lệch cốt):** ![518](img/f_518.png)
+- **Nút xà gãy khúc (a, b, c):** ![520a](img/f_520a.png) ![520b](img/f_520b.png) ![520c](img/f_520c.png)
+- **Kiểm tra lọt khe nút:** ![Kiểm tra nút](img/joint_check.png)
+
+</details>
+
+<details>
+<summary><b>3. Bố trí Dọc, Giao cắt và Nối thép</b></summary>
+
+- **Cấu tạo giật đứt dầm phụ (1):** ![Dầm phụ 1](img/f_51.png)
+- **Cấu tạo giật đứt dầm phụ (2):** ![Dầm phụ 2](img/f_52.png)
+- **Nối thép cột khi thay đổi tiết diện:** ![Đổi tiết diện a](img/f_511a.png) ![Đổi tiết diện b](img/f_511b.png)
+- **Liên kết cột - móng:** ![Liên kết móng](img/f_519.png)
+- **Bố trí dầm CB mẫu:** ![Dầm CB](img/beam_cb_layout.png)
+- **Layout dầm tổng quát:** ![Layout Dầm](img/lay_beam.png)
+- **Layout cột tổng quát:** ![Layout Cột](img/lay_col.png)
+- **Vùng tới hạn (Critical):** ![Layout Crit](img/lay_crit.png)
+
+</details>
+
+<details>
+<summary><b>4. Sơ đồ khối và Biểu đồ (Logic Agent)</b></summary>
+
+- **Bản đồ Tool/Skill:** ![Bản đồ](img/bs_01_ban_do_tool_skill.png)
+- **Quy trình Dầm 16 bước:** ![Dầm 16 bước](img/bs_02_dam_16_buoc_luong.png)
+- **Quy trình Cột 14 bước:** ![Cột 14 bước](img/bs_03_cot_14_buoc_luong.png)
+- **Chọn loại nút:** ![Nút chọn loại](img/bs_04_nut_chon_loai.png)
+- **Bảng điều kiện thêm thép:** ![Thêm thép](img/bs_05_nut_bang_dieu_kien_them_thep.png)
+- **Kiểm tra lọt khe (Thuật toán):** ![Thuật toán lọt khe](img/bs_06_nut_kiem_khe_thuat_toan.png)
+- **Bố trí thép dọc dầm:** ![Bố trí dọc](img/bs_07_dam_bo_tri_doc_so_do.png)
+- **Cột - Vùng đai nối:** ![Đai nối cột](img/bs_08_cot_vung_dai_noi_so_do.png)
+- **Cổng chặn R41-R46:** ![Cổng chặn](img/bs_09_cong_chan_R41_R46.png)
+- **Phạm vi áp dụng:** ![Phạm vi](img/bs_10_pham_vi_ap_dung.png)
+- **Cột mạnh dầm yếu:** ![Cột mạnh dầm yếu](img/bs_11_cot_manh_dam_yeu.png)
+- **Uốn neo bán kính:** ![Uốn neo](img/bs_14_uon_neo_bankinh.png)
+- **Quy trình Flow Process:** ![Flow Process](img/flow_process.png)
+- **Biểu đồ tương tác Cột 22:** ![Biểu đồ](img/interaction_c22.png)
+
+</details>
 
 > **Luật R30:** Luôn gọi phiếu kiểm tra cuối cùng (đếm đai, tính khối lượng, khớp mã) trước khi trả file JSON.
