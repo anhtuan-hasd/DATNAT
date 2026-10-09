@@ -56,6 +56,8 @@ class NguCanhRuleEngine:
     # theo yêu cầu riêng của nó (As, cấu tạo), không bị ép dùng chung một loại
     # toàn công trình (đã thử và sai: dầm cần 57mm² bị gán 2Ø22 = 760mm²).
     duong_kinh_da_dung: set[int] = field(default_factory=set)
+    # Bước đai nhỏ nhất theo TÍNH TOÁN (tinh_cot_dai) đã gặp trong phần tử — tool `bo_tri_dai` tự dùng, LLM không phải chép số.
+    buoc_dai_tinh_toan: float | None = None
 
 
 def _loi(thong_diep: str) -> dict[str, Any]:
@@ -272,6 +274,33 @@ def tinh_cot_dai(nc: NguCanhRuleEngine, dau_vao: dict) -> dict:
     elif d_doc_min or dau_vao.get("h0"):
         ket_qua["buoc_dai_max_cau_tao"] = cot_dai.buoc_dai_max_dam(h0, can_tinh_toan)
 
+    s_tt = ket_qua.get("buoc_dai_toi_da_theo_kha_nang_chiu_cat")
+    if isinstance(s_tt, (int, float)) and s_tt > 0:
+        nc.buoc_dai_tinh_toan = s_tt if nc.buoc_dai_tinh_toan is None else min(nc.buoc_dai_tinh_toan, s_tt)
+    return ket_qua
+
+
+def bo_tri_dai(nc: NguCanhRuleEngine, dau_vao: dict) -> dict:
+    """Quyết định cốt đai theo VÙNG cho cả phần tử (gọi 1 lần SAU khi mọi vị trí đã đạt). Ø thép dọc lớn/nhỏ nhất lấy từ
+    các lần `chon_thep_doc` đã thực hiện trong phần tử; bước tính toán (nếu có) lấy từ `tinh_cot_dai` — agent KHÔNG truyền."""
+    from ...rule_engine import bo_tri_dai as mod
+
+    loai = dau_vao.get("loai", "dam")
+    if loai not in ("dam", "cot"):
+        return _loi(f"loai phải là 'dam' hoặc 'cot', nhận '{loai}'.")
+    if not nc.duong_kinh_da_dung:
+        return _loi("Chưa có thép dọc nào được chọn trong phần tử này — gọi chon_thep_doc (và tu_kiem_tra đạt) trước.")
+    h = dau_vao.get("h")
+    if not h or h <= 0:
+        return _loi("Thiếu 'h' (chiều cao tiết diện dầm, hoặc cạnh lớn của tiết diện cột) — chép đúng từ mô tả phần tử.")
+    ds = nc.duong_kinh_da_dung
+    ket_qua = mod.quyet_dinh_dai(loai, float(h), max(ds), min(ds), nc.buoc_dai_tinh_toan)
+    ket_qua["duong_kinh_doc_max"], ket_qua["duong_kinh_doc_min"] = max(ds), min(ds)
+    if nc.buoc_dai_tinh_toan is not None:
+        ket_qua["buoc_tinh_toan_da_xet"] = nc.buoc_dai_tinh_toan
+    elif nc.khong_co_Q and loai == "dam":
+        ket_qua["canh_bao"] = ("Dầm nguồn ETABS không có Q thô: bước đai CHỈ theo cấu tạo, chưa kiểm khả năng chịu cắt "
+                               "(cờ can_xac_nhan) — không in 'ĐẠT' cho phần cắt.")
     return ket_qua
 
 
@@ -464,6 +493,24 @@ DINH_NGHIA_TOOL: list[dict] = [
         },
     },
     {
+        "name": "bo_tri_dai",
+        "description": (
+            "Quyết định Ø cốt đai và BƯỚC theo vùng cho cả phần tử (dầm: gối/giữa nhịp; cột: hai đầu/giữa) theo skill 06 "
+            "B8/C4 + bước tính toán của tinh_cot_dai nếu có. Gọi ĐÚNG 1 LẦN cho mỗi phần tử, SAU KHI mọi vị trí đã đạt "
+            "tu_kiem_tra. Chỉ cần loai và h (chép từ mô tả phần tử; cột: cạnh lớn của tiết diện). Ø thép dọc và bước tính "
+            "toán tool tự lấy — KHÔNG tự điền. Kết quả được bàn giao cho bản vẽ; không có kết quả này bản vẽ dùng đai cấu "
+            "tạo mặc định và ghi cảnh báo."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "loai": {"type": "string", "enum": ["dam", "cot"]},
+                "h": {"type": "number", "description": "Dầm: chiều cao h (mm). Cột: cạnh lớn của tiết diện (mm)."},
+            },
+            "required": ["loai", "h"],
+        },
+    },
+    {
         "name": "tinh_neo_noi",
         "description": "Tính chiều dài neo cơ sở/tính toán, nối chồng, đường kính uốn — mục 6 RULES_TCVN5574.md.",
         "input_schema": {
@@ -525,6 +572,7 @@ _HAM_THEO_TEN: dict[str, Callable[[NguCanhRuleEngine, dict], dict]] = {
     "chon_thep_doc": chon_thep_doc,
     "tinh_cot_dai": tinh_cot_dai,
     "tinh_neo_noi": tinh_neo_noi,
+    "bo_tri_dai": bo_tri_dai,
     "tu_kiem_tra": tu_kiem_tra,
     "hoi_nguoi_dung": hoi_nguoi_dung,
 }
@@ -590,7 +638,11 @@ phạm còn lại, KHÔNG được gọi chon_thep_doc thêm nữa cho vị trí
 — vật liệu thường giống nhau trong cùng phần tử nên có thể tái dùng kết quả \
 đã tra nếu chưa đổi mác bê tông/nhóm thép).
 
-Khi TẤT CẢ vị trí của phần tử đã đạt tự kiểm tra (hoặc đã báo cáo người dùng \
+Sau khi MỌI vị trí của phần tử đã đạt tự kiểm tra: gọi bo_tri_dai ĐÚNG 1 LẦN \
+cho cả phần tử (truyền loai và h chép từ mô tả; tool tự lấy Ø thép dọc và bước \
+đai tính toán) để chốt cốt đai theo vùng — bản vẽ dùng đúng kết quả này.
+
+Khi TẤT CẢ vị trí của phần tử đã đạt tự kiểm tra và đã gọi bo_tri_dai (hoặc đã báo cáo người dùng \
 cho vị trí hết lượt tự sửa), dừng lại và tóm tắt kết quả cuối cùng bằng văn \
 bản (thép đã chọn cho từng vị trí) — không gọi thêm tool nào nữa.
 
@@ -602,8 +654,8 @@ kết quả chỉ kiểm tra As dọc kèm "canh_bao" rõ ràng, đây là hành
 KẾ, không cần hỏi người dùng thêm cho việc này.
 """
     prompt += """
-Ngoài các tool, hệ thống CHƯA có tool cho: cấu tạo nút khung, bố trí dọc (điểm \
-cắt, chiều dài thanh, vùng đai), kiểm hình học nút, kháng chấn, xoắn/dầm \
+Ngoài các tool, hệ thống CHƯA có tool cho: cấu tạo nút khung, bố trí dọc theo chiều dài \
+(điểm cắt, chiều dài thanh — bản vẽ tự lập SƠ BỘ theo skill 06, cần kỹ sư xác nhận; cốt đai theo vùng ĐÃ có tool bo_tri_dai), kiểm hình học nút, kháng chấn, xoắn/dầm \
 cao/lỗ mở. Với các việc đó bạn KHÔNG tự tính con số: áp dụng luật định tính \
 trong bộ skill bên dưới (ví dụ BẢNG ĐIỀU KIỆN THÊM THÉP ở module 05), ghi rõ \
 nguồn và nhãn basis (TCVN/thuc_hanh/uoc_luong/can_xac_nhan), gắn cờ cho mọi \
@@ -693,6 +745,7 @@ def trich_phuong_an_thep(
     thứ tự chốt vị trí ở đây LUÔN khớp thứ tự vị trí trong dữ liệu đầu vào).
     """
     vi_tri: list[KetQuaViTriDaThietKe] = []
+    dai_phan_tu: dict[str, Any] = {}
     thep_hien_tai: dict[str, Any] | None = None
     cot_dai_hien_tai: dict[str, Any] = {}
     neo_noi_hien_tai: dict[str, Any] = {}
@@ -705,6 +758,8 @@ def trich_phuong_an_thep(
             cot_dai_hien_tai = kq
         elif ten_tool == "tinh_neo_noi" and "loi" not in kq:
             neo_noi_hien_tai = kq
+        elif ten_tool == "bo_tri_dai" and "loi" not in kq:
+            dai_phan_tu = kq  # lần gọi hợp lệ GẦN NHẤT
         elif ten_tool == "tu_kiem_tra":
             dat = bool(kq.get("dat"))
             het_luot = bool(kq.get("het_luot_tu_sua"))
@@ -719,4 +774,4 @@ def trich_phuong_an_thep(
             )
             thep_hien_tai, cot_dai_hien_tai, neo_noi_hien_tai = None, {}, {}  # reset cho vị trí kế tiếp
 
-    return PhuongAnThepPhanTu(ten_phan_tu=ten_phan_tu, loai=loai, b=b, h=h, vi_tri=vi_tri)
+    return PhuongAnThepPhanTu(ten_phan_tu=ten_phan_tu, loai=loai, b=b, h=h, vi_tri=vi_tri, dai=dai_phan_tu)

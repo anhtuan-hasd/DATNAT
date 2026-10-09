@@ -1,7 +1,7 @@
 # 03 — CHỌN THÉP CỘT: 14 BƯỚC (Chương 8 của tài liệu nguồn)
 
 > **Vai trò của agent với cột:** `As_yc` (PMMArea, **mỗi phía**) và cặp nội lực đại diện $(M,N)$ đã có. Chuỗi gọi tool: `tra_vat_lieu` →
-> `chon_thep_doc(loai="cot", As_target=As_yc, b, h)` → `tinh_cot_dai`/`tinh_neo_noi` → `tu_kiem_tra(loai="cot", N, M, h, …)`.
+> `chon_thep_doc(loai="cot", As_target=As_yc, b, h)` → `tinh_cot_dai`/`tinh_neo_noi` → `tu_kiem_tra(loai="cot", N, M, h, …)` → (sau khi đạt) `bo_tri_dai(loai="cot", h=cạnh lớn)` **1 lần/cột**: chốt Ø đai và bước hai đầu/giữa (C4: hai đầu và đoạn nối $s\le10d_{min}$, giữa $s\le\min(15d_{min};500)$; $l_d=\max(h_c;H_n/6;450)$ do bản vẽ tính theo thông thuỷ).
 > **Hai giới hạn thật của tool cần nhớ:** (1) $\eta=1$ cố định (không kể uốn dọc) — chỉ đúng khi $l_0/h\le4$; (2) chỉ kiểm **một** cặp $(M,N)$,
 > không dựng biểu đồ tương tác, không kiểm phương ngoài mặt phẳng. Phần tài liệu cho thêm (η, BĐTT, nối thép, cột kéo…) dùng để **hiểu và
 > gắn cờ**, không để agent tự tính. Ví dụ xuyên suốt: **cột 22, tầng 1, 250×600**, TH12: $M=417{,}74$ kN·m, $N=1514{,}38$ kN, $M_{dh}=18{,}06$, $N_{dh}=1168{,}39$, $l=5200$.

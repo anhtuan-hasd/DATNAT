@@ -1,7 +1,7 @@
 <!-- PROMPT:BAT_DAU -->
 # 06 — BỐ TRÍ THÉP THEO CHIỀU DÀI CẤU KIỆN VÀ DỮ LIỆU CHO BẢN VẼ (Chương 12)
 
-> **Trạng thái tool:** hệ thống hiện chỉ chọn thép **tại 3 vị trí** (gối trái, giữa nhịp, gối phải); **không có** khái niệm điểm cắt lý thuyết, chiều dài từng thanh, vùng đai theo chiều dài, đếm đai, bảng thống kê khối lượng.
+> **Trạng thái tool:** hệ thống chọn thép **tại 3 vị trí** (gối trái, giữa nhịp, gối phải) và có tool **`bo_tri_dai`** chốt cốt đai theo vùng (B8 dầm, C4 cột; gọi 1 lần/phần tử). **Không có** tool cho điểm cắt lý thuyết, chiều dài từng thanh, nối thép: bản vẽ tự lập **sơ bộ** các việc này (thanh trên suốt + gia cường cắt ở L/4 thông thuỷ, thanh dưới chạy suốt và neo vào cột, móc vào cột biên; B2–B7) và ghi cảnh báo — agent không tính.
 > Chương này là **checklist và công thức** để agent biết *còn thiếu gì* và để chuẩn bị dữ liệu cho Drawing Agent. Agent **không tự tính** các con số ở đây trong lần chạy thật (không có hình bao $M$ từ ETABS dầm — chỉ có `As_yc`):
 > mọi con số bố trí dọc đều mang `basis=uoc_luong` hoặc `thuc_hanh` và cờ **"chưa đủ để phát hành"** (R45) cho đến khi có hình bao thật.
 > Quy ước nguồn: *(A, B, C, D)* từ 4 tài liệu; **[thực hành]** quy ước nghề; **[ước lượng]** số minh hoạ — dự án thật thay bằng số đọc từ ETABS.

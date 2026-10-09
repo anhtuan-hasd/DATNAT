@@ -4,6 +4,7 @@
 > $\alpha_m,\xi,A_s$. Các bước 2–7 dưới đây là **kiến thức để hiểu và giải thích** kết quả tool, và để kiểm tra thép đã chọn có
 > hợp lý không. Bước 8 (`chon_thep_doc`), 9–11 (`tinh_cot_dai`), 15 (`tinh_neo_noi`) và `tu_kiem_tra` là phần có tool.
 > Bước 12, 13, 14, 16 **chưa có tool** (xem 00): agent áp dụng luật định tính, ghi `basis`, không tự bịa số.
+> **Chốt cốt đai:** sau khi **mọi vị trí** (gối trái, giữa nhịp, gối phải) đã đạt `tu_kiem_tra`, gọi `bo_tri_dai(loai="dam", h=…)` **đúng 1 lần** — tool chốt Ø đai và bước gối/giữa nhịp (B8: gối $s\le\min(h/2;300)$ nếu $h\le450$, $\min(h/3;500)$ nếu $h>450$; giữa $s\le\min(3h/4;500)$ và $\le15d_{min}$ khi có thép nén), lấy bước **nhỏ hơn** nếu `tinh_cot_dai` đã cho bước theo tính toán. Dầm ETABS không có Q ⇒ bước chỉ theo cấu tạo, tool trả `canh_bao` (cờ `can_xac_nhan`). Bản vẽ dùng đúng kết quả này.
 > Nguồn: công thức D (TCVN 5574:2018); trình tự đai và ví dụ A. Ví dụ xuyên suốt: **dầm CB 250×700** (khung trục 3, tầng 1), B30, CB500-V, đai CB240-T.
 
 # CHƯƠNG 7. CHỌN THÉP DẦM – 16 BƯỚC

@@ -105,7 +105,8 @@ Hệ thống chỉ có 7 tool cho agent này. Bảng dưới là sự thật v�
 | Tự kiểm tra (02, 03) | `tu_kiem_tra` | Cột: $\eta=1$ cố định, μ mỗi phía ≤ 3%; Dầm: tiêu chí cắt $Q\le Q_{b,1}+Q_{sw,1}$ (chặt hơn 11a) |
 | Lệch tâm cột (03) | `tinh_lech_tam_cot` (tuỳ chọn) | $\eta=1$ |
 | **Cấu tạo nút khung (05)** | **không có tool** | `src/rule_engine/nut_khung.py` có 13 loại nút nhưng **chưa nối vào agent** |
-| Bố trí dọc: điểm cắt, chiều dài thanh, vùng đai, đếm đai (06) | **không có tool** | Skill dùng làm checklist + dữ liệu đầu ra cho Drawing; số liệu ghi `basis` |
+| **Cốt đai theo vùng (06 B8/C4; 02 Bước 11; 03 Bước 12)** | **`bo_tri_dai`** | Gọi **1 lần/phần tử** sau khi mọi vị trí đạt `tu_kiem_tra`: truyền `loai`, `h` (dầm: h; cột: cạnh lớn). Ø thép dọc và bước đai tính toán (`tinh_cot_dai`) tool **tự lấy** — không tự điền. Trả Ø đai + bước gối/giữa (dầm) hoặc đầu/giữa (cột); chiều dài vùng do bản vẽ tính theo thông thuỷ thật. Kết quả được bàn giao cho bản vẽ |
+| Bố trí dọc: điểm cắt, chiều dài thanh, nối thép (06) | **không có tool** | Bản vẽ tự lập **sơ bộ** (thanh trên suốt + gia cường cắt L/4, thanh dưới chạy suốt, móc vào cột biên) theo 06 B2–B7 và ghi cảnh báo; agent KHÔNG tự tính; số liệu ghi `basis` |
 | Cổng hình học nút 14.2/14.3 (09) | **không có tool** | R41, R43 |
 | Kháng chấn (07), xoắn, dầm cao, lỗ mở (09) | **không có tool** | R31–R40, R47–R52 chỉ là luật dừng/hỏi |
 | `hoi_nguoi_dung` | có | dùng cho mọi điểm "dừng và hỏi" |

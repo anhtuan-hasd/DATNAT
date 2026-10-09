@@ -246,6 +246,7 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
 
     # --- cột: thanh dọc + đai ---
     thanh_doc_cot: dict[str, tuple[int, int, float]] = {}
+    thieu_dai: list[str] = []  # phần tử mà agent chưa chốt đai (tool bo_tri_dai) — dùng đai cấu tạo mặc định
     dai_cot: dict[str, list[ThanhDai]] = {}
     tang_thap_nhat = min(moc.values())
     dai_dam: dict[str, list[ThanhDai]] = {}
@@ -264,10 +265,16 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
         thanh_doc_cot[c.ten] = (so_hieu, c.n_tong, chieu_dai)
         c.so_hieu_thep = so_hieu
         # đai
-        dd = dai.chon_duong_kinh_dai(c.d)
+        ag = c.raw.get("dai") or {}
+        if not ag:
+            thieu_dai.append(f"cột {c.ten}")
+        dd = int(ag.get("duong_kinh_dai") or dai.chon_duong_kinh_dai(c.d))
         hb = max([d.h for d in dams if abs(d.y - c.y1) < 1.0 and c.truc in (d.truc1, d.truc2)] or [0.0])
         h_tt = (c.y1 - c.y0) - hb
-        vung = dai.bo_tri_dai_cot(max(c.b, c.h), h_tt, c.d, c.d, chieu_dai_noi=0.0 if la_tang_cuoi else min(l_lap, h_tt / 3.0))
+        vung = dai.bo_tri_dai_cot(
+            max(c.b, c.h), h_tt, c.d, c.d, chieu_dai_noi=0.0 if la_tang_cuoi else min(l_lap, h_tt / 3.0),
+            duong_kinh_dai=ag.get("duong_kinh_dai"), buoc_dau=ag.get("buoc_dau"), buoc_giua=ag.get("buoc_giua"),
+        )
         # vùng nút (trong chiều cao dầm trên): đai liên tục, bước hai đầu
         s_nut = vung[-1].buoc_mm
         vung = vung + [dai.VungDai(h_tt, h_tt + hb, s_nut, dd)] if hb else vung
@@ -290,7 +297,13 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
     for d in dams:
         d_all = [x for s in (d.top_l, d.top_r, d.bot) for x in s]
         d_max, d_min = (max(d_all), min(d_all)) if d_all else (16, 16)
-        vung = dai.bo_tri_dai_dam(d.h, d.l_tt, d_max, d_min)
+        ag = d.raw.get("dai") or {}
+        if not ag:
+            thieu_dai.append(f"dầm {d.ten}")
+        vung = dai.bo_tri_dai_dam(
+            d.h, d.l_tt, d_max, d_min,
+            duong_kinh_dai=ag.get("duong_kinh_dai"), buoc_goi=ag.get("buoc_goi"), buoc_giua=ag.get("buoc_giua"),
+        )
         d.vung = vung
         dd = vung[0].duong_kinh
         rong, cao = d.b - 2 * cv, d.h - 2 * cv
@@ -301,6 +314,11 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
             lst.append(ThanhDai(sh, dd, rong, cao, cd, v.buoc_mm, v.so_dai, d.ten))
         dai_dam[d.ten] = lst
 
+    if thieu_dai:
+        canh_bao.append(
+            f"{len(thieu_dai)} phần tử chưa có quyết định đai từ Rule Engine Agent (tool bo_tri_dai): "
+            + ", ".join(thieu_dai[:6]) + (" …" if len(thieu_dai) > 6 else "") + " — dùng đai cấu tạo mặc định [thực hành]."
+        )
     kh = KeHoach(cfg, truc, moc, cots, dams, so_dk, thanh_doc_dam, dai_dam, dai_cot, thanh_doc_cot, [], {}, {}, canh_bao, be_rong_dai)
     _lap_mat_cat(kh)
     return kh

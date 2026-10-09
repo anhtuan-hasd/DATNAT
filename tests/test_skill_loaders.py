@@ -167,3 +167,14 @@ def test_thieu_file_skill_van_tra_prompt_goc(monkeypatch, thu_muc_tam: Path):
     monkeypatch.setattr(vca, "_DUONG_DAN_SKILL_KIEM_CHUNG", thu_muc_tam / "khong_co.md")
     assert iaa._xay_dung_he_thong_prompt() == iaa._HE_THONG_PROMPT_GOC
     assert vca._xay_dung_he_thong_prompt() == vca._HE_THONG_PROMPT_GOC
+
+
+def test_skill_va_prompt_rule_engine_huong_dan_goi_bo_tri_dai():
+    """Agent đọc skill để biết gọi `bo_tri_dai`: có trong bản đồ tool (00), hướng dẫn dầm/cột (02/03/06) và mọi prompt gọn."""
+    thu_muc = ds.THU_MUC_AGENTS / "huongdanchonthep"
+    for tien_to in ("00", "02", "03", "06"):
+        (p,) = [m for m in ds.liet_ke_module(thu_muc) if m.name.startswith(tien_to)]
+        assert "bo_tri_dai" in p.read_text(encoding="utf-8"), p.name
+    for loai, prompt in rea.HE_THONG_PROMPT_THEO_LOAI.items():
+        assert "bo_tri_dai" in prompt, loai
+    assert "bo_tri_dai" in {t["name"] for t in rea.DINH_NGHIA_TOOL}

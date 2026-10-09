@@ -92,6 +92,9 @@ class PhuongAnThepPhanTu:
     b: float
     h: float
     vi_tri: list[KetQuaViTriDaThietKe] = field(default_factory=list)
+    # Kết quả tool `bo_tri_dai` (Ø đai + bước theo vùng) — do Rule Engine Agent quyết định theo skill 06 (B8/C4); {} nếu
+    # agent không gọi (khi đó tờ vẽ dùng đai cấu tạo mặc định và ghi cảnh báo).
+    dai: dict[str, Any] = field(default_factory=dict)
 
     @property
     def moi_vi_tri_dat(self) -> bool:

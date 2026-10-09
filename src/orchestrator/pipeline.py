@@ -89,6 +89,11 @@ def _mo_ta_yeu_cau_rule_engine(ten_khung: str, p) -> str:  # p: PhanTuChuanHoa
             f"- Vị trí '{v.vi_tri}': As_yc={v.As_yc}mm², M={v.M}, N={v.N}, Q: {Q_hien_thi} (kN/kN·m), "
             f"tổ hợp chi phối '{v.to_hop}'."
         )
+    h_dai = p.h if p.loai == "dam" else max(p.b, p.h)
+    dong.append(
+        f"SAU KHI mọi vị trí trên đã đạt tu_kiem_tra: gọi bo_tri_dai ĐÚNG 1 LẦN với loai='{p.loai}', h={h_dai} "
+        "(chốt Ø đai và bước theo vùng cho cả phần tử), rồi tóm tắt."
+    )
     return "\n".join(dong)
 
 
@@ -278,6 +283,8 @@ def _du_lieu_lap_rap(bo_du_lieu: BoDuLieuKhungChuanHoa, ket_qua_phan_tu: list[Ke
                 # TCVN5574.md, xem _chieu_dai_co_neo_noi) — KHÔNG dùng
                 # goc.chieu_dai trần trụi nữa.
                 "chieu_dai": _chieu_dai_co_neo_noi(goc.chieu_dai, phuong_an.loai, phuong_an.vi_tri) if goc.chieu_dai else goc.chieu_dai,
+                # Quyết định đai của Rule Engine Agent (tool bo_tri_dai) — tờ vẽ dùng đúng Ø/bước này.
+                "dai": phuong_an.dai,
                 "vi_tri": [
                     {
                         "vi_tri": vt.vi_tri, "mo_ta_thep": vt.thep_doc.get("mo_ta", "?"),
