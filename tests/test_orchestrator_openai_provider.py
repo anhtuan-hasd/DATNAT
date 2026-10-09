@@ -130,3 +130,78 @@ def test_openai_chat_provider_qua_agent_loop_toan_trinh():
 
     assert ket_qua.dung_vi == "end_turn"
     assert ket_qua.nhat_ky_tool == [{"ten": "cong", "dau_vao": {"a": 2, "b": 3}, "ket_qua": {"tong": 5}}]
+
+
+# ---------------------------------------------------------------- 429 rate limit (TPM) — lỗi thật khi chạy bộ skill lớn
+
+
+def _loi_429(thong_diep):
+    import httpx
+    import openai
+
+    req = httpx.Request("POST", "https://api.openai.com/v1/chat/completions")
+    return openai.RateLimitError(thong_diep, response=httpx.Response(429, request=req), body=None)
+
+
+def test_thoi_gian_cho_doc_tu_thong_diep():
+    from src.orchestrator import agent
+
+    assert agent._thoi_gian_cho_rate_limit("Please try again in 1.073s. Visit", 1) == pytest_approx(2.073)
+    assert agent._thoi_gian_cho_rate_limit("Please try again in 250ms.", 1) == 2.0  # chặn dưới
+    assert agent._thoi_gian_cho_rate_limit("try again in 2m3.5s", 1) == 70.0  # chặn trên
+    assert agent._thoi_gian_cho_rate_limit("không có gợi ý", 2) == 15.0
+
+
+def pytest_approx(x):
+    import pytest
+
+    return pytest.approx(x)
+
+
+def test_rate_limit_duoc_thu_lai_roi_thanh_cong(monkeypatch):
+    from src.orchestrator import agent
+
+    ngu = []
+    monkeypatch.setattr(agent.time, "sleep", lambda s: ngu.append(s))
+    lan = {"n": 0}
+
+    def goi():
+        lan["n"] += 1
+        if lan["n"] < 3:
+            raise _loi_429("Rate limit reached ... Please try again in 1.0s.")
+        return "ok"
+
+    assert agent._thu_lai_khi_mang_loi(goi) == "ok"
+    assert lan["n"] == 3 and len(ngu) == 2
+
+
+def test_het_tien_khong_thu_lai(monkeypatch):
+    import pytest
+
+    from src.orchestrator import agent
+
+    monkeypatch.setattr(agent.time, "sleep", lambda s: None)
+
+    def goi():
+        raise _loi_429("You exceeded your current quota: insufficient_quota")
+
+    with pytest.raises(Exception):
+        agent._thu_lai_khi_mang_loi(goi)
+
+
+def test_rate_limit_qua_nhieu_lan_van_raise(monkeypatch):
+    import pytest
+
+    from src.orchestrator import agent
+
+    monkeypatch.setattr(agent.time, "sleep", lambda s: None)
+    monkeypatch.setattr(agent, "SO_LAN_RATE_LIMIT", 3)
+    dem = {"n": 0}
+
+    def goi():
+        dem["n"] += 1
+        raise _loi_429("try again in 1s")
+
+    with pytest.raises(Exception):
+        agent._thu_lai_khi_mang_loi(goi)
+    assert dem["n"] == 4  # 1 lần đầu + 3 lần thử lại

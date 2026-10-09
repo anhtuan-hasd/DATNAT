@@ -35,6 +35,9 @@ Khớp dẻo ở **dầm**, không ở cột; phá hoại cắt không xảy ra 
 
 **Mô tả bằng chữ:** Một nút khung bốn nhánh (cột trên, cột dưới, dầm trái, dầm phải) vẽ bằng nét thanh. Ở hai đầu cột có hai cung cong màu xanh ghi $M_{Rc,top}$, $M_{Rc,bot}$; ở hai đầu dầm có hai cung cong màu cam ghi $M_{Rb,trái}$, $M_{Rb,phải}$ (hai chiều ngược nhau vì lắc ngược chiều). Bên cạnh là khung công thức: $\sum M_{Rc}\ge1{,}3\sum M_{Rb}$; nếu không đạt ⇒ hộp đỏ "báo tăng cột/giảm thép dầm — không tự tăng thép cột (R39)". Có khớp dẻo vẽ bằng chấm đỏ ở hai đầu dầm sát mặt cột.
 
+
+> *Chế độ nạp gọn:* quy định cấu tạo chi tiết 13.4–13.7 không nạp vào prompt (xem file đầy đủ); mọi con số mục này mang ⚠ và KHÔNG đủ để phát hành bản vẽ — dùng luật 13.10.
+<!-- PROMPT:BO_BAT_DAU -->
 ## 13.4. Dầm — quy định cấu tạo
 
 | Hạng mục | DCM | DCH | Ghi chú |
@@ -101,6 +104,7 @@ Rule base cũ (Bảng H2) trùng DCM: $l_{cr}=\max(h_c;l_{cl}/6;450)$, $s=\min(b
 6. **Móc đai:** 135°, đoạn thẳng $\ge10d_{sw}$ (hoặc $\ge75$ mm) ⚠; hai móc luân phiên.
 7. **$N$ chuyển thành kéo trong tổ hợp động đất:** $L_{an}$ tăng thêm 50% (EN 1998-1 5.6.2) ⚠.
 
+<!-- PROMPT:BO_KET_THUC -->
 <!-- PROMPT:KET_THUC -->
 ## 13.8. Ví dụ kiểm tra kháng chấn (DCM) cho khung trục 3
 

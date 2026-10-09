@@ -37,27 +37,51 @@ from typing import Any, Callable, Protocol, TypeVar
 _T = TypeVar("_T")
 
 
+def _thoi_gian_cho_rate_limit(thong_diep: str, lan: int) -> float:
+    """Giây cần chờ khi bị 429: lấy từ câu "Please try again in 1.073s"/"in 2m3.5s" của OpenAI (cộng đệm), mặc định
+    tăng dần theo lần thử; chặn trong [2, 70] giây."""
+    import re
+
+    m = re.search(r"try again in (?:(\d+)m)?([\d.]+)(ms|s)", thong_diep)
+    if m:
+        giay = float(m.group(2)) / (1000.0 if m.group(3) == "ms" else 1.0) + 60.0 * float(m.group(1) or 0)
+        return min(70.0, max(2.0, giay + 1.0))
+    return min(70.0, 5.0 * (lan + 1))
+
+
 def _thu_lai_khi_mang_loi(ham: Callable[[], _T], so_lan_toi_da: int = 5, cho_giay: float = 2.0) -> _T:
-    """Gọi 1 hàm gọi OpenAI API, tự thử lại (backoff tuyến tính) khi gặp lỗi
-    MẠNG thoáng qua (mất kết nối/timeout khi bắt tay TLS...) — LỖI THẬT đã
-    gặp khi chạy thật (pipeline dài ~15-20 phút, hàng trăm lượt gọi model):
-    dù `openai.OpenAI` client đã tự retry nội bộ (mặc định 2 lần), 1 lần mất
-    mạng đủ dài (vd Wi-Fi chập chờn) vẫn vượt quá số lần retry nội bộ đó,
-    làm SẬP TOÀN BỘ pipeline giữa chừng (mất hết tiến độ ~20 phút đã chạy,
-    kể cả các phần tử đã xong) chỉ vì 1 lần mạng chập — không phải lỗi logic
-    ở đâu trong code. Lỗi KHÔNG PHẢI về mạng (400 sai tham số, 401 sai API
-    key...) vẫn raise ngay, không nuốt lỗi mù quáng."""
+    """Gọi 1 hàm gọi OpenAI API, tự thử lại khi gặp lỗi THOÁNG QUA:
+    (1) MẠNG (mất kết nối/timeout, backoff tuyến tính) — LỖI THẬT đã gặp khi chạy pipeline dài (hàng trăm lượt gọi): 1 lần
+    mất mạng đủ dài làm SẬP toàn bộ pipeline, mất hết tiến độ;
+    (2) GIỚI HẠN TỐC ĐỘ 429 (tokens/phút) — LỖI THẬT đã gặp khi chạy bộ skill ~36 nghìn token/lượt: vượt TPM của tổ chức
+    (2.000.000) sau ~46 lượt/phút ⇒ RateLimitError làm sập pipeline giữa chừng. Chờ đúng thời gian API đề nghị rồi thử lại
+    (tối đa `SO_LAN_RATE_LIMIT` lần). Lỗi 429 "insufficient_quota" (hết tiền) KHÔNG thử lại.
+    Lỗi KHÔNG phải loại trên (400 sai tham số, 401 sai API key...) vẫn raise ngay, không nuốt lỗi mù quáng."""
     import openai
 
     loi_cuoi: Exception | None = None
-    for lan in range(so_lan_toi_da):
+    so_mang = so_rl = 0
+    while True:
         try:
             return ham()
         except (openai.APIConnectionError, openai.APITimeoutError) as e:
             loi_cuoi = e
-            time.sleep(cho_giay * (lan + 1))
-    assert loi_cuoi is not None
-    raise loi_cuoi
+            so_mang += 1
+            if so_mang >= so_lan_toi_da:
+                raise
+            time.sleep(cho_giay * so_mang)
+        except openai.RateLimitError as e:
+            tm = str(e)
+            if "insufficient_quota" in tm:
+                raise
+            so_rl += 1
+            if so_rl > SO_LAN_RATE_LIMIT:
+                raise
+            time.sleep(_thoi_gian_cho_rate_limit(tm, so_rl))
+    raise loi_cuoi  # pragma: no cover
+
+
+SO_LAN_RATE_LIMIT = 30
 
 
 class NhaCungCapChat(Protocol):

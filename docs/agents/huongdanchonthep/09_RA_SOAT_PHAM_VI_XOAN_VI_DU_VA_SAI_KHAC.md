@@ -115,6 +115,9 @@ Xoắn xuất hiện ở dầm biên đỡ console/sàn công xôn, dầm đỡ 
 
 **Luật:** Agent không tự giảm $T$. Không xác định được loại ⇒ coi là cân bằng và báo kỹ sư (R47).
 
+
+> *Chế độ nạp gọn:* công thức và quy trình chọn thép chống xoắn 15.1.2–15.1.3 không nạp vào prompt (không có tool; agent chỉ áp dụng luật dừng/hỏi ở 15.4).
+<!-- PROMPT:BO_BAT_DAU -->
 ### 15.1.2. Công thức (D, 7.7)
 
 $b$, $h$ cạnh nhỏ/lớn; $Z_1$ chiều dài cạnh tiết diện ở **biên chịu kéo** đang xét, $Z_2$ cạnh còn lại (D, Hình 7.8; xem Hình 15.1); $\delta=\dfrac{Z_1}{2Z_2+Z_1}$ (7.28); $q_{sw1}=\dfrac{R_{sw}A_{sw1}}{s_w}$ (7.26), $A_{sw1}$ diện tích **một nhánh** đai chịu xoắn; $A_{s1}$ cốt dọc gần biên kéo đang xét.
@@ -146,6 +149,7 @@ $b$, $h$ cạnh nhỏ/lớn; $Z_1$ chiều dài cạnh tiết diện ở **biên
 6. **Kiểm tác dụng đồng thời:** 7.36 (có $M$), 7.37 và 7.38 (có $Q$). Không đạt ⇒ giảm bước đai và kiểm lại từ bước 5.
 7. **Cấu tạo.** Cốt dọc theo **chu vi** và neo chắc vào gối; **đai kín**, hai đầu nối đủ chiều dài nối chồng (D 7.6). [thực hành]: móc 135°; thanh dọc chu vi cách nhau không quá ~300 mm; đai xoắn trên toàn đoạn có $T$, không cắt đột ngột; bước đai xoắn không lớn hơn bước đai chống cắt cùng vùng. (Rule base cũ 53.5: nối đai ≥$30d_{sw}$; thanh dọc mặt bên ≤400, thực tế ≤200; chữ T/I: đai kín ôm bụng và cánh.)
 
+<!-- PROMPT:BO_KET_THUC -->
 <!-- PROMPT:BO_BAT_DAU -->
 ### 15.1.4. Ví dụ minh hoạ [số giả định]
 

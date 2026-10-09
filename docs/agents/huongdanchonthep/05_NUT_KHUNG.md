@@ -21,6 +21,9 @@
 
 **Mô tả bằng chữ:** Cây quyết định nằm ngang. Gốc: "Nút ở đâu?" chia bốn nhánh: Góc mái / Giữa mái / Biên trung gian / Giữa trung gian, cộng hai nhánh phụ "Xà gãy khúc" và "Cột–móng". **Góc mái** → "Dấu mô men đầu dầm?" → Đóng ⇒ ba ô theo $e_0/h$: ≤0,25 (9.5a), 0,25–0,5 (9.5b), >0,5 (9.5c; thêm nách 9.5d nếu cần); Mở ⇒ hai ô theo $\mu$: <2% (9.6a), ≥2% (9.6b). Ô cuối mọi nhánh góc: "$h_d\ge1{,}5h_c$ ⇒ thêm đai kín/chữ U (9.5e)". **Giữa mái** → 9.7. **Biên trung gian** → "$\tan\beta$?" Không đổi/≤1/6 (9.8a, 9.8b) / >1/6 (9.8c). **Giữa trung gian** → dầm hai bên cùng cao: thép liên tục; khác cao: neo sâu (9.9). **Gãy khúc** → $\alpha\ge160°$ (9.10a) / $<160°$ (9.10b) / góc nhọn (9.10c). **Cột–móng** → 9.11. Mọi lá nối vào hộp cuối "Kiểm 14.2/14.3 trước khi vẽ".
 
+
+> *Chế độ nạp gọn:* chi tiết từng loại nút 9.7.1–9.7.7 (sơ đồ, số liệu thép) KHÔNG nạp vào prompt — dùng cây quyết định ở trên và Bảng A/B/C bên dưới; chi tiết đầy đủ ở file module 05.
+<!-- PROMPT:BO_BAT_DAU -->
 ### 9.7.1. Nút góc tầng mái (nút đóng — mô men đầu dầm làm nút nén)
 
 Cấu tạo phụ thuộc $e_0/h$ tại đầu cột:
@@ -145,6 +148,7 @@ Diện tích đai giằng (B 3.1, **[TC cũ]**): $\sum R_{sw}A_{sw}\cos\beta\ge(
 
 **Mô tả bằng chữ:** Cột đứng trên một móng chữ nhật (có ký hiệu gãy hai bên). Hai thanh thép chờ chạy dọc cột xuống móng và **bẻ chữ L ra hai phía** ở đáy móng, đoạn nằm ngang dài $\ge200$ (kích thước ghi dưới); một thanh L rời vẽ riêng bên trái. Mặt trên móng có cao độ "Mặt trên móng". Đai cột kéo xuống tới mặt móng; ở đoạn $L_{an}$ phía trên mặt móng đai dày (ngoặc "≤300, ≤10Ø$_{min}$"), có kích thước 100 từ mặt móng tới đai đầu. Ở đáy móng là lưới thép thể hiện bằng một đường kép ngang và dãy chấm tròn.
 
+<!-- PROMPT:BO_KET_THUC -->
 ## BẢNG ĐIỀU KIỆN THÊM THÉP (điều kiện kích hoạt → thép phải thêm)
 
 > Cách dùng: với mỗi cấu kiện/nút, quét từ trên xuống; mỗi dòng có điều kiện đúng ⇒ đưa **cột "Phải THÊM"** vào báo cáo cấu tạo và dữ liệu cho Drawing Agent. `basis`: TCVN / thuc_hanh / uoc_luong / can_xac_nhan (module 00). Nhãn "TC cũ" ⇒ `can_xac_nhan`.
