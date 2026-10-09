@@ -1,0 +1,340 @@
+# MỤC LỤC NGUỒN (sinh tự động từ NOI_DUNG_GOC.md)
+
+Dùng để lập BẢN ĐỒ PHỦ: mỗi dòng dưới đây phải có chỗ đi trong bộ skill. Số dòng (L) là dòng trong NOI_DUNG_GOC.md.
+
+## 1. Tiêu đề (chương, mục, bước)
+
+- L12: Phần mở đầu – nguyên tắc tổng hợp 4 tài liệu {-}
+  - L14: 0.1. Bốn tài liệu và vai trò của từng tài liệu {-}
+  - L23: 0.2. Quy tắc xử lý khi các tài liệu khác nhau {-}
+  - L36: 0.3. Các khung đánh dấu trong tài liệu {-}
+  - L54: 0.4. Đơn vị và quy ước dấu {-}
+  - L69: 0.5. Tiêu chuẩn và tài liệu căn cứ {-}
+- L86: CHƯƠNG 1. DỮ LIỆU ĐẦU VÀO
+  - L92: 1.1. Dữ liệu đầu vào gồm những nhóm nào
+  - L104: 1.2. Bảng điền dữ liệu đầu vào (dùng cho mọi dự án)
+    - L108: A. Công trình và môi trường
+    - L123: B. Hình học
+    - L137: C. Vật liệu
+    - L147: D. Tải trọng
+    - L157: E. Mô hình và kết quả ETABS/SAP2000
+    - L167: F. Yêu cầu thiết kế riêng của dự án
+    - L176: G. Quy định cấu tạo của dự án
+  - L189: 1.3. Cách kiểm tra dữ liệu đầu vào trước khi tính
+  - L197: 1.4. Dữ liệu cần để chương trình/AI tự động chọn thép
+  - L211: 1.5. Bộ số liệu ví dụ thống nhất (dùng xuyên suốt tài liệu)
+- L228: CHƯƠNG 2. CHỌN SƠ BỘ KÍCH THƯỚC CẤU KIỆN
+  - L234: 2.1. Thứ tự chọn
+  - L241: 2.2. Chiều dày bản sàn
+  - L265: 2.3. Tiết diện dầm
+  - L297: 2.4. Tiết diện cột
+    - L299: 2.4.1. Diện tích sơ bộ theo lực dọc
+    - L312: 2.4.2. Điều kiện về độ mảnh
+    - L317: 2.4.3. Thống nhất hoá
+  - L336: 2.5. Kiểm tra lại sau khi có nội lực
+- L352: CHƯƠNG 3. LẬP SƠ ĐỒ TÍNH KHUNG
+  - L358: 3.1. Khung phẳng hay khung không gian
+  - L374: 3.2. Quy tắc lập sơ đồ tính
+  - L385: 3.3. Các phép đơn giản hoá cho phép (A, theo [7])
+  - L398: 3.4. Mô hình hoá trong ETABS/SAP2000 (checklist dựng mô hình)
+  - L410: 3.5. Sơ đồ tính của khung trục 3 (ví dụ)
+- L434: CHƯƠNG 4. XÁC ĐỊNH VÀ ĐƯA TẢI TRỌNG VÀO MÔ HÌNH
+  - L440: 4.1. Quy trình xác định tải trọng
+  - L448: 4.2. Tải trọng thường xuyên (tĩnh tải) đơn vị
+  - L516: 4.3. Tải trọng tạm thời (hoạt tải) đơn vị
+  - L529: 4.4. Truyền tải từ sàn lên khung
+    - L531: 4.4.1. Nguyên tắc
+    - L538: 4.4.2. Công thức
+    - L558: 4.4.3. Ví dụ – tĩnh tải sàn tầng 2 lên khung trục 3
+    - L597: 4.4.4. Hoạt tải đứng – hai phương án xếp lệch
+  - L624: 4.5. Tải trọng gió
+    - L626: 4.5.1. Công thức (TCVN 2737:2023; A, 3.2.3)
+    - L646: 4.5.2. Thay số – gió lên khung trục 3
+    - L672: 4.5.3. Gió lên cột khung phẳng
+  - L679: 4.6. Bảng tổng hợp tải đưa vào ETABS (khung trục 3)
+- L702: CHƯƠNG 5. TỔ HỢP TẢI TRỌNG THEO TCVN 2737:2023
+  - L708: 5.1. Hai loại tổ hợp
+  - L714: 5.2. Công thức tổng quát
+  - L754: 5.3. Bảng tổ hợp cho khung phẳng (đơn giản hoá)
+  - L781: 5.4. Nguyên tắc lập tổ hợp
+  - L790: 5.5. Nội lực dài hạn $M_{dh}, N_{dh}$ (cho cột)
+  - L798: 5.6. Ví dụ – tổ hợp TH12 cho cột 22
+- L813: CHƯƠNG 6. NỘI LỰC: ĐỌC, KIỂM TRA VÀ CHỌN CẶP NỘI LỰC TỪ ETABS/SAP2000
+  - L819: 6.1. Quy trình xác định nội lực bằng phần mềm
+  - L827: 6.2. Cách xuất nội lực
+  - L847: 6.3. Cách chọn cặp nội lực nguy hiểm cho thiết kế
+  - L871: 6.4. Kiểm tra kết quả ETABS (bắt buộc trước khi tính thép)
+  - L903: 6.5. Bảng nội lực dùng trong ví dụ (ETABS – khung trục 3)
+- L932: CHƯƠNG 7. CHỌN THÉP DẦM – 16 BƯỚC
+  - L961: Bước 1. Chốt dữ liệu đầu vào cho từng dầm
+  - L971: Bước 2. Hệ số vật liệu
+  - L988: Bước 3. Giả thiết $a$, $h_0$
+  - L1004: Bước 4. Phân loại tiết diện: chữ nhật hay chữ T
+  - L1035: Bước 5. Tính $\alpha_m$ và chọn loại cốt thép
+  - L1052: Bước 6. Tính diện tích cốt thép
+    - L1054: 6a. Cốt đơn (Bài toán 1 – A, D 4.30–4.31)
+    - L1058: 6b. Cốt kép (Bài toán 2 – biết $M$, chưa biết $A_s'$)
+    - L1064: 6c. Biết sẵn $A_s'$ (Bài toán 3 – tận dụng thép nén có sẵn, ví dụ thép gối/ thép giá)
+  - L1088: Bước 7. Kiểm tra hàm lượng cốt thép
+  - L1106: Bước 8. Chọn thép, bố trí hàng, kiểm tra $h_0$ thực và khả năng chịu lực
+    - L1108: 8a. Bảng diện tích thép (mm²)
+    - L1119: 8b. Nguyên tắc chọn (A 5.4.1, C, TCVN 5574:2018)
+    - L1142: 8c. Tính lại $a$ thực và kiểm tra khả năng chịu lực
+  - L1172: Bước 9. Kiểm tra ứng suất nén chính trên dải nghiêng
+  - L1182: Bước 10. Bê tông có tự chịu cắt được không
+  - L1195: Bước 11. Tính cốt đai (cốt đai không có cốt xiên)
+    - L1197: 11a. Phương pháp A (đơn giản – dùng cho ví dụ; thiên về an toàn)
+    - L1227: 11b. Phương pháp D chính xác hơn (có kể tải phân bố trên đoạn nghiêng)
+    - L1238: 11c. Phương pháp gần đúng của D (tiết diện thẳng góc cách gối $a$)
+    - L1244: 11d. Cốt đai cấu tạo và các yêu cầu chung (A 5.2.2; D 4.7.2; C)
+  - L1260: Bước 12. Cốt xiên (khi bê tông + đai chưa đủ)
+  - L1278: Bước 13. Cốt treo (giật đứt) tại chỗ dầm phụ gác lên dầm chính
+  - L1303: Bước 14. Cắt hoặc uốn cốt dọc – hình bao vật liệu
+    - L1305: 14a. Nguyên tắc (D 4.6.8; A 5.4.1)
+    - L1310: 14b. Đoạn kéo dài $W$
+    - L1316: 14c. Điều kiện kéo vào gối (D 4.6.8)
+    - L1321: 14d. Quy tắc thực hành khi chưa có hình bao (A, Hình 5.7–5.9)
+  - L1331: Bước 15. Neo cốt dọc vào gối và nút khung
+  - L1362: Bước 16. Kiểm tra cuối và lập bảng thống kê thép
+    - L1364: 16a. Dầm có lực dọc đáng kể, xoắn
+    - L1369: 16b. Trạng thái giới hạn thứ hai: nứt và võng
+    - L1393: 16c. Bảng thống kê thép dầm (mẫu)
+- L1408: CHƯƠNG 8. CHỌN THÉP CỘT – 14 BƯỚC
+  - L1414: 8.0. Chọn phương pháp tính — làm trước khi tính
+  - L1460: Bước 1. Chốt các cặp nội lực nguy hiểm của cột
+  - L1478: Bước 2. Vật liệu và hệ số
+  - L1486: Bước 3. Hình học, chiều dài tính toán, độ mảnh
+  - L1513: Bước 4. Độ lệch tâm $e_1$, $e_a$, $e_0$
+  - L1527: Bước 5. Kể ảnh hưởng uốn dọc — hệ số $\eta$
+  - L1569: Bước 6. Phân loại lệch tâm lớn / bé
+  - L1584: Bước 7. Tính $A_s = A_s'$ (cốt đối xứng)
+    - L1586: 7a. Lệch tâm lớn ($x_1 \le \xi_R h_0$)
+    - L1598: 7b. Lệch tâm bé ($x_1 > \xi_R h_0$) — ba cách
+  - L1632: Bước 8. Xử lý kết quả: hàm lượng thép tối thiểu, tối đa
+  - L1672: Bước 9. Chọn thép dọc: đường kính, số thanh, cốt cấu tạo
+  - L1730: Bước 10. Kiểm tra khả năng chịu lực của tiết diện đã chọn
+    - L1732: 10a. Trong mặt phẳng uốn (D 6.13)
+    - L1752: 10b. Ngoài mặt phẳng uốn (nén đúng tâm theo cạnh nhỏ $b$)
+  - L1766: Bước 11. Biểu đồ tương tác và kiểm tra mọi cặp nội lực
+  - L1820: Bước 12. Cốt đai
+    - L1824: 12a. Điều kiện kiểm tra cắt (A 5.3.2)
+    - L1845: 12b. Cấu tạo cốt đai (D 6.2.1; A 5.4.2; C)
+  - L1872: Bước 13. Nối cốt thép, neo, thay đổi thép theo chiều cao
+    - L1874: 13a. Chiều dài nối chồng
+    - L1902: 13b. Vị trí nối và tỷ lệ nối (A, B, C)
+    - L1921: 13c. Thay đổi thép theo chiều cao
+  - L1929: Bước 14. Trường hợp đặc biệt và bảng thống kê thép cột
+    - L1931: 14a. Cột chịu kéo (lực dọc $N < 0$) — D chương 7
+    - L1943: 14b. Nén lệch tâm xiên và cột góc
+    - L1947: 14c. Cột nén đúng tâm (D 6.3)
+    - L1953: 14d. Các điều kiện còn lại cần kiểm tra
+    - L1961: 14e. Bảng thống kê thép cột (mẫu)
+- L1990: CHƯƠNG 9. YÊU CẦU CẤU TẠO CỐT THÉP
+  - L1996: 9.1. Bảng tổng hợp nhanh các con số cấu tạo
+  - L2025: 9.2. Lớp bảo vệ bê tông
+  - L2050: 9.3. Khoảng hở thông thủy và bố trí thép trên tiết diện
+  - L2072: 9.4. Cấu tạo dầm khung
+    - L2074: 9.4.1. Cốt dọc
+    - L2082: 9.4.2. Cốt đai và cốt xiên
+    - L2090: 9.4.3. Dầm console và dầm biên
+  - L2095: 9.5. Neo, nối, uốn cốt thép
+    - L2097: 9.5.1. Chiều dài neo $L_{an}$
+    - L2105: 9.5.2. Nối cốt thép
+    - L2129: 9.5.3. Uốn cong và móc
+  - L2139: 9.6. Cấu tạo cột
+  - L2157: 9.7. Cấu tạo nút khung
+    - L2161: 9.7.1. Nút góc tầng mái (nút đóng — mô men đầu dầm làm nút nén)
+    - L2198: 9.7.2. Nút góc tầng mái chịu kéo (nút mở — mô men đầu dầm làm nút kéo)
+    - L2211: 9.7.3. Nút giữa tầng mái
+    - L2218: 9.7.4. Nút biên tầng trung gian
+    - L2236: 9.7.5. Nút giữa tầng trung gian
+    - L2243: 9.7.6. Nút xà ngang gãy khúc
+    - L2258: 9.7.7. Liên kết cột – móng (A 5.19; B 3.14–3.15)
+  - L2272: 9.8. Yêu cầu bổ sung khi nhà chịu động đất (tham khảo từ B)
+  - L2304: 9.9. Lỗi cấu tạo thường gặp
+- L2313: CHƯƠNG 10. CHECKLIST QUY TRÌNH CHỌN THÉP
+  - L2319: 10.1. Sơ đồ quy trình tổng thể
+  - L2329: 10.2. Bảng checklist theo từng bước
+    - L2331: 10.2.1. Giai đoạn chuẩn bị (Chương 1–6)
+    - L2342: 10.2.2. Dầm — 16 bước (Chương 7)
+    - L2363: 10.2.3. Cột — 14 bước (Chương 8)
+    - L2383: 10.2.4. Cấu tạo và hoàn thiện hồ sơ (Chương 9, 12, 13, 14, 15)
+  - L2396: 10.3. Checklist kiểm tra cuối cùng trước khi phát hành hồ sơ
+  - L2437: 10.4. Cấu trúc dữ liệu và luật quyết định cho AI Agent (tóm tắt từ chương 1–9; luật bố trí R14–R30 ở mục 12.7; luật kháng chấn R31–R40 ở mục 13.10; cổng chặn R41–R46 ở mục 14.6; xoắn, dầm cao, lỗ mở R47–R52 ở mục 15.4)
+- L2466: CHƯƠNG 11. VÍ DỤ HOÀN CHỈNH — KHUNG TRỤC 3, TRƯỜNG HỌC 6 TẦNG
+  - L2472: 11.0. Bộ số liệu thống nhất
+  - L2484: 11.1. Dầm CB 250×700 (phần tử 40–41, tầng 1)
+    - L2486: 11.1.1. Thép dọc gối C và B (mô men âm)
+    - L2507: 11.1.2. Thép dọc nhịp CB (mô men dương)
+    - L2525: 11.1.3. Cốt đai
+    - L2543: 11.1.4. Cắt thép, cốt treo, neo
+  - L2555: 11.2. Dầm BA 250×400 (phần tử 9, tầng 1)
+  - L2574: 11.3. Console A–E (phần tử 15, tầng 2)
+  - L2590: 11.4. Cột 22, tầng 1 (250×600) — tính đủ 14 bước
+  - L2631: 11.5. Nút góc mái — cột 17 / dầm 50
+  - L2655: 11.6. Kết quả các tầng khác (số liệu từ A, bảng 6.24–6.25)
+  - L2679: 11.7. Bảng thống kê thép toàn khung (kết quả cuối)
+- L2694: CHƯƠNG 12. BỐ TRÍ THÉP THEO CHIỀU DÀI CẤU KIỆN VÀ LẬP DỮ LIỆU CHO BẢN VẼ
+  - L2702: 12.1. Từ "diện tích thép cần có" đến bản vẽ: 9 việc theo thứ tự
+  - L2716: 12.2. Dầm: quy trình bố trí dọc — 10 bước
+    - L2718: B1. Bảng $A_{s,tt}$ tại các mặt cắt kiểm soát
+    - L2722: B2. Chọn nhóm thép chạy suốt
+    - L2735: B3. Thanh gia cường gối
+    - L2741: B4. Điểm cắt và đoạn kéo dài
+    - L2750: B5. Chiều dài từng thanh
+    - L2762: B6. Neo thép dưới vào cột
+    - L2769: B7. Dầm nhiều nhịp và dầm khác tiết diện
+    - L2777: B8. Vùng đai và số lượng đai
+    - L2791: B9. Cốt treo và đai gia cường
+    - L2797: B10. Cốt cạnh bên, nối thép dọc, đai phụ
+  - L2803: 12.3. Cột nhiều tầng: quy trình bố trí dọc — 8 bước
+    - L2805: C1. Gom nhóm tầng và đổi thép
+    - L2811: C2. Cao độ và chiều dài nối
+    - L2818: C3. Thép chờ chân cột và neo vào móng
+    - L2824: C4. Chia vùng đai cột
+    - L2837: C5. Đai phụ và móc
+    - L2841: C6. Nút khung
+    - L2845: C7. Đếm đai
+    - L2849: C8. Kiểm tra sau khi bố trí
+  - L2853: 12.4. Ký hiệu thanh và bảng thống kê
+  - L2868: 12.5. Ví dụ: bố trí hoàn chỉnh dầm CB 250×700 (khung trục 3)
+  - L2915: 12.6. Ví dụ: bố trí dọc cột 22 (tầng 1 và tầng 2)
+  - L2954: 12.7. Luật bố trí cho chương trình / Agent
+  - L3010: 12.8. Phiếu kiểm tra bố trí trước khi phát hành bản vẽ
+  - L3023: 12.9. Lỗi bố trí thường gặp
+- L3032: CHƯƠNG 13. CẤU TẠO KHI NHÀ CHỊU ĐỘNG ĐẤT (TCVN 9386:2012)
+  - L3042: 13.1. Khi nào phải áp dụng và cần tra gì
+  - L3052: 13.2. Cấp dẻo và hệ số ứng xử
+  - L3059: 13.3. Nguyên tắc "thiết kế theo khả năng" (capacity design)
+  - L3072: 13.4. Dầm — quy định cấu tạo
+  - L3094: 13.5. Cột — quy định cấu tạo
+  - L3115: 13.6. Nút khung dầm–cột
+  - L3128: 13.7. Neo, nối và cắt thép khi chịu động đất
+  - L3137: 13.8. Ví dụ kiểm tra kháng chấn (DCM) cho khung trục 3
+  - L3180: 13.9. Điểm phải tra trực tiếp trong TCVN 9386:2012 (không chép lại)
+  - L3195: 13.10. Luật bổ sung cho Agent
+- L3215: CHƯƠNG 14. RÀ SOÁT CỦA KỸ SƯ TRƯỚC KHI KÝ: HÌNH HỌC NÚT, PHẠM VI ÁP DỤNG VÀ GIỚI HẠN CỦA TÀI LIỆU
+  - L3223: 14.1. Tài liệu này dùng được cho trường hợp nào
+  - L3240: 14.2. Kiểm tra hình học nút: thép dầm có lọt qua thép cột không
+  - L3271: 14.3. Hai dầm cắt nhau tại cột: chiều cao làm việc thực
+  - L3279: 14.4. Rà soát tính hợp lý của kết quả
+  - L3292: 14.5. Những việc không thuộc tài liệu này nhưng người ký phải làm
+  - L3301: 14.6. Luật bổ sung cho Agent (cổng chặn trước khi xuất bản vẽ)
+  - L3312: 14.7. Phiếu kiểm tra bổ sung (thêm vào 12.8)
+- L3323: CHƯƠNG 15. XOẮN VÀ CÁC TRƯỜNG HỢP ĐẶC BIỆT (DẦM CAO, LỖ MỞ)
+  - L3331: 15.1. Xoắn
+    - L3333: 15.1.1. Khi nào khung có xoắn và phải phân loại
+    - L3346: 15.1.2. Công thức (D, 7.7)
+    - L3370: 15.1.3. Quy trình chọn thép chống xoắn
+    - L3382: 15.1.4. Ví dụ minh hoạ [số giả định]
+  - L3399: 15.2. Dầm cao (dầm sâu)
+  - L3407: 15.3. Lỗ mở xuyên dầm
+  - L3421: 15.4. Luật bổ sung cho Agent
+- L3439: PHỤ LỤC A. BẢNG TRA
+  - L3441: A.1. Cường độ bê tông (TCVN 5574:2018 — D, phụ lục)
+  - L3453: A.2. Cường độ cốt thép và hệ số $\xi_R$, $\alpha_R$ (TTGH1, $E_s=200\,000$ MPa)
+  - L3464: A.3. Diện tích tiết diện thanh thép (mm²)
+  - L3475: A.4. Diện tích thép bản trên 1 m bề rộng (mm²/m)
+  - L3484: A.5. Tải trọng gió
+  - L3488: A.6. Chiều dài neo nhanh (CB500-V, B30, thép gờ, $d\le32$ mm, $L_{0,an}=37{,}8d$)
+- L3498: PHỤ LỤC B. SAI KHÁC VÀ LỖI PHÁT HIỆN GIỮA CÁC TÀI LIỆU
+- L3538: PHỤ LỤC C. BIỂU MẪU
+  - L3540: C.1. Phiếu dữ liệu đầu vào một cấu kiện
+  - L3554: C.2. Bảng thống kê thép dầm
+  - L3561: C.3. Bảng thống kê thép cột
+- L3568: PHỤ LỤC D. BẢNG CÔNG THỨC TRA NHANH
+- L3593: PHỤ LỤC E. TÀI LIỆU THAM KHẢO VÀ CÁC ĐIỂM CẦN XÁC NHẬN
+  - L3595: E.1. Tài liệu nguồn
+  - L3607: E.2. Các điểm cần người thiết kế xác nhận với tiêu chuẩn gốc
+
+## 2. Hình (ảnh trong nguồn → file trong figs/)
+
+- L1292: `figs/f_51.png` — Hình 7.1. Sơ đồ xác định chiều dài vùng giật đứt (vẽ lại theo A, hình 5.1): a) dầm phụ thấp hơn dầm chính, $a=2h_s+b$; b) hai dầm cùng chiều cao, $a=3
+- L1294: `figs/f_52.png` — Hình 7.2. Bố trí cốt ngang bổ sung trong vùng dầm giao nhau (vẽ lại theo A, hình 5.2): 1 — mặt cắt; 2 — vùng gác dầm phụ; 3 — cốt treo trong đoạn $b+2
+- L1728: `figs/col22_section.png` — Mặt cắt cột 22: thép dọc chịu lực, cốt cấu tạo, đai chính và đai phụ (vẽ theo quy ước hình 5.10 của A)
+- L1808: `figs/interaction_c22.png` — Biểu đồ tương tác N–M của cột 22, thép 2Ø25+1Ø22 mỗi phía, và điểm nội lực TH12
+- L2064: `figs/f_54_section.png` — Hình 9.1. Khoảng hở thông thủy và bố trí thép trên tiết diện dầm (vẽ lại theo A, hình 5.4): $t_0\ge(25;d_{max})$ phía dưới, $\ge(30;d_{max})$ phía trê
+- L2150: `figs/f_510_col.png` — Hình 9.2. Một số trường hợp bố trí cốt thép trên tiết diện ngang của cột (vẽ lại theo A, hình 5.10): a) $b\le400$, $h$ bất kỳ, một đai phụ thẳng; b) $
+- L2152: `figs/f_511a.png` — Hình 9.3. Thép dọc cột khi tiết diện không đổi (vẽ lại theo A, hình 5.11a): thép dọc tầng trên bẻ khuỷu thu vào 50 mm trên chiều dài bằng 10 lần đoạn 
+- L2154: `figs/f_511b.png` — Hình 9.4. Thép dọc cột khi thay đổi tiết diện (vẽ lại theo A, hình 5.11b): thép cột dưới neo vào sàn nếu mô men lớn; thép cột trên kéo xuống một đoạn 
+- L2172: `figs/f_513a.png` — Hình 9.5a. Nút góc mái đóng, $e_0/h\le0{,}25$ (vẽ lại theo A, hình 5.13a).
+- L2174: `figs/f_513b.png` — Hình 9.5b. Nút góc mái đóng, $0{,}25<e_0/h\le0{,}5$: ít nhất hai thanh thép dầm kéo xuống quá đáy dầm $L_{an}$ (A, hình 5.13b).
+- L2176: `figs/f_513c.png` — Hình 9.5c. Nút góc mái đóng, $e_0/h>0{,}5$: thép dầm kéo xuống quá đáy dầm $2L_{an}$, ít nhất hai thanh (A, hình 5.13c).
+- L2178: `figs/f_513d.png` — Hình 9.5d. Nút góc mái có nách: đai gia cường nghiêng; 20% cốt dọc đầu dầm uốn xiên; chiều dài nách $0{,}1L$, chiều cao nách $0{,}4h_d$ (A, hình 5.13d
+- L2180: `figs/f_513e.png` — Hình 9.5e. Nút mở rộng khi $h_d\ge1{,}5h_c$: đai kín và thép uốn chữ U (A, hình 5.13e; TCVN 5574:2018, mục 10.4.11).
+- L2206: `figs/f_515a.png` — Hình 9.6a. Nút góc mái mở, $\mu<2\%$: thép dọc uốn chữ U (vẽ lại theo A, hình 5.15a).
+- L2208: `figs/f_515b.png` — Hình 9.6b. Nút góc mái mở, $\mu\ge2\%$: thép dọc chữ U và thép chéo gia cường (A, hình 5.15b).
+- L2215: `figs/f_516.png` — Hình 9.7. Cấu tạo nút giữa khung tầng mái (vẽ lại theo A, hình 5.16): thép cột uốn vòm hoặc uốn ra hai bên với $r\ge5\varnothing$; đoạn $L_{an}$ trên 
+- L2228: `figs/f_517a.png` — Hình 9.8a. Nút biên tầng trung gian, tiết diện cột không đổi (vẽ lại theo A, hình 5.17a).
+- L2230: `figs/f_517b.png` — Hình 9.8b. Nút biên, cột trên nhỏ hơn cột dưới, $\tan\beta\le1/6$: thép cột dưới bẻ nghiêng (A, hình 5.17b).
+- L2232: `figs/f_517c.png` — Hình 9.8c. Nút biên, $\tan\beta>1/6$: thép cột dưới kéo lên mặt dầm và neo $L_{an}$ (A, hình 5.17c).
+- L2240: `figs/f_518.png` — Hình 9.9. Cấu tạo nút giữa khung tầng trung gian, hai dầm khác chiều cao: thép dầm thấp neo sâu vào nút (vẽ lại theo A, hình 5.18).
+- L2250: `figs/f_520a.png` — Hình 9.10a. Nút xà gãy khúc, $\alpha\ge160°$: cốt dọc tính toán đặt liên tục qua nút (vẽ lại theo A, hình 5.20a); $S=h\,\mathrm{tg}(3\alpha/8)$, $\alp
+- L2252: `figs/f_520b.png` — Hình 9.10b. Nút xà gãy khúc, $\alpha<160°$: cốt dọc tính toán phải được neo vào vùng nén (A, hình 5.20b).
+- L2254: `figs/f_520c.png` — Hình 9.10c. Nút xà gãy khúc góc nhọn: thép gia cường dạng vòng và thép ngang ôm cốt dọc kéo, $L_{an}$ mỗi bên (A, hình 5.20c).
+- L2270: `figs/f_519.png` — Hình 9.11. Cấu tạo liên kết cột với móng (vẽ lại theo A, hình 5.19): thép chờ chữ L từ móng, $r\ge5\varnothing$, đoạn thẳng $\ge200$; đai cột $\le300$
+- L2321: `figs/flow_process.png` — Sơ đồ quy trình chọn thép khung BTCT toàn khối: các vòng lặp màu đỏ là chỗ phải quay lại khi không đạt.
+- L2552: `figs/beam_cb_layout.png` — Hình 11.1. Dầm CB 250×700 — mặt đứng bố trí thép và hai mặt cắt đại diện (sơ đồ, mặt đứng không theo tỉ lệ; vị trí cắt thép 2150 (C) và 2000 (B) lấy t
+- L2622: `figs/interaction_c22.png` — Hình 11.2. Biểu đồ tương tác N–M của cột 22 và điểm nội lực TH12 (đã nhân $\eta$).
+- L2629: `figs/col22_section.png` — Hình 11.3. Mặt cắt cột 22: thép dọc chịu lực, cốt cấu tạo, đai chính và đai phụ.
+- L2653: `figs/joint_corner_roof.png` — Hình 11.4. Nút góc mái $e_0/h>0{,}5$ (cột 17 – dầm 50): sơ đồ cốt thép theo quy ước hình 5.13c của A.
+- L2899: `figs/lay_beam.png` — Hình 12.1. Dầm CB — a) Hình bao vật liệu của thép trên (mô men âm), điểm cắt lý thuyết $x_{lt}$, đoạn kéo dài $W$ và điểm cắt thực; b) mặt đứng bố trí
+- L2952: `figs/lay_col.png` — Hình 12.2. Cột 22 tầng 1–2 (bố trí cho tải thường, không động đất): thép chờ chân L trong móng, nối chồng 1150 trên mặt sàn tầng 2, vùng đai theo cao 
+- L3178: `figs/lay_crit.png` — Hình 13.1. Vùng tới hạn của nút biên (DCM): cột $l_{cr}=\max(h_c;\,l_{cl}/6;\,450)$ = 750, đai a100; dầm $l_{cr}=h_w=700$, đai a150; trong nút đai khô
+- L3254: `figs/joint_check.png` — Hình 14.1. Nhìn dọc trục dầm tại mặt thép cột: a) cột 250 với 2Ø25+1Ø22 mỗi mặt — chỉ 2 khe 61 mm nên thanh dầm thứ ba (Ø22 ở giữa) trùng thanh cột; b
+- L3368: `figs/tor_section.png` — Hình 15.1. Hai trường hợp vùng nén khi kiểm tra xoắn của dầm 250×500, khung đai 202×452 (tâm đai): a) nén ở cạnh trên hoặc dưới, biên kéo là cạnh đáy 
+
+## 3. Luật R1–R52 (nơi định nghĩa)
+
+- L2447: **R1**  $\alpha_m > 0{,}5$ hoặc $\xi>\xi_R$ với cốt đơn đã thử cốt kép | Báo **"tăng tiết diện"**, không tự tăng thép |
+- L2448: **R2**  Mô men dương dầm | Tính tiết diện chữ T với $b_f'$ nhỏ nhất của các điều kiện; kiểm $M_f$ |
+- L2449: **R3**  $A_{s,tt}<A_{s,min}$ | Lấy $A_s=A_{s,min}$ |
+- L2450: **R4**  Không có tổ hợp thép nào chọn được trong bề rộng $b$ (khoảng hở) | Thử 2 hàng, tăng Ø (≤ 32 dầm / ≤ 40 cột); nếu vẫn không được → báo tăng 
+- L2451: **R5**  $Q\le Q_{b,min}$ | Đai cấu tạo |
+- L2452: **R6**  $Q>0{,}3R_bbh_0$ | Báo tăng tiết diện |
+- L2453: **R7**  Cột: $l_0/h\le4$ | $\eta=1$ |
+- L2454: **R8**  Cột: $N\ge N_{cr}$ | Báo tăng tiết diện |
+- L2455: **R9**  Cột: $x_1\le\xi_Rh_0$ | Công thức lệch tâm lớn, ngược lại lệch tâm bé |
+- L2456: **R10**  Cột: sau khi chọn thép, một cặp $(\eta M,N)$ nằm ngoài BĐTT | Tăng thép → kiểm lại; nếu $\mu_t>4\%$ → tăng tiết diện |
+- L2457: **R11**  Cột: khoảng cách tim thép trên cạnh $>500$ mm | Thêm thanh cấu tạo |
+- L2458: **R12**  Cột có $N<0$ (kéo) | Chuyển sang quy trình cột kéo (Bước 14a) |
+- L2459: **R13**  Tiết diện cột/dầm thay đổi giữa các tầng | Kiểm tra lại neo/nối tại nút |
+- L2962: **R14**  Mỗi mặt trên của dầm | Chọn $\ge2$ thanh góc chạy suốt, $A_s\ge\max(A_{s,min};\tfrac14A_{s,gối\ max})$ | B2 |
+- L2963: **R15**  $A_{s,gối}-A_{s,suốt}>0$ | Chọn thanh gia cường (hàng ngoài trước), không quá 2 cỡ Ø, chênh $\le6$ mm | B3 |
+- L2964: **R16**  Với mỗi nhóm cắt | Tính $M_u^{còn}$; tìm $x_{lt}$ trên hình bao; $x_{cắt}=x_{lt}+W$; làm tròn lên 50 mm | B4 |
+- L2965: **R17**  Có tải ngang đáng kể | Kiểm điểm cắt cho **cả** thép trên và thép dưới theo hình bao hai dấu; không dùng quy tắc rút gọn | B4 |
+- L2966: **R18**  $x_{cắt}$ nhỏ hơn quy tắc thực hành | Lấy giá trị lớn hơn | B4 |
+- L2967: **R19**  Gối biên | Thanh trên uốn xuống cột, $\ell_{đứng}\ge L_{an}$, $r\ge5d$ ($<20$) / $8d$ ($\ge20$) | B5 |
+- L2968: **R20**  Thép dưới vào gối | Neo $\ge\max(L_{an,min};\ 5d\text{ qua tim})$; nếu có tải ngang thì $L_{0,an}$ | B6 |
+- L2969: **R21**  Dầm nhiều nhịp | Thanh suốt chung; thanh gia cường mỗi bên cắt theo nhịp mình; xuyên qua cột khi cả hai nhịp cần | B7 |
+- L2970: **R22**  Mỗi dầm | Vùng gối $l_1=\max(L/4;x_1)$ bước theo $h$; giữa nhịp $s\le\min(3h/4;500)$; đai đầu cách mép 50 | B8 |
+- L2971: **R23**  Có dầm phụ gác lên | Thêm cốt treo trong $S=b_{dp}+2h_s$, 2 phía | B9 |
+- L2972: **R24**  $h>700$ (và $h=700$ đặt thiên về an toàn) | Cốt cạnh bên 2 hàng, cách đều, giằng đai, neo 300 | B10 |
+- L2973: **R25**  Cột — mỗi tầng | Gom tầng cùng thép; thép tầng $k$ nhô $L_{ov}$ qua sàn tầng $k+1$ | C1–C2 |
+- L2974: **R26**  Cột — đai | Ngoài nối $\min(15d_{min};500)$; đoạn nối và hai đầu cột $\min(10d_{min};300)$; đầu cột dài $l_d=\max(h_c;H_n/6;450)$ | C4 |
+- L2975: **R27**  Cột — nút | Đai không cắt trong nút | C4, C6 |
+- L2976: **R28**  Cột cạnh dài $>400$ hoặc $>4$ thanh/cạnh | Thêm đai phụ/thanh giằng; thanh cách một thanh ở chỗ uốn đai | C5 |
+- L2977: **R29**  Chân cột | Thép chờ cùng số thanh, Ø thép tầng 1; neo móng $0{,}75L_{0,an}$; chân L $\ge200$ | C3 |
+- L2978: **R30**  Hoàn tất mỗi cấu kiện | Lập bảng thống kê, đếm đai, khối lượng; chạy phiếu kiểm tra 12.8 | 12.4 |
+- L3199: **R31**  Công trình có thiết kế kháng chấn | Người dùng xác nhận **cấp dẻo (DCM/DCH)**; Agent không tự chọn |
+- L3200: **R32**  Dầm trong vùng tới hạn | Đai $s\le\min\{h_w/4;24d_{bw};225;8d_{bL}\}$ (DCM) hoặc $\min\{h_w/4;24d_{bw};175;6d_{bL}\}$ (DCH), dài $h_w$ / $1
+- L3201: **R33**  Dầm | $\rho'\ge0{,}5\rho$ ở gối; $\ge2\varnothing14$ suốt; thép trên giữa nhịp $\ge\tfrac14$ thép trên gối |
+- L3202: **R34**  Cột | $\nu_d\le0{,}65$ (DCM) / $0{,}55$ (DCH); nếu vượt → báo **tăng tiết diện** |
+- L3203: **R35**  Cột | $\rho\in[1\%;4\%]$; thanh được giằng cách nhau $\le200$ (DCM) / $150$ (DCH) → thêm thanh dọc nếu cần |
+- L3204: **R36**  Cột — đầu cột | $l_{cr}=\max\{h_c;l_{cl}/6;450\}$ (DCM); đai $\min\{b_0/2;175;8d_{bL}\}$ |
+- L3205: **R37**  Cột — bó lõi | Tính $\alpha\omega_{wd}$; nếu không đạt bằng đai khả thi → báo **tăng tiết diện** |
+- L3206: **R38**  Nút | Đai nút $\ge$ vùng tới hạn cột; không cắt; thanh dọc trung gian |
+- L3207: **R39**  Mọi nút | Kiểm $\sum M_{Rc}\ge1{,}3\sum M_{Rb}$; không đạt → báo **tăng cột/giảm thép dầm**, không tự tăng thép cột |
+- L3208: **R40**  Nối thép cột | Chuyển mối nối khỏi vùng tới hạn; $L_{ov}$ kiểm theo 13.9 mục 7 |
+- L3305: **R41**  Trước khi xuất bản vẽ nút | Chạy kiểm tra 14.2 cho thép trên, thép dưới và thép dầm phương vuông góc; số thanh một lớp > số khe lọt được → 
+- L3306: **R42**  Công trình/cấu kiện thuộc dòng "Không", "Chưa đủ" hoặc "Chỉ sàng lọc" ở 14.1 (xoắn đã có quy trình, xem R47–R50) | **Dừng**, ghi lý do và d
+- L3307: **R43**  Hai dầm cắt nhau ở cùng cao độ mặt trên | Tính lại $h_0$ của dầm đặt thấp ($a'=a+d_{kia}$); chọn lại thép nếu $M_u<M$ |
+- L3308: **R44**  Tiền lượng hoặc $\mu$ ngoài khoảng 14.4 | **Cảnh báo** (không chặn) kèm con số và khoảng tham chiếu |
+- L3309: **R45**  Mọi con số đưa vào dữ liệu bản vẽ | Gắn trường `basis` ∈ {`TCVN`, `thuc_hanh`, `uoc_luong`, `can_xac_nhan`}; có bất kỳ `uoc_luong` hoặc `ca
+- L3310: **R46**  Hoàn tất | Không in nhãn "ĐẠT" khi còn cờ từ R41–R45 hoặc ⚠ ở Chương 13 |
+- L3425: **R47**  Dầm có $|T|>0$ trong bất kỳ tổ hợp nào | Phân loại cân bằng/tương thích; không xác định → coi là cân bằng và **hỏi kỹ sư**; không tự giảm $
+- L3426: **R48**  Có xoắn cần tính | Kiểm tra 7.21; không đạt → báo **tăng tiết diện** |
+- L3427: **R49**  Có xoắn cần tính | Chọn đai theo 15.1.3 bước 3; chọn thép dọc từng biên theo bước 4; kiểm tra bốn cạnh (bước 5) |
+- L3428: **R50**  Đồng thời có $M$ hoặc $Q$ | Kiểm tra riêng 7.36, 7.37, 7.38; chọn bước đai nhỏ nhất thoả cả ba; gắn cờ `can_xac_nhan` vì D không có công th
+- L3429: **R51**  $L_{ef}/h<3$ (hoặc ngưỡng của dự án) | **Dừng**: dầm cao; chuyển sang mô hình thanh–giằng |
+- L3430: **R52**  Có lỗ mở xuyên dầm | **Dừng**: không chọn vị trí, kích thước, thép quanh lỗ; yêu cầu kỹ sư |
