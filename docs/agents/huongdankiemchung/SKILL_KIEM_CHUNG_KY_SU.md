@@ -28,6 +28,8 @@ Dầm thường: **3** mặt cắt (gối trái, giữa nhịp, gối phải); c
 
 ## Việc kỹ sư phải kiểm nhưng tool KHÔNG đọc được (đối chiếu bằng yêu cầu/báo cáo, hoặc ghi cờ)
 
+> Mã **KC-08, KC-09 để trống có chủ đích** (dành cho các kiểm tra tool sau này, vd đọc thép dọc/đai từ bản vẽ — hiện tool chưa có, xem báo cáo GAP-tool). Không dùng lại hai mã này cho việc khác để các tham chiếu KC-10…KC-24 ở nơi khác không đổi.
+
 | Mã | Việc | Nguồn (module chọn thép) | Cách xử lý của agent |
 |:--|:--|:--|:--|
 | KC-10 | Khớp $A_s$ trong nhãn với `As_thuc` đã chọn | 02, 03 | so sánh nhãn do tool trả/yêu cầu nêu với kết quả Rule Engine; lệch ⇒ `vi_pham` nêu cả hai số |
