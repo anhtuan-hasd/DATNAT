@@ -428,10 +428,6 @@ def chay_toan_bo_khung(
     ket_qua_khung.du_lieu_dau_vao = bo_du_lieu
     ket_qua_khung.ghi(f"Input Adapter Agent: {len(bo_du_lieu.phan_tu)} phần tử, toa_do_truc={bo_du_lieu.toa_do_truc}, cao_do_moc={bo_du_lieu.cao_do_moc}")
 
-    app = backend_com.ket_noi_autocad()
-    doc = backend_com.tao_ban_ve_moi(app)
-    phien_cad = PhienCAD(app=app, doc=doc, thu_muc_xuat=thu_muc_xuat_ban_ve)
-
     # Bước A — Rule Engine Agent cho MỌI phần tử trước (chưa vẽ gì cả). Đây
     # là bước duy nhất bản vẽ bố trí khung phụ thuộc vào (chọn xong thép),
     # không cần chờ mặt cắt.
@@ -450,6 +446,13 @@ def chay_toan_bo_khung(
             KetQuaPhanTu(ten_phan_tu=p.ten, loai=p.loai, trang_thai="cho_ve_mat_cat", phuong_an_thep=phuong_an, rule_engine_dat=True)
         )
         ket_qua_khung.ghi(f"Phần tử '{p.ten}': Rule Engine ĐẠT ({len(phuong_an.vi_tri)} vị trí) — chờ vẽ mặt cắt.")
+
+    # Kết nối AutoCAD SAU KHI Rule Engine đã xong (không phải trước): Rule Engine với LLM thật chạy hàng chục phút; mở
+    # AutoCAD từ đầu rồi để nhàn rỗi từng bị mất kết nối ("RPC server is unavailable") khi có tiến trình khác (vd webapp)
+    # khởi động/đóng AutoCAD cùng lúc. Bước vẽ tất định chỉ mất ~10 giây nên đặt ngay trước nó.
+    app = backend_com.ket_noi_autocad()
+    doc = backend_com.tao_ban_ve_moi(app)
+    phien_cad = PhienCAD(app=app, doc=doc, thu_muc_xuat=thu_muc_xuat_ban_ve)
 
     # Bước B — lắp ráp + xuất BẢN VẼ BỐ TRÍ KHUNG ngay (ưu tiên số 1 theo yêu
     # cầu người dùng), dùng mọi phần tử đã có rule_engine_dat=True — KHÔNG

@@ -14,7 +14,6 @@ import json, re, sys, time
 from pathlib import Path
 THU_MUC_GOC = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(THU_MUC_GOC))
-import win32com.client
 from src.orchestrator import pipeline
 
 FILE = Path(sys.argv[1]) if len(sys.argv) > 1 else THU_MUC_GOC / "data" / "KhungTruc5_BaoCaoETABS_TaiTao.xlsx"
@@ -119,20 +118,14 @@ class LLMGia:
         return {"loai": "dam", "As_target": as_yc, "b": b, "cover": 25.0, "duong_kinh_cho_phep": bac}
 
 
-try:
-    app = win32com.client.GetActiveObject("AutoCAD.Application")
-    for i in range(app.Documents.Count - 1, -1, -1):
-        for _ in range(20):
-            try: app.Documents.Item(i).Close(False); break
-            except Exception: time.sleep(0.5)
-except Exception:
-    pass
+# KHÔNG đóng document AutoCAD đang mở (có thể là của người dùng/webapp). Tên file xuất có hậu tố thời gian để SaveAs không
+# trùng với document cũ còn mở trong AutoCAD.
 
 llm = LLMGia()
 t0 = time.time()
 kq = pipeline.chay_toan_bo_khung(
     nha_cung_cap=llm, duong_dan_file=str(FILE), hoi_nguoi_dung=lambda c, l=None: "đồng ý",
-    thu_muc_xuat_ban_ve=str(RA), ten_khung="KHUNG_TRUC5",
+    thu_muc_xuat_ban_ve=str(RA), ten_khung="KHUNG_TRUC5_GIA_" + time.strftime("%H%M%S"),
     quan_sat=lambda gd, ten, k: print(f"  [{gd}] {ten} — {k.so_lan_goi_model} lượt, dừng: {k.dung_vi}") if gd != "rule_engine" else None,
 )
 print(f"({time.time()-t0:.0f}s, {llm.so_lan} lượt LLM giả)")
