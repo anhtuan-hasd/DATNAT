@@ -61,3 +61,12 @@ Khi đạt (`dat=true`), bàn giao đơn giản `{"dat": true, "vi_pham": []}`.
 2. Các kiểm tra mở rộng ở bước 2 (số cấu kiện, đủ nhãn theo cả 3 vị trí, vòng tròn trục, số mặt cắt theo
    mục 3.8, bảng thống kê 8 cột) đã được bổ sung vào `verify_drawing.py` — trước đây chỉ kiểm tra được
    layer, 1 kích thước, và nhãn mặt cắt đơn lẻ.
+
+## Skill được nạp vào system prompt
+
+`SKILL_KIEM_CHUNG_KY_SU.md` (thư mục `docs/agents/huongdankiemchung/`) được ghép vào cuối system prompt qua
+`shared/doc_skill.py`. Skill phân ranh: KC-01…KC-07 là việc tool `kiem_chung_ban_ve` đọc được; KC-10…KC-24 là việc
+kỹ sư phải kiểm nhưng tool chưa đọc được (đối chiếu bằng dữ liệu/báo cáo hoặc ghi cờ; KC-08/09 để trống có chủ
+đích). Quy tắc: chỉ báo "đạt" cho đúng phạm vi tool đã kiểm; còn cờ `uoc_luong`/`can_xac_nhan`/⚠ ⇒ "chưa đủ để
+phát hành" (R46); hết lượt ⇒ `hoi_nguoi_dung` báo toàn bộ `vi_pham[]`. Bảng mâu thuẫn tài liệu đã biết giúp agent không
+báo lỗi giả. Thiếu file skill ⇒ prompt gốc.

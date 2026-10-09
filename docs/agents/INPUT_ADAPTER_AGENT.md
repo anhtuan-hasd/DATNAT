@@ -84,3 +84,11 @@ Không bàn giao dữ liệu thô (DataFrame, tên cột gốc) — chỉ bàn g
    dòng → ghi đè sai loại của các dòng khác loại. Đã có bảo vệ ở tầng code.
 3. (Trước khi có `hinh_hoc.py`) toạ độ trục/cao độ tầng bị hard-code riêng cho khung trục 5 trong từng
    script demo — không tổng quát cho công trình khác. Đã sửa bằng `suy_luan_hinh_hoc`.
+
+## Skill được nạp vào system prompt
+
+`SKILL_NHAP_DU_LIEU_ETABS.md` (thư mục `docs/agents/huongdannhapdulieu/`) được ghép vào cuối system prompt qua
+`shared/doc_skill.py` (ảnh thay bằng chú thích; giữ "Mô tả bằng chữ"). Nội dung: dữ liệu cần có, cách đọc báo cáo
+ETABS thật (bảng, đơn vị, dấu), kiểm tra hợp lý, phép nối bảng ETABS, và danh sách sàng lọc phạm vi (R42) để cờ
+những trường hợp ngoài phạm vi. Skill không thay tool: agent vẫn không tự tính con số kỹ thuật. Thiếu file skill ⇒
+agent chạy với prompt gốc (không lỗi).

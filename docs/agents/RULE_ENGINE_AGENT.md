@@ -94,3 +94,16 @@ Input Adapter Agent.
 6. Rule Engine từng chọn ra đường kính rất nhỏ (3Ø8, 2Ø10) khi agent tự nới `duong_kinh_cho_phep` lúc tự
    sửa — đã root-cause và sửa tận gốc: `cot_doc.py` nay LUÔN lọc bỏ d < 12mm trước khi vét cạn, không còn
    sinh ra tổ hợp phi thực tế nữa (xem `docs/CHANGE_REQUESTS.md` mục 6).
+
+## Skill được nạp vào system prompt
+
+System prompt = đoạn quy trình trên + bộ skill chia module `docs/agents/huongdanchonthep/00…09_*.md`
+(nạp bằng `src/orchestrator/shared/doc_skill.py`, chế độ "gon": chỉ vùng `PROMPT:BAT_DAU…KET_THUC`, bỏ khối
+"Mô tả bằng chữ" của ảnh trừ module 05). Theo loại cấu kiện (`chay_rule_engine_agent(..., loai=...)`): dầm bỏ
+module 03, cột bỏ module 02. Thứ tự ưu tiên nguồn, nhãn độ tin cậy (`[thực hành]`, `[ước lượng]`, ⚠...) và 10 điều
+bất khả xâm phạm nằm ở module 00. Nguồn nội dung và độ phủ: `BAN_DO_PHU_NGUON_SANG_SKILL.md`.
+
+Việc skill mô tả nhưng **chưa có tool** (bố trí theo chiều dài/điểm cắt, chi tiết nút khung, cổng hình học nút,
+kháng chấn, xoắn/dầm cao/lỗ mở): agent không tự tính; ghi cờ `can_xac_nhan` và báo cáo (R45, R46) — không in "ĐẠT".
+Rule base cũ (`RULE_BASE_CHON_THEP_KHUNG_BTCT.md`) chỉ còn ở `huongdanchonthep/_luu_tru/`, dùng làm dự phòng khi
+thư mục module trống.
