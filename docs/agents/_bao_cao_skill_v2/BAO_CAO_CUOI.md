@@ -17,7 +17,7 @@ Nhánh `feat/skill-chon-thep-v2`. Nguồn: "Huong_dan_chon_thep_khung_BTCT12.pdf
 ## 2. Kiểm chứng
 - `kiem_tra_do_phu.py`: **ĐẠT** các kiểm tra cứng (R1–R52, hình, B1–B10/C1–C8, bước 1–16/1–14, 9.7.x & Chương 12–15, 31 hàng Phụ lục B, mọi mục có trong bản đồ phủ; số liệu có đơn vị thiếu: 0).
 - Nhãn (nguồn → skill): ⚠ 36 → 91; [thực hành] 22 → 25; [ước lượng] 4 → 6; [kinh nghiệm] 5 → 9; [suy ra từ D] 3 → 4; [hình học] 2 → 3. Skill chỉ **thêm** nhãn, không mất nhãn nào.
-- `pytest`: **276 đạt** (214 cũ không sửa + 62 mới: `test_skill_files.py`, `test_skill_loaders.py`). Test mới tính lại độc lập các số ví dụ (As 1949,5/1108,5; Mu 492,5/260,2; W=1165; F=28,035; ξR 0,493 vs 0,481; 1362 mm²; 198 kg/m³; 0,0061654 kg/(m·mm²)…).
+- `pytest`: **277 đạt** (214 cũ không sửa + 63 mới: `test_skill_files.py`, `test_skill_loaders.py`). Test mới tính lại độc lập các số ví dụ (As 1949,5/1108,5; Mu 492,5/260,2; W=1165; F=28,035; ξR 0,493 vs 0,481; 1362 mm²; 198 kg/m³; 0,0061654 kg/(m·mm²)…).
 - Bảng băm 36 file Vẽ bị khoá: **không đổi** (`sha256sum -c`, 0 dòng lỗi) sau mỗi pha.
 - Đã rà độc lập bằng cách chạy lại checker, test và đối chiếu code (không dùng subagent, theo yêu cầu "làm inline"). Một lỗi do rà phát hiện và đã sửa: test Phụ lục B ban đầu quá lỏng (qua được nhờ điều kiện `or`) → thay bằng test kiểm đúng 31 hàng nguồn + B1–B17.
 
