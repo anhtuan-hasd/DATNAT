@@ -193,27 +193,34 @@ def _mang_diem_2d(x: float, y: float):
     return VARIANT(pythoncom.VT_ARRAY | pythoncom.VT_R8, [x, y])
 
 
+def _gan(e: Any, ten: str, gia_tri: Any) -> None:
+    """Gán 1 thuộc tính COM có thử lại khi AutoCAD bận. TÁCH BIỆT khỏi bước tạo đối tượng — LỖI THẬT đã gặp: gộp
+    "AddLine + gán Layer" trong 1 hàm được thử lại NGUYÊN CẢ KHỐI khiến, nếu gán Layer gặp lỗi bận thoáng qua, lần thử
+    lại tạo ĐỐI TƯỢNG THỨ HAI còn đối tượng đầu mồ côi trên layer "0" (Verification báo layer ngoài quy ước)."""
+    _thu_lai_khi_com_ban(lambda: setattr(e, ten, gia_tri))
+
+
 def _ve_1_doan_thang(msp: Any, dt) -> None:
-    e = msp.AddLine(_mang_diem(dt.p1.x, dt.p1.y, 0.0), _mang_diem(dt.p2.x, dt.p2.y, 0.0))
-    e.Layer = dt.layer
+    e = _thu_lai_khi_com_ban(lambda: msp.AddLine(_mang_diem(dt.p1.x, dt.p1.y, 0.0), _mang_diem(dt.p2.x, dt.p2.y, 0.0)))
+    _gan(e, "Layer", dt.layer)
 
 
 def _ve_1_da_giac(msp: Any, dg) -> None:
     toa_do: list[float] = []
     for d in dg.diem:
         toa_do += [d.x, d.y]
-    e = msp.AddLightWeightPolyline(_mang_diem(*toa_do))
-    e.Closed = dg.dong
-    e.Layer = dg.layer
+    e = _thu_lai_khi_com_ban(lambda: msp.AddLightWeightPolyline(_mang_diem(*toa_do)))
+    _gan(e, "Closed", dg.dong)
+    _gan(e, "Layer", dg.layer)
     # Độ rộng hình học thật — cùng lý do với backend_dxf.py (const_width):
     # lineweight của layer thường bị tắt hiển thị mặc định ở Model Space.
     if getattr(dg, "do_rong_net", 0) > 0:
-        e.ConstantWidth = dg.do_rong_net
+        _gan(e, "ConstantWidth", dg.do_rong_net)
 
 
 def _ve_1_vong_tron(msp: Any, vt) -> None:
-    e = msp.AddCircle(_mang_diem(vt.tam.x, vt.tam.y, 0.0), vt.ban_kinh)
-    e.Layer = vt.layer
+    e = _thu_lai_khi_com_ban(lambda: msp.AddCircle(_mang_diem(vt.tam.x, vt.tam.y, 0.0), vt.ban_kinh))
+    _gan(e, "Layer", vt.layer)
 
 
 def _ve_1_cung(msp: Any, cg) -> None:
@@ -222,19 +229,19 @@ def _ve_1_cung(msp: Any, cg) -> None:
     # goc_ket_thuc_do của VeCung nên chỉ cần đổi đơn vị, không đổi chiều.
     goc_dau_rad = math.radians(cg.goc_bat_dau_do)
     goc_cuoi_rad = math.radians(cg.goc_ket_thuc_do)
-    e = msp.AddArc(_mang_diem(cg.tam.x, cg.tam.y, 0.0), cg.ban_kinh, goc_dau_rad, goc_cuoi_rad)
-    e.Layer = cg.layer
+    e = _thu_lai_khi_com_ban(lambda: msp.AddArc(_mang_diem(cg.tam.x, cg.tam.y, 0.0), cg.ban_kinh, goc_dau_rad, goc_cuoi_rad))
+    _gan(e, "Layer", cg.layer)
 
 
 def _ve_1_chu(msp: Any, c) -> None:
-    e = msp.AddText(c.noi_dung, _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0), c.chieu_cao)
-    e.Layer = c.layer
+    e = _thu_lai_khi_com_ban(lambda: msp.AddText(c.noi_dung, _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0), c.chieu_cao))
+    _gan(e, "Layer", c.layer)
     if c.canh_giua:
-        e.Alignment = 4  # acAlignmentMiddleCenter (AcAlignment enum COM)
-        e.TextAlignmentPoint = _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0)
+        _gan(e, "Alignment", 4)  # acAlignmentMiddleCenter (AcAlignment enum COM)
+        _gan(e, "TextAlignmentPoint", _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0))
     elif getattr(c, "canh_phai", False):
-        e.Alignment = 2  # acAlignmentRight (AcAlignment enum COM)
-        e.TextAlignmentPoint = _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0)
+        _gan(e, "Alignment", 2)  # acAlignmentRight (AcAlignment enum COM)
+        _gan(e, "TextAlignmentPoint", _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0))
 
 
 def _ve_1_kich_thuoc(msp: Any, kt) -> None:
@@ -243,40 +250,33 @@ def _ve_1_kich_thuoc(msp: Any, kt) -> None:
         diem_dim = _mang_diem(kt.p1.x, kt.p1.y - kt.khoang_offset - 15, 0.0)
     else:
         diem_dim = _mang_diem(kt.p1.x - kt.khoang_offset - 15, kt.p1.y, 0.0)
-    e = msp.AddDimAligned(_mang_diem(kt.p1.x, kt.p1.y, 0.0), _mang_diem(kt.p2.x, kt.p2.y, 0.0), diem_dim)
-    e.Layer = kt.layer
+    e = _thu_lai_khi_com_ban(
+        lambda: msp.AddDimAligned(_mang_diem(kt.p1.x, kt.p1.y, 0.0), _mang_diem(kt.p2.x, kt.p2.y, 0.0), diem_dim)
+    )
+    _gan(e, "Layer", kt.layer)
     # Dimstyle mặc định của template AutoCAD thường có cỡ chữ/mũi tên quá nhỏ
     # so với tỷ lệ bản vẽ tính bằng mm của cấu kiện (250-700mm) — ghi đè trực
     # tiếp trên từng đối tượng để khớp cỡ chữ ghi chú khác trong cùng bản vẽ
     # (mục 10.7), tương tự override đã áp ở backend_dxf.py.
     try:
-        e.TextHeight = kt.co_chu
-        e.ArrowheadSize = kt.co_chu * 8 / 15
-        e.ExtensionLineExtend = kt.co_chu * 5 / 15
-        e.ExtensionLineOffset = kt.co_chu * 3 / 15
+        _gan(e, "TextHeight", kt.co_chu)
+        _gan(e, "ArrowheadSize", kt.co_chu * 8 / 15)
+        _gan(e, "ExtensionLineExtend", kt.co_chu * 5 / 15)
+        _gan(e, "ExtensionLineOffset", kt.co_chu * 3 / 15)
         # Ép HIỆN đường dóng (extension line) cả 2 đầu — LỖI THẬT đã gặp:
         # người dùng phản hồi trực tiếp "nét dóng đâu rồi" khi xem bản vẽ
-        # thật. Trước đây chỉ chỉnh ĐỘ DÀI đường dóng (ExtensionLineExtend/
-        # Offset), không ép rõ trạng thái BẬT — nếu DIMSTYLE mặc định của
-        # template AutoCAD đang dùng có sẵn cờ ẩn đường dóng (SuppressExtLine1/2
-        # = True, khá phổ biến ở 1 số dimstyle kiến trúc có sẵn), mọi chỉnh
-        # độ dài phía trên vô nghĩa vì đường dóng không hiện ra ngay từ đầu.
-        e.SuppressExtLine1 = False
-        e.SuppressExtLine2 = False
-        # Mũi tên kích thước GẠCH CHÉO 45° kiểu kiến trúc/xây dựng (đúng quy
-        # ước mục 10.7 + KY_HIEU_NET_VE_QUY_TAC_BO_TRI.md, cùng hiệu ứng
-        # "_ARCHTICK" của backend DXF trước đây) thay vì mũi tên đóng kiểu cơ
-        # khí mặc định — enum AcDimArrowheadType.acArrowArchTick=4, TRA CỨU
-        # trực tiếp AutoCAD ActiveX Reference chính thức (không đoán số, cùng
-        # nguyên tắc đã áp dụng cho AcSaveAsType ở luu_file_dwg()). Đặt qua
-        # ArrowheadType (gán CẢ 2 đầu mũi tên cùng lúc) — không dùng được
-        # win32com.client.constants ở đây vì kết nối COM late-bound qua
-        # ProgID, không có cache type-library sinh sẵn tên hằng số.
-        e.ArrowheadType = 4
+        # thật; nếu DIMSTYLE mặc định có sẵn cờ ẩn đường dóng thì mọi chỉnh
+        # độ dài vô nghĩa vì đường dóng không hiện ra ngay từ đầu.
+        _gan(e, "SuppressExtLine1", False)
+        _gan(e, "SuppressExtLine2", False)
+        # Mũi tên kích thước GẠCH CHÉO 45° kiểu kiến trúc/xây dựng — enum
+        # AcDimArrowheadType.acArrowArchTick=4 (tra cứu ActiveX Reference
+        # chính thức, không đoán số); đặt qua ArrowheadType (cả 2 đầu).
+        _gan(e, "ArrowheadType", 4)
     except Exception:
         pass
     if kt.nhan is not None:
-        e.TextOverride = kt.nhan
+        _gan(e, "TextOverride", kt.nhan)
 
 
 def ve_vao_doc(doc: Any, ban_ve: BanVe, dx: float = 0.0, dy: float = 0.0) -> None:
@@ -289,17 +289,17 @@ def ve_vao_doc(doc: Any, ban_ve: BanVe, dx: float = 0.0, dy: float = 0.0) -> Non
     bv = ban_ve.dich_chuyen(dx, dy) if (dx or dy) else ban_ve
 
     for dt in bv.doan_thang:
-        _thu_lai_khi_com_ban(lambda dt=dt: _ve_1_doan_thang(msp, dt))
+        _ve_1_doan_thang(msp, dt)
     for dg in bv.da_giac:
-        _thu_lai_khi_com_ban(lambda dg=dg: _ve_1_da_giac(msp, dg))
+        _ve_1_da_giac(msp, dg)
     for vt in bv.vong_tron:
-        _thu_lai_khi_com_ban(lambda vt=vt: _ve_1_vong_tron(msp, vt))
+        _ve_1_vong_tron(msp, vt)
     for cg in bv.cung:
-        _thu_lai_khi_com_ban(lambda cg=cg: _ve_1_cung(msp, cg))
+        _ve_1_cung(msp, cg)
     for c in bv.chu:
-        _thu_lai_khi_com_ban(lambda c=c: _ve_1_chu(msp, c))
+        _ve_1_chu(msp, c)
     for kt in bv.kich_thuoc:
-        _thu_lai_khi_com_ban(lambda kt=kt: _ve_1_kich_thuoc(msp, kt))
+        _ve_1_kich_thuoc(msp, kt)
 
 
 # AcActiveSpace/AcPlotType/AcPlotScale — TRA CỨU trực tiếp (không đoán số,
@@ -351,7 +351,7 @@ def hop_gioi_han_modelspace(doc: Any) -> tuple[float, float, float, float] | Non
     return _hop_gioi_han_modelspace(doc)
 
 
-def xuat_pdf(doc: Any, duong_dan_pdf: str) -> None:
+def xuat_pdf(doc: Any, duong_dan_pdf: str, kho_giay: str | None = None, den_trang: bool = True) -> None:
     """Xuất bản vẽ hiện tại ra PDF bằng AcadPlot.PlotToFile.
 
     LỖI THẬT #1 đã gặp (lần chạy live đầu tiên trên máy người dùng): bản đầu
@@ -397,8 +397,21 @@ def xuat_pdf(doc: Any, duong_dan_pdf: str) -> None:
         # các máy/phiên bản AutoCAD) — ưu tiên khổ A3 (đủ lớn cho khung nhiều
         # cấu kiện), nếu không có thì lấy khổ đầu tiên driver hỗ trợ.
         ten_khay_giay = list(layout.GetCanonicalMediaNames())
-        khay_a3 = next((t for t in ten_khay_giay if "A3" in t), None)
+        # `kho_giay` ("A1"/"A0"...) do bộ lắp ráp tờ vẽ chọn theo nội dung; mặc định A3 như trước. Tên khổ trong driver
+        # có dạng "ISO_A1_(841.00_x_594.00_MM)" — tìm theo "_A1_" để không nhầm "A1" với "A10".
+        khay = None
+        if kho_giay:
+            khay = next((t for t in ten_khay_giay if f"_{kho_giay}_" in t and "FULL_BLEED" not in t.upper()), None) or next(
+                (t for t in ten_khay_giay if f"_{kho_giay}_" in t), None)
+        khay_a3 = khay or next((t for t in ten_khay_giay if "A3" in t), None)
         layout.CanonicalMediaName = khay_a3 or ten_khay_giay[0]
+        if den_trang:
+            # Bản vẽ kỹ thuật in ĐEN TRẮNG (bê tông nét mảnh, thép nét đậm — chỉ khác độ dày nét, không khác màu) như bản mẫu.
+            try:
+                layout.StyleSheet = "monochrome.ctb"
+                layout.PlotWithPlotStyles = True
+            except Exception:
+                pass  # không có bảng nét monochrome.ctb ⇒ in theo màu mặc định, không phải lỗi
 
         hop = _hop_gioi_han_modelspace(doc)
         if hop is not None:

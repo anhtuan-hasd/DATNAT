@@ -28,6 +28,9 @@ class ThanhThep:
 
     duong_kinh: int
     chieu_dai_mm: int
+    # Phân biệt các thanh cùng (Ø, dài) nhưng KHÁC vùng/cách bố trí — vd đai cùng Ø6, dài 940 nhưng bước a150 và a250
+    # nhận số hiệu riêng (đúng bản vẽ mẫu: 6 Ø6a150 / 7 Ø6a250). Mặc định "" = hành vi cũ.
+    ghi_chu: str = ""
 
 
 @dataclass

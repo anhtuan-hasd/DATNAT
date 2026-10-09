@@ -46,6 +46,18 @@ def _bao(quan_sat: HamQuanSat | None, giai_doan: str, ten: str, kq: agent.KetQua
 # ---------------------------------------------------------------------------
 
 
+def _ten_truc_khung(duong_dan_file: str) -> str:
+    """Tên trục khung (vd "5") nếu file là báo cáo ETABS thật có đúng 1 trục Y; "" nếu không biết (không đoán)."""
+    try:
+        from pathlib import Path
+
+        from ..input_adapter import etabs_reader
+
+        return etabs_reader.doc_ten_truc_khung(Path(duong_dan_file))
+    except Exception:
+        return ""
+
+
 def _chay_buoc_input_adapter(
     nha_cung_cap: agent.NhaCungCapChat, duong_dan_file: str, hoi_nguoi_dung: HamHoiNguoiDung,
     quan_sat: HamQuanSat | None,
@@ -282,6 +294,9 @@ def _du_lieu_lap_rap(bo_du_lieu: BoDuLieuKhungChuanHoa, ket_qua_phan_tu: list[Ke
                             [{"duong_kinh": vt.thep_doc["duong_kinh"], "so_luong": vt.thep_doc["tong_so_thanh"]}]
                             if "tong_so_thanh" in vt.thep_doc else []
                         ),
+                        # Dữ liệu cho tờ vẽ bố trí thép (drawing/to_ve): cột cần số thanh từng cạnh; đoạn nối/neo và
+                        # đai tính toán (nếu có) quyết định chiều dài thanh và bước đai.
+                        "thep_doc": vt.thep_doc, "neo_noi": vt.neo_noi, "cot_dai": vt.cot_dai,
                     }
                     for vt in phuong_an.vi_tri
                 ],
@@ -293,18 +308,20 @@ def _du_lieu_lap_rap(bo_du_lieu: BoDuLieuKhungChuanHoa, ket_qua_phan_tu: list[Ke
 def _lap_rap_va_xuat_ban_ve(
     nha_cung_cap: agent.NhaCungCapChat, phien_cad: PhienCAD, bo_du_lieu: BoDuLieuKhungChuanHoa,
     ket_qua_phan_tu: list[KetQuaPhanTu], ten_khung: str, hoi_nguoi_dung: HamHoiNguoiDung,
-    bo_dem_kiem_chung: BoDemVongLap, quan_sat: HamQuanSat | None,
+    bo_dem_kiem_chung: BoDemVongLap, quan_sat: HamQuanSat | None, ten_truc_khung: str = "",
 ) -> tuple[dict | None, Any]:
     du_lieu = _du_lieu_lap_rap(bo_du_lieu, ket_qua_phan_tu)
     if not du_lieu["phan_tu"]:
         return None, None  # không có phần tử nào đạt — không có gì để lắp ráp
 
+    # Dữ liệu khung nạp THẲNG vào phiên CAD: tool lap_rap_mat_dung_khung dùng nó, không phụ thuộc việc LLM chép lại
+    # khối JSON lớn (đã từng bị cắt cụt/sai số) — LLM chỉ quyết định gọi tool nào.
+    phien_cad.du_lieu_lap_rap = du_lieu
+    phien_cad.cau_hinh_to_ve = {"ten_khung_truc": ten_truc_khung}
     yeu_cau = (
-        f"Lắp ráp mặt đứng khung tổng thể cho khung '{ten_khung}'. Gọi tool lap_rap_mat_dung_khung với "
-        f"ĐÚNG các tham số sau (SAO CHÉP NGUYÊN VĂN toa_do_truc/cao_do_moc/phan_tu, không tự gõ lại từ "
-        f"trí nhớ — dữ liệu này CHÍNH XÁC, đã qua Rule Engine Agent):\n"
-        f"```json\n{json.dumps(du_lieu, ensure_ascii=False)}\n```\n"
-        f"Sau đó gọi xuat_ban_ve với ten_file='{ten_khung.upper()}'."
+        f"Lắp ráp bản vẽ bố trí thép cho khung '{ten_khung}'. Gọi tool lap_rap_mat_dung_khung ĐÚNG 1 LẦN, KHÔNG cần "
+        f"truyền tham số (dữ liệu khung đã được nạp sẵn trong hệ thống, chính xác từ Rule Engine). Sau đó gọi "
+        f"xuat_ban_ve với ten_file='{ten_khung.upper()}'. Nêu lại 'canh_bao' của kết quả trong tóm tắt."
     )
     ket_qua = drawing_agent.chay_drawing_agent(nha_cung_cap, yeu_cau, phien_cad, hoi_nguoi_dung, so_lan_goi_toi_da=6)
     _bao(quan_sat, "drawing", "lap_rap_mat_dung_khung", ket_qua)
@@ -433,6 +450,7 @@ def chay_toan_bo_khung(
     bo_dem_khung = BoDemVongLap(gioi_han=dict(gioi_han_vong_lap) if gioi_han_vong_lap else BoDemVongLap().gioi_han)
     ket_qua_kiem_chung, ket_qua_xuat = _lap_rap_va_xuat_ban_ve(
         nha_cung_cap, phien_cad, bo_du_lieu, ket_qua_khung.ket_qua_phan_tu, ten_khung, hoi_nguoi_dung, bo_dem_khung, quan_sat,
+        ten_truc_khung=_ten_truc_khung(duong_dan_file),
     )
     if ket_qua_kiem_chung is not None:
         from .shared.hop_dong_du_lieu import KetQuaKiemChung
@@ -448,45 +466,16 @@ def chay_toan_bo_khung(
         ket_qua_khung.duong_dan_dwg = ket_qua_xuat.get("duong_dan_dwg")
         ket_qua_khung.ghi(f"Đã xuất bản vẽ bố trí khung: {ket_qua_khung.duong_dan_pdf}, {ket_qua_khung.duong_dan_dwg}")
 
-    # Đặt hàng mặt cắt hẳn xuống DƯỚI toàn bộ những gì vừa vẽ ở Bước B (mặt
-    # đứng khung + bảng thống kê + khung tên) — LỖI THẬT đã gặp: PhienCAD.
-    # y_mat_cat mặc định 0.0 TRÙNG đúng vùng y=0 (cao độ Mong) của mặt đứng
-    # khung, khiến mặt cắt chồng đè lên góc dưới-trái mặt đứng khung (xem
-    # giải thích đầy đủ ở docstring PhienCAD.y_mat_cat). Tính lại bằng bounding
-    # box THẬT của ModelSpace ngay sau khi Bước B vẽ xong — không hard-code
-    # theo 1 giá trị cao độ cụ thể nào (mỗi công trình cao độ khác nhau).
-    y_mat_cat_moi = _tinh_y_mat_cat_an_toan(backend_com.hop_gioi_han_modelspace(phien_cad.doc))
-    if y_mat_cat_moi is not None:
-        phien_cad.y_mat_cat = y_mat_cat_moi
-
-    # Bước C — SAU KHI đã có bản vẽ bố trí khung, mới vẽ + kiểm chứng từng
-    # mặt cắt chi tiết cho các phần tử đã đạt Rule Engine (vẽ thêm vào CÙNG
-    # Document, không đè lên bản vẽ bố trí khung — xem PhienCAD/lap_rap_mat_dung_khung).
-    phan_tu_goc_theo_ten = {p.ten: p for p in bo_du_lieu.phan_tu}
-    co_mat_cat_moi = False
+    # Mặt cắt dầm/cột (đã khử trùng) NẰM TRONG tờ vẽ do tool lap_rap_mat_dung_khung lắp ráp ở Bước B và được kiểm chứng
+    # trong lần kiểm chứng tổng thể (kích thước từng mặt cắt trên bản vẽ) — không còn vòng "vẽ từng mặt cắt qua LLM
+    # rồi kiểm chứng từng cái" như bản cũ (đắt, không ổn định, và cho ra hàng chục mặt cắt rời không số hiệu).
+    dat_tong = bool(ket_qua_kiem_chung and ket_qua_kiem_chung.get("dat"))
     for kq_pt in ket_qua_khung.ket_qua_phan_tu:
         if not kq_pt.rule_engine_dat:
             continue
-        phuong_an = kq_pt.phuong_an_thep
-        p = phan_tu_goc_theo_ten[kq_pt.ten_phan_tu]
-        dat_het_mat_cat = True
-        for vt in phuong_an.vi_tri:
-            bo_dem = BoDemVongLap(gioi_han=dict(gioi_han_vong_lap) if gioi_han_vong_lap else BoDemVongLap().gioi_han)
-            dat = _ve_va_kiem_chung_1_mat_cat(nha_cung_cap, phien_cad, p, vt, hoi_nguoi_dung, bo_dem, quan_sat)
-            dat_het_mat_cat = dat_het_mat_cat and dat
-        co_mat_cat_moi = True
-        kq_pt.trang_thai = "dat" if dat_het_mat_cat else "leo_thang"
-        if not dat_het_mat_cat:
-            kq_pt.ghi_chu = "Rule Engine đạt nhưng ít nhất 1 mặt cắt chưa qua kiểm chứng — xem log 'drawing'/'verification'."
-        ket_qua_khung.ghi(f"Phần tử '{kq_pt.ten_phan_tu}': mặt cắt {kq_pt.trang_thai.upper()} ({len(phuong_an.vi_tri)} mặt cắt).")
-
-    # Bước D — xuất lại bản vẽ lần cuối (ghi đè CÙNG file) để có đủ cả bản vẽ
-    # bố trí khung LẪN mặt cắt chi tiết trên cùng 1 tờ.
-    if co_mat_cat_moi:
-        ket_qua_xuat_cuoi = _xuat_ban_ve_lai(nha_cung_cap, phien_cad, ten_khung, hoi_nguoi_dung, quan_sat)
-        if ket_qua_xuat_cuoi is not None:
-            ket_qua_khung.duong_dan_pdf = ket_qua_xuat_cuoi.get("duong_dan_pdf")
-            ket_qua_khung.duong_dan_dwg = ket_qua_xuat_cuoi.get("duong_dan_dwg")
-            ket_qua_khung.ghi(f"Đã xuất lại bản vẽ đầy đủ (bố trí khung + mặt cắt): {ket_qua_khung.duong_dan_pdf}, {ket_qua_khung.duong_dan_dwg}")
+        kq_pt.trang_thai = "dat" if dat_tong else "leo_thang"
+        if not dat_tong:
+            kq_pt.ghi_chu = "Rule Engine đạt nhưng kiểm chứng tổng thể bản vẽ chưa đạt — xem vi_pham."
+        ket_qua_khung.ghi(f"Phần tử '{kq_pt.ten_phan_tu}': {kq_pt.trang_thai.upper()} ({len(kq_pt.phuong_an_thep.vi_tri)} vị trí, mặt cắt trong tờ vẽ).")
 
     return ket_qua_khung

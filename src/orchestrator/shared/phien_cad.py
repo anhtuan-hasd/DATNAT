@@ -38,3 +38,14 @@ class PhienCAD:
     # modelspace) — đặt mặt cắt hẳn xuống DƯỚI toàn bộ mặt đứng khung, không
     # còn chồng lấn dù giá trị thật của dự án là bao nhiêu.
     y_mat_cat: float = 0.0
+    # --- Tờ vẽ bố trí thép (drawing/to_ve) ---
+    # Dữ liệu khung ĐÃ qua Rule Engine do pipeline nạp sẵn: tool lap_rap_mat_dung_khung dùng trực tiếp, KHÔNG phụ thuộc
+    # việc LLM chép lại JSON lớn (đã từng cắt cụt/sai số). None = lấy từ tham số tool (đường cũ).
+    du_lieu_lap_rap: dict | None = None
+    # Cấu hình tờ vẽ (khung tên, giả định móng/COS...) — dict, xem to_ve.co_so.CauHinhToVe.
+    cau_hinh_to_ve: dict | None = None
+    # Kỳ vọng kiểm chứng do bộ lắp ráp tờ vẽ đặt sau khi vẽ xong (số đa giác OUTLINE, mặt cắt, số vòng tròn số hiệu...).
+    ky_vong_to_ve: dict | None = None
+    # Khổ giấy tờ vẽ ("A1"/"A0"...) để xuất PDF đúng khổ.
+    kho_giay: str | None = None
+

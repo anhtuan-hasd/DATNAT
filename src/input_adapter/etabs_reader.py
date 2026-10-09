@@ -244,3 +244,17 @@ def doc_etabs_thuc(duong_dan: Path) -> tuple[BoDuLieuKhung, dict[str, float], di
 
     bo_du_lieu = BoDuLieuKhung(ten_khung=duong_dan.stem, don_vi_luc_goc=DonViLucGoc.KN_KNM, phan_tu=phan_tu)
     return bo_du_lieu, toa_do_truc, cao_do_tang
+
+
+def doc_ten_truc_khung(duong_dan: Path) -> str:
+    """Tên trục vuông góc mặt phẳng khung (vd "5" — "Khung trục 5") từ bảng Grid Lines: chỉ trả khi file có ĐÚNG 1 trục
+    theo phương Y (khung phẳng); ngược lại "" (không đoán). Dùng ghi tên trục lên bản vẽ."""
+    try:
+        bang = _doc_bang(Path(duong_dan), _SHEET_GRID)
+    except Exception:
+        return ""
+    if "AxisDir" not in bang.columns or "GridID" not in bang.columns:
+        return ""
+    ten = [str(x).strip() for x in bang.loc[bang["AxisDir"].astype(str).str.strip() == "Y", "GridID"].tolist()]
+    return ten[0] if len(ten) == 1 else ""
+

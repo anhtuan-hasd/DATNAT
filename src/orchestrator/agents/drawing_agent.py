@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import Any, Callable
 
 from ...drawing import backend_com, geometry, verify_drawing
+from ...drawing.to_ve import bo_cuc as to_ve_bo_cuc
+from ...drawing.to_ve.co_so import CauHinhToVe
 from ...drawing.so_hieu_thanh import SoDangKySoHieu, ThanhThep
 from ...input_adapter.models import DuLieuViTri, LoaiCauKien, NoiLuc, PhanTuKhung, TietDien
 from .. import agent, khung_ve
@@ -166,69 +168,43 @@ def _xay_dong_thong_ke(phan_tu: list[dict], so_dang_ky: SoDangKySoHieu) -> list[
 
 
 def lap_rap_mat_dung_khung(nc: NguCanhDrawing, dau_vao: dict) -> dict:
-    toa_do_truc: dict[str, float] = dau_vao["toa_do_truc"]
-    cao_do_moc: dict[str, float] = dau_vao["cao_do_moc"]
-    phan_tu_raw: list[dict] = dau_vao["phan_tu"]
+    """Lắp ráp TỜ VẼ BỐ TRÍ THÉP KHUNG đầy đủ (mặt đứng có thép/đai theo vùng/móng/COS, lưới mặt cắt, bảng thống kê, ghi
+    chú, khung tên) theo bố cục bản vẽ mẫu — `drawing.to_ve.bo_cuc.lap_ban_ve_khung`.
 
-    danh_sach_phan_tu = [_phan_tu_khung_tu_dict(p) for p in phan_tu_raw]
-    # 1 SỔ ĐĂNG KÝ SỐ HIỆU DÙNG CHUNG cho cả bảng thống kê lẫn ký hiệu vẽ
-    # trên mặt đứng khung — bắt buộc dùng CHUNG 1 instance (không tạo 2 sổ
-    # riêng) để cùng 1 loại thanh (đường kính+chiều dài) LUÔN nhận đúng 1 số
-    # hiệu giống nhau ở cả 2 chỗ (mục 2.2 KY_HIEU_NET_VE_QUY_TAC_BO_TRI.md).
-    so_dang_ky = SoDangKySoHieu()
-    # Xây bảng thống kê TRƯỚC (cấp số hiệu theo đúng thứ tự phan_tu_raw xuất
-    # hiện — cột trước, dầm sau) rồi mới xây ký hiệu mặt đứng khung, để 2 nơi
-    # nhất quán thứ tự đánh số thay vì phụ thuộc thứ tự gọi hàm ngẫu nhiên.
-    dong_thong_ke = _xay_dong_thong_ke(phan_tu_raw, so_dang_ky)
-    ky_hieu_theo_ten = {
-        p["ten"]: _ky_hieu_thep_theo_vi_tri(p.get("vi_tri", []), p.get("chieu_dai"), so_dang_ky)
-        for p in phan_tu_raw
+    Dữ liệu: ưu tiên `phien_cad.du_lieu_lap_rap` do pipeline nạp sẵn (đã qua Rule Engine, đủ `thep_doc`/`neo_noi`),
+    KHÔNG phụ thuộc LLM chép lại JSON lớn; nếu không có thì dùng tham số tool (`toa_do_truc`, `cao_do_moc`, `phan_tu`)."""
+    du_lieu = nc.phien_cad.du_lieu_lap_rap
+    if du_lieu is None:
+        thieu = [k for k in ("toa_do_truc", "cao_do_moc", "phan_tu") if k not in dau_vao]
+        if thieu:
+            return _loi(f"Thiếu tham số {thieu} và pipeline chưa nạp sẵn dữ liệu khung.")
+        du_lieu = {k: dau_vao[k] for k in ("toa_do_truc", "cao_do_moc", "phan_tu")}
+    if not du_lieu.get("phan_tu"):
+        return _loi("Không có phần tử nào để lắp ráp.")
+
+    cau_hinh = dict(nc.phien_cad.cau_hinh_to_ve or {})
+    for k in ("ten_truong", "khoa", "chuyen_nganh", "ten_do_an", "gvhd", "svth", "de_so", "ngay_nhan", "ngay_hoan_thanh"):
+        if k in dau_vao:
+            cau_hinh.setdefault("thong_tin_khung_ten", {})[k] = dau_vao[k]
+    try:
+        cfg = CauHinhToVe(**cau_hinh)
+    except TypeError as e:
+        return _loi(f"cau_hinh_to_ve không hợp lệ: {e}")
+    try:
+        kq = to_ve_bo_cuc.lap_ban_ve_khung(du_lieu, cfg)
+    except (KeyError, ValueError, StopIteration) as e:
+        return _loi(f"Dữ liệu khung không đủ để lắp ráp tờ vẽ ({type(e).__name__}: {e}) — kiểm tra thép/trục/tầng của phần tử.")
+
+    backend_com.ve_vao_doc(nc.phien_cad.doc, kq.ban_ve)
+    nc.phien_cad.kho_giay = kq.kho_giay
+    nc.phien_cad.ky_vong_to_ve = {
+        "so_da_giac_outline_ky_vong": kq.so_da_giac_outline, "so_ky_hieu_ky_vong": kq.so_ky_hieu_ky_vong,
+        "mat_cat_ky_vong": [{"nhan": m["nhan"], "rong_ve": m["rong_ve"], "cao_ve": m["cao_ve"]} for m in kq.mat_cat],
     }
-
-    ban_ve_khung = khung_ve.lap_rap_mat_dung_khung(
-        danh_sach_phan_tu, ky_hieu_theo_ten=ky_hieu_theo_ten, toa_do_truc=toa_do_truc, cao_do_moc=cao_do_moc,
-    )
-    if ban_ve_khung is None:
-        return _loi(
-            "Không đủ dữ liệu truc/tang để lắp ráp mặt đứng khung (phần tử thiếu 'truc'/'tang') — "
-            "kiểm tra lại dữ liệu Input Adapter Agent đã bàn giao."
-        )
-
-    ban_ve_tong = geometry.BanVe(ten="TONG_HOP")
-    ban_ve_tong.gop(ban_ve_khung)
-
-    y_dat_bang = -6000.0  # đặt hẳn bên dưới mặt đứng khung, đủ xa để không đè lên chuỗi kích thước/mốc cao độ
-    if dong_thong_ke:
-        bang = geometry.ve_bang_thong_ke(
-            "BANG_THONG_KE", dong_thong_ke, do_rong_cot=[900, 300, 500, 300, 700, 300, 700, 700],
-        )
-        ban_ve_tong.gop(bang.dich_chuyen(0, y_dat_bang))
-
-    tt = geometry.ThongTinKhungTen(
-        ten_truong=dau_vao.get("ten_truong", "TRƯỜNG ĐẠI HỌC KIẾN TRÚC HÀ NỘI"),
-        khoa=dau_vao.get("khoa", "KHOA XÂY DỰNG"),
-        chuyen_nganh=dau_vao.get("chuyen_nganh", "XÂY DỰNG DD&CN"),
-        ten_do_an=dau_vao.get("ten_do_an", "ĐỒ ÁN AI AGENT THIẾT KẾ KHUNG BTCT"),
-        gvhd=dau_vao.get("gvhd", "—"), svth=dau_vao.get("svth", "—"),
-        de_so=dau_vao.get("de_so", "—"), ngay_nhan=dau_vao.get("ngay_nhan", "—"),
-        ngay_hoan_thanh=dau_vao.get("ngay_hoan_thanh", "—"),
-    )
-    khung_ten = geometry.ve_khung_ten(rong=6000, cao=1800, thong_tin=tt)
-    ban_ve_tong.gop(khung_ten.dich_chuyen(0, y_dat_bang - 6500))
-
-    backend_com.ve_vao_doc(nc.phien_cad.doc, ban_ve_tong, dx=0, dy=6000)  # dy: tách khỏi hàng mặt cắt phía trên (y=0)
-
-    so_cot = sum(1 for p in phan_tu_raw if p["loai"] == "cot")
-    so_dam = sum(1 for p in phan_tu_raw if p["loai"] == "dam")
     return {
-        "so_cot": so_cot, "so_dam": so_dam,
-        # Thay "nhan_ky_vong_theo_cau_kien" (danh sách tên vị trí, dùng để dò
-        # TEXT chứa "goi_trai"/"giua_nhip"/"goi_phai") — hệ ký hiệu số hiệu
-        # MỚI không còn ghi các tên vị trí này thành text tìm được nữa (chỉ
-        # còn số hiệu trong vòng tròn + "2Ø18"/"L=..."), nên đổi cách kiểm
-        # chứng sang ĐẾM SỐ VÒNG TRÒN SO_HIEU đã vẽ so với số ký hiệu dự kiến.
-        "so_ky_hieu_ky_vong": sum(len(kh) for kh in ky_hieu_theo_ten.values()),
-        "co_bang_thong_ke": bool(dong_thong_ke),
+        "so_cot": kq.so_cot, "so_dam": kq.so_dam, "so_ky_hieu_ky_vong": kq.so_ky_hieu_ky_vong,
+        "so_mat_cat": len(kq.mat_cat), "so_dong_thong_ke": len(kq.thong_ke), "co_bang_thong_ke": bool(kq.thong_ke),
+        "kho_giay": nc.phien_cad.kho_giay, "canh_bao": kq.canh_bao,
     }
 
 
@@ -243,7 +219,7 @@ def xuat_ban_ve(nc: NguCanhDrawing, dau_vao: dict) -> dict:
     duong_dan_pdf = os.path.join(nc.phien_cad.thu_muc_xuat, f"{ten_file}.pdf")
     duong_dan_dwg = os.path.join(nc.phien_cad.thu_muc_xuat, f"{ten_file}.dwg")
 
-    backend_com.xuat_pdf(nc.phien_cad.doc, duong_dan_pdf)
+    backend_com.xuat_pdf(nc.phien_cad.doc, duong_dan_pdf, kho_giay=nc.phien_cad.kho_giay)
     backend_com.luu_file_dwg(nc.phien_cad.doc, duong_dan_dwg)
 
     return {"duong_dan_pdf": duong_dan_pdf, "duong_dan_dwg": duong_dan_dwg}
@@ -329,7 +305,7 @@ DINH_NGHIA_TOOL: list[dict] = [
                 "ten_do_an": {"type": "string"}, "gvhd": {"type": "string"}, "svth": {"type": "string"},
                 "de_so": {"type": "string"}, "ngay_nhan": {"type": "string"}, "ngay_hoan_thanh": {"type": "string"},
             },
-            "required": ["toa_do_truc", "cao_do_moc", "phan_tu"],
+            "required": [],
         },
     },
     {
@@ -399,9 +375,10 @@ kỹ yêu cầu trong tin nhắn đầu để biết đang ở bước nào):
 - Nếu được yêu cầu vẽ 1/nhiều mặt cắt: gọi ve_mat_cat cho MỖI mặt cắt được \
 liệt kê, đúng loai='dam'/'cot', dùng ĐÚNG số liệu thép đã cho (thanh_duoi/ \
 thanh_tren là mảng ĐƯỜNG KÍNH lặp lại từng thanh, không phải số lượng).
-- Nếu được yêu cầu lắp ráp mặt đứng khung: gọi lap_rap_mat_dung_khung ĐÚNG 1 \
-LẦN, liệt kê ĐỦ mọi phần tử và ĐỦ mọi vị trí của mỗi dầm (không được bỏ sót \
-gối trái/giữa nhịp/gối phải).
+- Nếu được yêu cầu lắp ráp bản vẽ khung: gọi lap_rap_mat_dung_khung ĐÚNG 1 \
+LẦN. Dữ liệu khung đã được hệ thống nạp sẵn — KHÔNG chép lại số liệu, gọi không \
+tham số; tool tự vẽ mặt đứng (thép, đai theo vùng, móng, COS), mọi mặt cắt, bảng \
+thống kê, ghi chú, khung tên. Đọc "canh_bao" trong kết quả và nêu lại trong tóm tắt.
 - Nếu được yêu cầu xuất bản vẽ: gọi xuat_ban_ve.
 
 Nếu thiếu thông tin để vẽ (vd thiếu vị trí nào đó của 1 phần tử), gọi \

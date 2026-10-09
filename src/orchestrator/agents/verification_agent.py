@@ -37,6 +37,10 @@ class NguCanhVerification:
 def kiem_chung_ban_ve(nc: NguCanhVerification, dau_vao: dict) -> dict:
     loai_kiem_tra = dau_vao.get("loai_kiem_tra", "mat_cat")
     doc = nc.phien_cad.doc
+    if loai_kiem_tra == "mat_dung_khung" and nc.phien_cad.ky_vong_to_ve:
+        # Kỳ vọng do chính bộ lắp ráp tờ vẽ ghi nhận khi vẽ (số đa giác OUTLINE, số vòng tròn số hiệu, kích thước
+        # từng mặt cắt TRÊN BẢN VẼ) — chính xác hơn số LLM chép lại; tham số LLM truyền tường minh vẫn được giữ.
+        dau_vao = {**nc.phien_cad.ky_vong_to_ve, **dau_vao}
     vi_pham: list[str] = []
 
     lop_la = verify_drawing.lop_khong_hop_le_com(doc)
@@ -84,8 +88,16 @@ def _kiem_tra_mat_dung_khung(doc: Any, dau_vao: dict) -> list[str]:
     mục 2 (trước đây CHƯA có, CHANGE_REQUESTS.md mục 2)."""
     vi_pham: list[str] = []
 
+    so_da_giac_ky_vong = dau_vao.get("so_da_giac_outline_ky_vong")
+    if so_da_giac_ky_vong is not None:
+        so_thuc = verify_drawing.dem_da_giac_theo_layer_com(doc, layers.OUTLINE.ten)
+        if so_thuc < so_da_giac_ky_vong:
+            vi_pham.append(
+                f"Số đa giác đường bao (layer OUTLINE) vẽ ra ({so_thuc}) ít hơn kỳ vọng ({so_da_giac_ky_vong}) — "
+                "nghi thiếu dầm/móng/khung."
+            )
     so_cot_ky_vong, so_dam_ky_vong = dau_vao.get("so_cot_ky_vong"), dau_vao.get("so_dam_ky_vong")
-    if so_cot_ky_vong is not None and so_dam_ky_vong is not None:
+    if so_da_giac_ky_vong is None and so_cot_ky_vong is not None and so_dam_ky_vong is not None:
         so_thuc = verify_drawing.dem_da_giac_theo_layer_com(doc, layers.OUTLINE.ten)
         # >= chứ không phải == : khung tên (ve_khung_ten) cũng vẽ 1 đường bao
         # trên layer OUTLINE (+1), nên tổng thực tế luôn >= so_cot+so_dam.
@@ -121,6 +133,14 @@ def _kiem_tra_mat_dung_khung(doc: Any, dau_vao: dict) -> list[str]:
                 f"(1 mỗi trục: {ten_truc_ky_vong})."
             )
 
+    mat_cat_ky_vong = dau_vao.get("mat_cat_ky_vong")
+    if mat_cat_ky_vong:
+        hop = verify_drawing.hop_gioi_han_da_giac_com(doc, layers.OUTLINE_CUT.ten)
+        thieu = [m.get("nhan", "?") for m in mat_cat_ky_vong
+                 if not verify_drawing.khop_kich_thuoc_nao_do(hop, m["rong_ve"], m["cao_ve"], dung_sai_mm=2.0)]
+        if thieu:
+            vi_pham.append(f"Thiếu/sai kích thước mặt cắt trên bản vẽ: {thieu} (không có đa giác OUTLINE_CUT đúng cỡ kỳ vọng).")
+
     if dau_vao.get("can_co_bang_thong_ke", True):
         thieu_cot = verify_drawing.kiem_tra_bang_thong_ke_du_cot_com(doc)
         if thieu_cot:
@@ -154,6 +174,11 @@ DINH_NGHIA_TOOL: list[dict] = [
                     "description": "Tổng số vòng tròn ký hiệu số hiệu thanh thép kỳ vọng — lấy nguyên từ kết quả lap_rap_mat_dung_khung.",
                 },
                 "ten_truc_ky_vong": {"type": "array", "items": {"type": "string"}},
+                "so_da_giac_outline_ky_vong": {"type": "integer", "description": "Tuỳ chọn — hệ thống tự điền từ lúc lắp ráp tờ vẽ."},
+                "mat_cat_ky_vong": {
+                    "type": "array", "items": {"type": "object"},
+                    "description": "Tuỳ chọn — [{nhan, rong_ve, cao_ve}] kích thước từng mặt cắt TRÊN BẢN VẼ; hệ thống tự điền.",
+                },
                 "can_co_bang_thong_ke": {"type": "boolean", "description": "Mặc định true."},
             },
         },
