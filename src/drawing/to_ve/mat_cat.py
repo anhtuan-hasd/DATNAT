@@ -157,10 +157,10 @@ def ve_mat_cat_dam(cfg: CauHinhToVe, md: MatCatDinhNghia, K: float, ten_so_hieu_
     # nhãn cao độ sàn bên phải cốt sàn
     if md.cao_do_nhan:
         ten, _, cos = md.cao_do_nhan.rpartition("  ")
-        v.chu(xr - 100, Y(h) + 120, ten, v.h_chu_nho, giua=False, phai=True)
-        v.tam_giac_cao_do(xr + 150, Y(h))
-        v.chu(xr + 150 + 200, Y(h) + 120, cos, v.h_chu_nho)
-        gom.mo(xr + 150 + 200 + len(cos) * 0.6 * v.h_chu_nho, Y(h))
+        x_c = X(b + ext) + 150.0
+        v.chu(x_c, Y(h) + 130, f"{ten} {cos}", v.h_chu_nho)
+        v.tam_giac_cao_do(x_c + len(ten) * 0.6 * v.h_chu_nho + 150, Y(h) + 40)
+        gom.mo(x_c + (len(ten) + len(cos) + 2) * 0.6 * v.h_chu_nho + 300, Y(h))
 
     # --- chú thích thép: nhóm trên (ngay trên cốt sàn), nhóm dưới (bên phải) ---
     nhom_t: dict[int, list[tuple[float, float, int, int]]] = {}
@@ -190,10 +190,10 @@ def ve_mat_cat_dam(cfg: CauHinhToVe, md: MatCatDinhNghia, K: float, ten_so_hieu_
         d0 = lst[0][2]
         _tag(v, gom, max(xs), Y(lst[0][1]), x_phai_tag, y_tag, so, f"{len(lst)}Ø{d0}", huong=1)
         nl += 1
-    # đai
+    # đai: tag xếp NGAY TRÊN các tag thép dưới (cách ≥ 2,3r), dẫn từ cạnh phải đai
     so_dai, nhan_dai = md.dai
-    y_dai_tag = Y(h * 0.5) + 150.0
-    _tag(v, gom, X(b - cv), Y(h * 0.55), x_phai_tag, Y(h * 0.55) + 1.6 * v.r_the * (1 if nhom_d else 0) + 400.0, so_dai, nhan_dai, huong=1)
+    y_tag_dai = (min((Y(i[1]) for lst in nhom_d.values() for i in lst), default=Y(cv)) + len(nhom_d) * 2.4 * v.r_the) + 0.4 * v.r_the
+    _tag(v, gom, X(b - cv), Y(h * 0.45), x_phai_tag, y_tag_dai, so_dai, nhan_dai, huong=1)
 
     # --- kích thước ---
     co = v.h_chu_nho
@@ -260,8 +260,8 @@ def ve_mat_cat_cot(cfg: CauHinhToVe, md: MatCatDinhNghia, K: float) -> tuple[_Ve
     _kt_ngang(v, gom, X(cv), X(W - cv), yb1, f"{W - 2 * cv:g}", co)
     _kt_ngang(v, gom, X(W - cv), X(W), yb1, f"{cv:g}", co)
     _kt_ngang(v, gom, X(0), X(W), yb2, f"{W:g}", co)
-    xl1 = -500.0
-    xl2 = -1000.0
+    xl1 = -750.0
+    xl2 = -1350.0
     _kt_doc(v, gom, xl1, Y(0), Y(cv), f"{cv:g}", co)
     _kt_doc(v, gom, xl1, Y(cv), Y(H - cv), f"{H - 2 * cv:g}", co)
     _kt_doc(v, gom, xl1, Y(H - cv), Y(H), f"{cv:g}", co)

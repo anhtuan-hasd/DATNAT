@@ -124,6 +124,38 @@ class _Ve:
     def kt(self, p1, p2, nhan, layer=layers.DIM.ten, co=None):
         self.bv.kich_thuoc.append(VeKichThuoc(Diem(*p1), Diem(*p2), 0.0, layer, nhan, co or self.h_chu_nho))
 
+    def bao(self) -> tuple[float, float, float, float]:
+        """Hộp bao (x0,y0,x1,y1) mọi đối tượng đã vẽ, kể cả chữ (bề rộng ước ≈ 0,6 × cao × số ký tự) và vòng tròn."""
+        xs: list[float] = []
+        ys: list[float] = []
+        for d in self.bv.doan_thang:
+            xs += [d.p1.x, d.p2.x]
+            ys += [d.p1.y, d.p2.y]
+        for dg in self.bv.da_giac:
+            xs += [p.x for p in dg.diem]
+            ys += [p.y for p in dg.diem]
+        for c in self.bv.vong_tron:
+            xs += [c.tam.x - c.ban_kinh, c.tam.x + c.ban_kinh]
+            ys += [c.tam.y - c.ban_kinh, c.tam.y + c.ban_kinh]
+        for c in self.bv.cung:
+            xs += [c.tam.x - c.ban_kinh, c.tam.x + c.ban_kinh]
+            ys += [c.tam.y - c.ban_kinh, c.tam.y + c.ban_kinh]
+        for c in self.bv.chu:
+            w = len(c.noi_dung) * 0.6 * c.chieu_cao
+            if c.canh_giua:
+                xs += [c.vi_tri.x - w / 2, c.vi_tri.x + w / 2]
+            elif c.canh_phai:
+                xs += [c.vi_tri.x - w, c.vi_tri.x]
+            else:
+                xs += [c.vi_tri.x, c.vi_tri.x + w]
+            ys += [c.vi_tri.y - c.chieu_cao, c.vi_tri.y + c.chieu_cao]
+        for k in self.bv.kich_thuoc:
+            xs += [k.p1.x, k.p2.x]
+            ys += [k.p1.y - k.co_chu, k.p2.y + 1.5 * k.co_chu]
+        if not xs:
+            return (0.0, 0.0, 0.0, 0.0)
+        return (min(xs), min(ys), max(xs), max(ys))
+
     # --- ký hiệu ---
     def the_so_hieu(self, x_tro, y_tro, x_the, y_the, so_hieu, noi_dung, huong=1):
         """Đường dẫn từ (x_tro,y_tro) tới vòng tròn số hiệu tại (x_the,y_the); chữ `noi_dung` ở cạnh vòng tròn,
@@ -143,7 +175,7 @@ class _Ve:
         self.duong([(x, y0), (x, y1)], layers.REBAR_MAIN.ten, False, rong)
 
     def tam_giac_cao_do(self, x, y, layer=layers.AXIS.ten):
-        k = 1.6 * self.cfg.ty_le
+        k = 2.4 * self.cfg.ty_le
         self.bv.da_giac.append(VeDaGiac((Diem(x, y), Diem(x - k * 0.5, y + k * 0.8), Diem(x + k * 0.5, y + k * 0.8)), layer, True))
 
     def bong_bong_truc(self, x, y, ten):

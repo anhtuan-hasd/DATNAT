@@ -101,7 +101,7 @@ def ve_bang_thong_ke(kh: KeHoach, v: _Ve, x0: float, y_tren: float) -> tuple[flo
     for xc in x_cot:
         v.doan(xc, y_tren, xc, y_tren - n * cao_dong, L_TXT)
     for i, tde in enumerate(TIEU_DE):
-        v.chu((x_cot[i] + x_cot[i + 1]) / 2, y_tren - cao_dong / 2, tde, v.h_chu_nho * 0.8, giua=True)
+        v.chu((x_cot[i] + x_cot[i + 1]) / 2, y_tren - cao_dong / 2, tde, v.h_chu_nho * 0.85, giua=True)
     for hang, r in enumerate(dong, start=1):
         y = y_tren - (hang + 0.5) * cao_dong
         ck = ",".join(sorted(r["ck"], key=lambda s: (len(s), s)))
@@ -119,7 +119,7 @@ def ve_bang_thong_ke(kh: KeHoach, v: _Ve, x0: float, y_tren: float) -> tuple[flo
             if s is None:
                 _phac_hinh(v, x_cot[i], y_tren - (hang + 1) * cao_dong, rong[i], cao_dong, r["hinh"])
             else:
-                v.chu((x_cot[i] + x_cot[i + 1]) / 2, y, s, v.h_chu_nho * 0.85, giua=True)
+                v.chu((x_cot[i] + x_cot[i + 1]) / 2, y, s, v.h_chu_nho, giua=True)
     # hàng tổng
     yb = y_tren - n * cao_dong
     v.doan(x0, yb - cao_tong, x0 + tong_rong, yb - cao_tong, L_TXT)

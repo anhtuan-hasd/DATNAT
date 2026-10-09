@@ -11,13 +11,41 @@ import math
 from .. import geometry as g
 from .. import layers
 from ..geometry import BanVe
-from . import bang, mat_cat, mat_dung
+from . import bang, chi_tiet_nut, mat_cat, mat_dung
 from .co_so import CauHinhToVe, KetQuaToVe, _Ve
 from .ke_hoach import lap_ke_hoach
 
 KHO_GIAY = [("A1", 841.0, 594.0), ("A0", 1189.0, 841.0)]
 RONG_KHOI_PHAI = 7900.0
 KHOANG = 400.0
+HE_SO_3D = 2.2  # phóng hình chi tiết nút 3D (so với mm thật)
+
+
+def _chon_nut(kh) -> list[dict]:
+    """Chọn tối đa 4 nút đại diện: nút biên + nút giữa ở tầng MÁI và ở tầng sàn thấp nhất có dầm (bản mẫu: CHI TIẾT 1–4)."""
+    ten_truc = sorted(kh.truc, key=lambda k: kh.truc[k])
+    moc = sorted(kh.moc.items(), key=lambda kv: kv[1])
+    y_mai = moc[-1][1]
+    y_san = min((d.y for d in kh.dams), default=None)
+    nut = []
+    for y, la_mai in ((y_mai, True), (y_san, False)):
+        if y is None or (not la_mai and abs(y - y_mai) < 1.0):
+            continue
+        for i in (0, 1):
+            if i >= len(ten_truc):
+                continue
+            tr = ten_truc[i]
+            cot = next((c for c in kh.cots if c.truc == tr and abs(c.y1 - y) < 1.0), None)
+            if cot is None:
+                continue
+            ph = next((d for d in kh.dams if abs(d.y - y) < 1.0 and d.truc1 == tr), None)
+            tr_ = next((d for d in kh.dams if abs(d.y - y) < 1.0 and d.truc2 == tr), None)
+            if ph is None and tr_ is None:
+                continue
+            nut.append({"truc": tr, "y": y, "cot": cot, "phai": ph, "trai": tr_, "mai": la_mai, "x": kh.truc[tr]})
+    for i, n in enumerate(nut, start=1):
+        n["ten"] = str(i)
+    return nut
 
 
 def lap_ban_ve_khung(du_lieu: dict, cfg: CauHinhToVe | None = None) -> KetQuaToVe:
@@ -31,6 +59,13 @@ def lap_ban_ve_khung(du_lieu: dict, cfg: CauHinhToVe | None = None) -> KetQuaToV
     info = mat_dung.ve_mat_dung(kh, v_md)
     w_el = info["x_phai"] - info["x_trai"]
     h_el = info["y_cao"] - info["y_thap"]
+    nut = _chon_nut(kh)
+    for n in nut:  # khung nét đứt quanh nút + tên chi tiết (nối với hình 3D)
+        hb = max([d.h for d in (n["phai"], n["trai"]) if d] or [500.0])
+        x0, x1 = n["x"] - 700.0, n["x"] + 700.0
+        y0, y1 = n["y"] - hb - 250.0, n["y"] + 450.0
+        v_md.hcn(x0, y0, x1, y1, layers.HIDDEN.ten)
+        v_md.chu((x0 + x1) / 2, y1 + 120.0, f"CHI TIẾT {n['ten']}", v_md.h_chu_nho, giua=True)
 
     # ---- mặt cắt ----
     suot = {t.so_hieu for lst in kh.thanh_doc_dam.values() for t in lst if t.vai_tro in ("tren_suot", "tren_suot_chung")}
@@ -52,7 +87,7 @@ def lap_ban_ve_khung(du_lieu: dict, cfg: CauHinhToVe | None = None) -> KetQuaToV
         x_sec1 = W - 5 * T - RONG_KHOI_PHAI - KHOANG
         cols = max(1, int((x_sec1 - x_sec0) // cell_w))
         rows = math.ceil(len(mcs) / cols) if mcs else 0
-        if x_sec1 - x_sec0 >= cell_w and rows * cell_h <= H - 10 * T - 300.0 and h_el <= H - 10 * T:
+        if x_sec1 - x_sec0 >= cell_w and rows * cell_h <= H - 10 * T - 300.0 and h_el + (2 * 5600.0 if nut else 0.0) <= H - 10 * T:
             chon = (ten, W, H, x_sec0, cols, rows)
             break
     canh_bao = list(kh.canh_bao)
@@ -89,6 +124,27 @@ def lap_ban_ve_khung(du_lieu: dict, cfg: CauHinhToVe | None = None) -> KetQuaToV
         else:
             rong_ve, cao_ve = md.h * K, md.b * K
         mat_cat_ve.append({"nhan": f"{md.so}-{md.so}", "loai": md.loai, "b": md.b, "h": md.h, "rong_ve": rong_ve, "cao_ve": cao_ve})
+
+    # chi tiết nút 3D: dải phía TRÊN mặt đứng (cùng cột x với mặt đứng)
+    y_3d_top = H - 5 * T - 400.0
+    x_3d = 25 * T + 500.0
+    cap = 0.0
+    ds3 = []
+    for n in nut:
+        v3, w3, h3, goc3 = chi_tiet_nut.ve_chi_tiet_nut(kh, n["ten"], n["cot"], n["phai"], n["trai"], n["mai"], HE_SO_3D)
+        ds3.append((v3, w3, h3, goc3))
+    if ds3:
+        cw = max(w for _, w, _, _ in ds3) + KHOANG
+        ch = max(h for _, _, h, _ in ds3) + KHOANG
+        cols3 = max(1, int(w_el // cw))
+        y_free = 5 * T + 700.0 + h_el + 500.0  # trên mặt đứng
+        rows3 = math.ceil(len(ds3) / cols3)
+        if y_3d_top - rows3 * ch >= y_free:
+            for i, (v3, w3, h3, (ox3, oy3)) in enumerate(ds3):
+                c3, r3 = i % cols3, i // cols3
+                tong.gop(v3.bv.dich_chuyen(x_3d + c3 * cw - ox3, y_3d_top - (r3 + 1) * ch - oy3))
+        else:
+            canh_bao.append("Không đủ chỗ cho hình chi tiết nút 3D trên khổ giấy đã chọn (bỏ qua).")
 
     # khối phải: bảng thống kê (trên) → ghi chú → khung tên (dưới cùng)
     x_ph = W - 5 * T - RONG_KHOI_PHAI

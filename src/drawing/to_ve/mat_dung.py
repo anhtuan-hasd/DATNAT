@@ -38,10 +38,9 @@ def _vach_mat_cat(v: _Ve, x, y, so, huong=1):
     """Ký hiệu mặt cắt trên mặt đứng: số + vạch đậm đứng (bản mẫu: '7 ▌')."""
     h = 1.6 * v.cfg.ty_le * 2.4
     v.doan_net_dam(x, y - h / 2, y + h / 2, 0.9 * v.cfg.ty_le)
-    if huong >= 0:
-        v.chu(x + 0.9 * v.cfg.ty_le * 2, y, str(so), v.h_chu * 1.25, giua=True)
-    else:
-        v.chu(x - 0.9 * v.cfg.ty_le * 2, y, str(so), v.h_chu * 1.25, giua=True)
+    # số đặt cách vạch: nửa bề rộng chữ + khe (không chồng lên vạch — bản mẫu: "7 ▌")
+    nua = 0.5 * len(str(so)) * 0.62 * v.h_chu * 1.25 + 0.9 * v.cfg.ty_le * 1.2
+    v.chu(x + (nua if huong >= 0 else -nua), y, str(so), v.h_chu * 1.25, giua=True)
 
 
 class _Cho:
@@ -73,7 +72,7 @@ class _Cho:
                 return False
         return True
 
-    def dat(self, xa, ya, x, y, so, noi_dung, huong=1, dys=(0.0,), dxs=(0.0,)) -> bool:
+    def dat(self, xa, ya, x, y, so, noi_dung, huong=1, dys=(0.0,), dxs=(0.0, 300.0, -300.0, 600.0, -600.0)) -> bool:
         for dy in dys:
             for dx in dxs:
                 b = self.hop_the(x + dx, y + dy, noi_dung, huong)
@@ -88,7 +87,7 @@ class _Cho:
         return False
 
     def vach(self, v: _Ve, x, y, so, huong=1, dys=(0.0,), dxs=(0.0,), bat_buoc=True) -> bool:
-        w = 0.9 * v.cfg.ty_le * 2 + len(str(so)) * 0.6 * v.h_chu * 1.25
+        w = 0.9 * v.cfg.ty_le * 2.4 + len(str(so)) * 0.7 * v.h_chu * 1.25
         for dy in dys:
             for dx in dxs:
                 xx = x + dx
@@ -309,7 +308,8 @@ def ve_mat_dung(kh: KeHoach, v: _Ve) -> dict:
             y_d = yb + cv_d + dw + dd / 2
             for i, (dk, n) in enumerate(sorted({k: d.bot.count(k) for k in set(d.bot)}.items(), reverse=True)):
                 th = next(t for t in tl if t.vai_tro == "duoi" and t.duong_kinh == dk)
-                cho.dat(xm - 700.0, y_d, xm - 700.0, yb - HA - i * 420.0, th.so_hieu, f"{n}Ø{dk}", 1, dys=(0, -420))
+                x_bd = min(max(xm - 700.0, xf1 + 400.0), xf2 - 1100.0) if d.l_tt > 2500 else xm - 250.0
+                cho.dat(x_bd, y_d, x_bd, yb - HA - i * 420.0, th.so_hieu, f"{n}Ø{dk}", 1, dys=(0, -420, -840))
                 n_so_hieu += 1
         # đai: tag theo vùng (hàng B) + dây kích thước vùng (hàng C)
         yC = yt + HC
@@ -385,17 +385,18 @@ def ve_mat_dung(kh: KeHoach, v: _Ve) -> dict:
                 continue
             da_vach.add(so_mc)
             y_t = c.y0 + (vg.tu_mm + vg.den_mm) / 2
-            xs_ = (x1 + 350.0) if trai else (x0 - 350.0)
+            xs_ = (x0 - 350.0) if (c.truc == ten_truc[1] and len(ten_truc) > 2 and c.truc != ten_truc[-1]) else (x1 + 350.0)
             ok = False
+            huong_v = -1 if xs_ < xc else 1
             for dy in quet:
                 yy = y_t + dy
                 if yy < y_lo or yy > y_hi:
                     continue
-                if cho.vach(v, xs_, yy, so_mc, huong=1 if trai else -1, bat_buoc=False):
+                if cho.vach(v, xs_, yy, so_mc, huong=huong_v, bat_buoc=False):
                     ok = True
                     break
             if not ok:
-                cho.vach(v, xs_, y_t, so_mc, huong=1 if trai else -1)
+                cho.vach(v, xs_, y_t, so_mc, huong=huong_v)
 
     # ---- 7. kích thước chân + trục + chiều cao ----
     y_k1, y_k2 = y_lot - 700.0, y_lot - 1250.0
