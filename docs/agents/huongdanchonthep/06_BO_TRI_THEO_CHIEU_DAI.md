@@ -1,3 +1,4 @@
+<!-- PROMPT:BAT_DAU -->
 # 06 — BỐ TRÍ THÉP THEO CHIỀU DÀI CẤU KIỆN VÀ DỮ LIỆU CHO BẢN VẼ (Chương 12)
 
 > **Trạng thái tool:** hệ thống hiện chỉ chọn thép **tại 3 vị trí** (gối trái, giữa nhịp, gối phải); **không có** khái niệm điểm cắt lý thuyết, chiều dài từng thanh, vùng đai theo chiều dài, đếm đai, bảng thống kê khối lượng.
@@ -7,6 +8,7 @@
 
 # CHƯƠNG 12. BỐ TRÍ THÉP THEO CHIỀU DÀI CẤU KIỆN VÀ LẬP DỮ LIỆU CHO BẢN VẼ
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## 12.1. Từ "diện tích thép cần có" đến bản vẽ: 9 việc theo thứ tự
 
 | # | Việc phải làm | Đầu vào | Đầu ra |
@@ -25,6 +27,7 @@
 
 **Mô tả bằng chữ:** Mặt đứng dầm hai nhịp giữa hai cột, vẽ tượng trưng (không đúng tỉ lệ). Dải trên: hình bao $|M|$ âm hình parabol lõm và đường bậc thang nét đứt của $M_u$ (cao ở hai gối, thấp ở giữa). Giao điểm hình bao và bậc thấp là **điểm cắt lý thuyết $x_{lt}$** (chấm đen); từ đó kéo thêm đoạn **$W=Q/(2q_{sw})+5d\ge20d$** về phía mô men nhỏ để ra **điểm cắt thực $x_{cắt}$** (làm tròn lên 50 mm). Dải giữa: hai thanh góc trên chạy suốt (đường đậm dài hết dầm, uốn xuống cột ở đầu biên, ghi $\ell_{đứng}\ge L_{an}$), thanh gia cường gối ngắn hơn (kết thúc tại $x_{cắt}$), thanh dưới chạy suốt và neo vào cột; dải dưới: vùng đai dày dài $l_1=\max(L/4;x_1)$ mỗi đầu, vùng giữa nhịp thưa $s\le\min(3h/4;500)$, đai đầu tiên cách mép cột 50, vùng cốt treo hai bên dầm phụ.
 
+<!-- PROMPT:BO_KET_THUC -->
 ## 12.2. Dầm: quy trình bố trí dọc — 10 bước
 
 ### B1. Bảng $A_{s,tt}$ tại các mặt cắt kiểm soát
@@ -58,6 +61,7 @@ $A_{s,gc}\ge A_{s,gối}-A_{s,suốt}$. Chọn số thanh/Ø sao cho: đủ $A_{
 6. **Có tải ngang đáng kể (gió, động đất):** hình bao có cả hai dấu ở gối ⇒ kiểm điểm cắt cho **cả thép trên và dưới**; **không** dùng quy tắc rút gọn (R17).
 (Rule base cũ, mục 53.3, thêm số liệu "kinh nghiệm": mỗi lần cắt ≤50% $A_s$; cắt lần 1 cách mép gối $>L/4$, lần 2 $>L/3$; thép dương cắt cách gối biên $<0{,}1L$, gối giữa $<0{,}15L$; khoảng giữa cắt lớp trên và dưới $\ge h$ — **[kinh nghiệm]**, dùng làm cận kiểm tra thô, không thay hình bao.)
 
+<!-- PROMPT:BO_BAT_DAU -->
 ### B5. Chiều dài từng thanh
 
 | Loại thanh | Công thức chiều dài (kích thước ngoài, mm) | Ghi chú |
@@ -70,6 +74,7 @@ $A_{s,gc}\ge A_{s,gối}-A_{s,suốt}$. Chọn số thanh/Ø sao cho: đủ $A_{
 
 Chiều dài khai triển đặt hàng = tổng đoạn thẳng **trừ lượng bù uốn** theo xưởng gia công của dự án (không có trong 4 tài liệu).
 
+<!-- PROMPT:BO_KET_THUC -->
 ### B6. Neo thép dưới vào cột
 
 Gối **chịu tải đứng thuần**: neo $\ge\max(L_{an,min};\ 5d\text{ qua tim cột})$ (ví dụ 11.1.4). Gối **có tải ngang** hoặc dầm có thể chịu kéo dưới ở gối: neo **đủ $L_{0,an}$** (hoặc móc 90° vào cột), **không** dùng $L_{an,min}$ (R20). Cột biên: neo $\ge L_{an}$ kể từ mép trong cột; đoạn thẳng không đủ ⇒ uốn đứng như thanh trên (Hình 9.5). Nút giữa: thép dưới hai nhịp **không bắt buộc nối nhau**, mỗi nhịp neo riêng.
@@ -145,6 +150,7 @@ Mỗi vùng $n=\lfloor(l-50)/s\rfloor+1$; vùng đầu cột và vùng nối **c
 
 **Mô tả bằng chữ:** Một đoạn cột hai tầng vẽ đứng, tượng trưng. Từ dưới lên: móng (thép chờ chữ L, 3 đai trong móng), vùng đầu cột tầng 1 với $l_d=\max(h_c;H_n/6;450)$ (đai a $\le10d_{min}$, tô đậm), vùng giữa cột (đai $\le15d_{min}$ và $\le500$, nét thưa), vùng đầu cột sát sàn, **nút** (đai không cắt, tô sẫm), đoạn **nối chồng $L_{ov}$** nằm ngay trên mặt sàn (đai $\le\min(10d_{min};300)$, chồng lên vùng đầu cột), rồi lặp lại cho tầng 2. Bên phải là các ngoặc ghi từng vùng; thép tầng dưới (đậm) nhô lên $L_{ov}$ qua sàn, thép tầng trên (nhạt) bắt đầu từ mặt sàn; ký hiệu $\le4$ thanh/cạnh nối một vị trí, $>4$ thanh nối so le.
 
+<!-- PROMPT:KET_THUC -->
 ## 12.4. Ký hiệu thanh và bảng thống kê
 
 **Quy ước số hiệu (thực hành, khớp Hình 12.1):** mỗi **nhóm thanh cùng Ø, hình dạng, chiều dài** có một số hiệu (vòng tròn trên đường dẫn); thanh giống nhau dùng chung số hiệu; ghi **số lượng–Ø–chiều dài** (VD `2Ø25 L = 8080`); đai ghi Ø và bước (`Ø8a150`); thanh uốn ghi các đoạn thẳng và bán kính; thứ tự số hiệu: thép dọc trên → dưới → cốt cấu tạo cạnh bên → đai → cốt treo/gia cường.
@@ -200,6 +206,7 @@ Thép tầng 1 từ module 03 (mỗi phía 2Ø25+1Ø22; mỗi cạnh dài 1Ø16;
 
 **Mô tả bằng chữ:** Mặt đứng một cột hẹp từ móng (đáy hình, gạch chéo) lên qua hai tầng; hai thanh thép dọc đậm hai bên cột; thép chờ **chân L** ở đáy móng ghi "chân 200, r ≥ 8d"; mốc cao độ ±0,000, +3,900 (sàn tầng 2), +7,800 (sàn tầng 3). Thép tầng 2 bắt đầu ở mặt sàn tầng 2 và chồng 1150 với thép tầng 1 (ghi chú trái). Bên phải là chuỗi ngoặc theo từng vùng đai: "Trong móng: 3 đai Ø8"; "Ø8a150 (5 đai) — đầu cột 750"; "Ø8a200 (15 đai)"; "Ø8a150 (5 đai) — đầu cột 750"; "Ø8a150 trong nút (4 đai, không cắt)"; "Ø8a150 trên đoạn nối 1150 (8 đai)"; "Ø8a200 (7 đai)"; "Ø8a150 (4 đai) — đầu cột 600". Hai bên cột là dầm sàn tầng 2 và 3 (hình chữ nhật có ký hiệu gãy). Có ghi chú "Hình vẽ không đúng tỉ lệ".
 
+<!-- PROMPT:BAT_DAU -->
 ## 12.7. Luật bố trí cho chương trình / Agent
 
 Nối tiếp bảng luật chọn thép (R1–R13, module 08): **R14–R30 bố trí thép**; R31–R40 kháng chấn (module 07); R41–R46 cổng chặn và R47–R52 xoắn/dầm cao/lỗ mở (module 09).
@@ -267,6 +274,9 @@ Mỗi thanh/điểm cắt thêm trường `basis`; đầu ra có mảng `flags` 
 - [ ] Khối lượng thép/m³ bê tông trong khoảng tham chiếu 14.4, hoặc đã giải thích.
 - [ ] Các mục 14.7 (hình học nút, hai dầm cắt nhau, phạm vi áp dụng).
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## 12.9. Lỗi bố trí thường gặp
 
 (1) Cắt thanh đúng tại điểm cắt lý thuyết, quên $W$; (2) lấy $x_{lt}$ theo hình bao **một** tổ hợp; (3) bỏ qua mô men dương ở gối do gió nên neo thép dưới không đủ; (4) thanh góc đai bị thanh gia cường lớn chiếm nên không còn chỗ cho cốt giá; (5) nhiều hơn hai cỡ Ø trên một mặt cắt; (6) đai đầu cách mép cột >100; (7) đai trong nút bị bỏ vì "bị dầm che"; (8) nối 100% thép cột trong vùng mô men lớn; (9) quên cốt treo tại dầm phụ; (10) thanh dài hơn 11,7 m nhưng không có vị trí nối; (11) ghi chiều dài đai theo kích thước ngoài bê tông thay vì đường tâm/kích thước trong lòng; (12) số đai tính theo $l/s$ mà không cộng đai đầu tiên; (13) **thép dầm không lọt qua thép cột ở nút** (14.2); (14) quên rằng dầm đặt thấp ở nút giao mất chiều cao làm việc (14.3).
+<!-- PROMPT:BO_KET_THUC -->
+<!-- PROMPT:KET_THUC -->

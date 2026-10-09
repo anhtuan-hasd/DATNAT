@@ -79,9 +79,13 @@ $2a'\le x_1\le\xi_Rh_0$ (A 5.30; D 6.20): $A_s=A_s'=\dfrac{Ne-R_bbx_1(h_0-0{,}5x
 
 ### 7b. Lệch tâm bé ($x_1 > \xi_R h_0$) — ba cách
 
+<!-- PROMPT:BO_BAT_DAU -->
 **Cách 1 (thực nghiệm A, ước nhanh):** $x=h_0\dfrac{(1-\xi_R)\alpha n+2\xi_R(n-0{,}48)}{(1-\xi_R)\alpha+2(n-0{,}48)}$, $n=\dfrac N{R_bbh_0}$, $\alpha=e/h_0$; $\xi_Rh_0<x\le h_0$; $A_s=\dfrac{Ne-R_bbx(h_0-0{,}5x)}{R_{sc}(h_0-a')}$.
+<!-- PROMPT:BO_KET_THUC -->
 **Cách 2 (D 6.22, dùng làm kết quả chính):** $\xi_1=\min(\tfrac{\alpha_n+\xi_R}{2};1)$, $\alpha_{m1}=\dfrac{Ne}{R_bbh_0^2}$, $\alpha_s=\dfrac{\alpha_{m1}-\xi_1(1-\xi_1/2)}{1-\delta}$, $\xi=\dfrac{\alpha_n(1-\xi_R)+2\alpha_s\xi_R}{1-\xi_R+2\alpha_s}$, $A_s=\dfrac{R_bbh_0}{R_{sc}}\cdot\dfrac{\alpha_{m1}-\xi(1-\xi/2)}{1-\delta}$.
+<!-- PROMPT:BO_BAT_DAU -->
 **Cách 3 (chính xác):** $\sigma_s=R_s\left[\dfrac{2(1-\xi)}{1-\xi_R}-1\right]$, $-R_{sc}\le\sigma_s\le R_s$; $x=\dfrac{N+R_sA_s\frac{1+\xi_R}{1-\xi_R}-R_{sc}A_s'}{R_bb+\frac{2R_sA_s}{h_0(1-\xi_R)}}$, giải đồng thời với $Ne=R_bbx(h_0-0{,}5x)+R_{sc}A_s'(h_0-a')$.
+<!-- PROMPT:BO_KET_THUC -->
 **Cột 22:** Cách 1 $x=325$, $A_s=1243$; Cách 2 ($\alpha_{m1}=0{,}623$, $\alpha_s=0{,}2344$, $\xi=0{,}5676$, $x=318$) $A_s=1275$; Cách 3 $x=318$, $\sigma_s=+311$ MPa (kéo nhẹ, chưa chảy), $A_s=1275$. Cách 1 thấp hơn nghiệm đúng khoảng 2,5% ⇒ **lấy $A_{s,tt}=1275$ mm²**. (A in 1250 với $e=550$.)
 **Agent không tự tính $A_s$:** `As_yc` đến từ ETABS (PMMArea ≈ As mỗi phía; công thức TCVN 2.5 cho ≈ 630/624 mm² với phần tử '14' và '1' vs As_yc 752,8/743,2 — thấp hơn 15–20%, **không** phải một nửa).
 
@@ -187,6 +191,7 @@ Cột 22: $\sigma_m=10{,}1$ MPa ⇒ $\varphi_n=1{,}25$; $Q_{b,min}=100{,}6$ kN $
 
 $L_{ov}=\alpha_{ov}L_{0,an}\dfrac{A_{s,cal}}{A_{s,ef}}\ge\max(0{,}4\alpha_{ov}L_{0,an};\ 20d;\ 250)$; $\alpha_{ov}$: kéo ≤50% **1,2**, 100% **2,0**; nén ≤50% **0,9**, 100% **1,2** (nội suy). ⚠ Các tỉ lệ 100% và tối thiểu trên lấy từ nguồn thứ cấp (TCVN 5574:2018 mục 10.3.6) — đối chiếu bản gốc. $d>40$ không nối chồng; $d\ge32$ nên hàn/cơ khí; **cột kéo phải hàn hoặc nối cơ khí** (D 7.2).
 
+<!-- PROMPT:BO_BAT_DAU -->
 | $d$ | $L_{0,an}$ | Nén ≤50% (0,9) | Nén 100% (1,2) | Kéo ≤50% (1,2) | Kéo 100% (2,0) |
 |:--|--:|--:|--:|--:|--:|
 | 16 | 605 | 544 | 726 | 726 | 1210 |
@@ -196,6 +201,7 @@ $L_{ov}=\alpha_{ov}L_{0,an}\dfrac{A_{s,cal}}{A_{s,ef}}\ge\max(0{,}4\alpha_{ov}L_
 | 25 | 945 | 850 | 1134 | 1134 | 1890 |
 | 28 | 1058 | 953 | 1270 | 1270 | 2116 |
 
+<!-- PROMPT:BO_KET_THUC -->
 [TC cũ] TCXDVN 356:2005: kéo $34{,}0d$, nén $24{,}6d$ — ngắn hơn bản 2018 ⇒ **dùng 2018**. Tool: `tinh_neo_noi` trả `L_lap` (với `keo=true/false`).
 
 ### 13b. Vị trí nối và tỷ lệ nối (A, B, C)
@@ -225,6 +231,7 @@ Chỉ khi $e_0\le h/30$, $l_0/h\le20$: $A_{s,tot}=\dfrac{N/\varphi-R_bA}{R_{sc}}
 
 $N>N_{max}$ (điểm A) ⇒ tăng tiết diện/cấp bền, **không tăng thép**; $\lambda_h>25$ hoặc $\lambda>120$ ⇒ quá mảnh (D11); khe nứt cột nén lệch tâm ($\varphi_3=1{,}0$) chỉ khi cần; cột chịu cắt lớn (cột ngắn, tường chèn) ⇒ tính đai như dầm; tầng 1 cao hơn ⇒ $l_0$ riêng.
 
+<!-- PROMPT:BO_BAT_DAU -->
 ### 14e. Bảng thống kê thép cột (mẫu)
 
 | Cột | Tầng | Tiết diện | Cặp $M$ (kN·m)/$N$ (kN) | $A_{s,tt}$ | Thép mỗi phía | Cấu tạo cạnh dài | $\mu_t$ (%) | Đai (ngoài nối / nối) | $k_{max}$ |
@@ -233,3 +240,4 @@ $N>N_{max}$ (điểm A) ⇒ tăng tiết diện/cấp bền, **không tăng thé
 
 **Checklist 12 điểm:** (1) $\lambda_b\le31$, $\lambda\le120$; (2) $\eta$ theo $\mu_t$ thực, $N<N_{cr}$; (3) loại lệch tâm đúng, $A_s\ge A_{s,min}$; (4) $\mu_{min}\le\mu\le3\%$, $\mu_t\le4\%$ ($8\%$ nối); (5) $d\in[12;40]$, chênh ≤6, ≤3 loại; (6) hở $\ge\max(d;50)$, $a$ thực ±5; (7) tim ≤400 (⊥) / ≤500 (//), cốt cấu tạo khi $h>500$; (8) mọi $(\eta M,N)$ trong BĐTT; (9) ngoài mặt phẳng $N\le N_u$; (10) đai: $d_{sw}$, $s$, đai phụ, $Q\le0{,}3R_bbh_0$; (11) nối: vị trí, %, $L_{ov}$, đai nối; (12) nút và neo móng: module 05.
 **Lỗi thường gặp:** quên nhân $\eta$; $l_0=H$ thay $0{,}7H$ (hoặc quên đoạn ngàm tầng 1); chỉ kiểm một cặp; $e_a$ theo $l_0$; $a$ thực lệch >5 mm không tính lại; bỏ cốt cấu tạo khi $h>500$; đai $15d$ theo thanh lớn nhất; $\mu_t>3$–$4\%$ ở nối; cột góc một phương.
+<!-- PROMPT:BO_KET_THUC -->

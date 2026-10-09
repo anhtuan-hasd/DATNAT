@@ -5,6 +5,7 @@
 
 # CHƯƠNG 10. CHECKLIST QUY TRÌNH CHỌN THÉP
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## 10.1. Sơ đồ quy trình tổng thể
 
 Xem lưu đồ ở module 01 (`flow_process.png`). **Ba "cổng" bắt buộc:** (1) **Cổng ETABS** (cuối Chương 6): $\sum N$ chân cột = tổng tải đứng; $\sum Q$ chân cột = tổng gió; chuyển vị, chu kỳ hợp lý — Input Adapter chịu trách nhiệm, agent này nhận dữ liệu đã qua cổng; (2) **Cổng khả năng chịu lực** (cuối từng cấu kiện): $M_u\ge M$, $x\le\xi_Rh_0$, $\mu$ trong giới hạn (dầm); mọi $(\eta M,N)$ trong BĐTT (cột); (3) **Cổng cấu tạo** (module 04–06): lớp bảo vệ, khoảng hở, neo, nối, đai, nút khung.
@@ -35,6 +36,7 @@ Lớp bảo vệ (module 04: 20/25/30/40; không dùng 15 mm bản cũ); khoản
 **D. Nút và cấu tạo:** từng loại nút có sơ đồ cốt thép và neo kiểm bằng số; thép chờ cột–móng, đai trong móng; bố trí dọc (module 06), phiếu 12.8; nhà chịu động đất: cấp dẻo đã xác nhận, kiểm Chương 13 và đối chiếu 13.9; mọi bán kính uốn, móc, khoảng hở ghi trên bản vẽ.
 **E. Hồ sơ:** bảng thống kê khớp mặt cắt; ghi chú rõ phần tiêu chuẩn cũ/giả thiết (Phụ lục B); **thép dầm lọt qua thép cột ở mọi nút; dầm đặt thấp đã tính lại $h_0$; cấu kiện ngoài phạm vi (14.1) đã xử lý riêng; dầm có $T\ne0$ đã tính theo 15.1.**
 
+<!-- PROMPT:BO_KET_THUC -->
 ## 10.4. Cấu trúc dữ liệu và luật quyết định cho AI Agent (tóm tắt từ chương 1–9; luật bố trí R14–R30 ở mục 12.7; luật kháng chấn R31–R40 ở mục 13.10; cổng chặn R41–R46 ở mục 14.6; xoắn, dầm cao, lỗ mở R47–R52 ở mục 15.4)
 
 **Đầu vào tối thiểu của một cấu kiện:** loại (dầm/cột/console), $b$, $h$, $L$ hoặc $l$, cấp bền bê tông, nhóm thép dọc và đai, $c$, danh sách cặp nội lực (tổ hợp, vị trí, $M$, $N$, $Q$), $M_{dh}$, $N_{dh}$ (cột), điều kiện liên kết ($l_0$).
@@ -251,4 +253,6 @@ GHI kết quả + basis + cờ [R45]; KHÔNG in "ĐẠT" khi còn cờ [R46]
 | Cổng chặn | R41–R46 | module 09, mục 14.6 | **không có tool** (R45: chưa có trường `basis` trong hợp đồng dữ liệu) |
 | Xoắn, dầm cao, lỗ mở | R47–R52 | module 09, mục 15.4 | **không có tool**; R51, R52 là luật dừng |
 
+<!-- PROMPT:BO_BAT_DAU -->
 **Danh sách đầy đủ để tra nhanh:** R1 • R2 • R3 • R4 • R5 • R6 • R7 • R8 • R9 • R10 • R11 • R12 • R13 • R14 • R15 • R16 • R17 • R18 • R19 • R20 • R21 • R22 • R23 • R24 • R25 • R26 • R27 • R28 • R29 • R30 • R31 • R32 • R33 • R34 • R35 • R36 • R37 • R38 • R39 • R40 • R41 • R42 • R43 • R44 • R45 • R46 • R47 • R48 • R49 • R50 • R51 • R52.
+<!-- PROMPT:BO_KET_THUC -->

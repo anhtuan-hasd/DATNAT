@@ -29,6 +29,7 @@ import pandas as pd
 from ...input_adapter import adapter, heuristics, hinh_hoc, readers
 from ...input_adapter.models import DonViLucGoc, LoaiCauKien
 from .. import agent
+from ..shared import doc_skill
 from ..shared.hoi_nguoi_dung_tool import DINH_NGHIA_HOI_NGUOI_DUNG, hoi_nguoi_dung
 from ..shared.hop_dong_du_lieu import BoDuLieuKhungChuanHoa, PhanTuChuanHoa, ViTriChuanHoa
 
@@ -429,7 +430,7 @@ def tao_dispatch(nc: NguCanhInputAdapter) -> dict[str, Callable[[dict], dict]]:
 # System prompt + hàm chạy 1 phiên độc lập.
 # ---------------------------------------------------------------------------
 
-HE_THONG_PROMPT = """\
+_HE_THONG_PROMPT_GOC = """\
 Bạn là Input Adapter Agent trong hệ thống thiết kế khung BTCT theo TCVN \
 5574:2018 (đọc chi tiết: docs/agents/INPUT_ADAPTER_AGENT.md). Nhiệm vụ DUY \
 NHẤT: đọc 1 file Excel/CSV có schema BẤT KỲ (không biết trước tên cột) và \
@@ -455,6 +456,22 @@ cao_do_moc đã hoan_tat, dừng lại và tóm tắt kết quả bằng văn b�
 thêm tool nào nữa. Đây là kết quả cuối cùng bạn bàn giao, không cần lo về \
 các bước sau (chọn thép, vẽ) — đó là việc của agent khác.
 """
+
+# Skill nhập dữ liệu ETABS (Chương 1–6 của tài liệu nguồn) — nạp NGUYÊN VĂN (không bỏ ảnh: dùng loader chung thay
+# cú pháp ảnh bằng chú thích, phần "Mô tả bằng chữ" giữ lại). Xem docs/agents/BAN_DO_PHU_NGUON_SANG_SKILL.md.
+_DUONG_DAN_SKILL_NHAP_DU_LIEU = doc_skill.THU_MUC_AGENTS / "huongdannhapdulieu" / "SKILL_NHAP_DU_LIEU_ETABS.md"
+
+
+def _xay_dung_he_thong_prompt() -> str:
+    return doc_skill.ghep_skill_vao_prompt(
+        _HE_THONG_PROMPT_GOC, doc_skill.doc_file_skill(_DUONG_DAN_SKILL_NHAP_DU_LIEU),
+        "TÀI LIỆU THAM KHẢO BẮT BUỘC — skill nhập dữ liệu ETABS",
+        "Dưới đây là skill nhập dữ liệu: dữ liệu cần có, cách đọc báo cáo ETABS thật (bảng, đơn vị, dấu), kiểm tra "
+        "hợp lý và sàng lọc phạm vi. Skill KHÔNG thay tool: bạn vẫn không tự tính con số kỹ thuật nào.",
+    )
+
+
+HE_THONG_PROMPT = _xay_dung_he_thong_prompt()
 
 
 def chay_input_adapter_agent(

@@ -1,3 +1,4 @@
+<!-- PROMPT:BAT_DAU -->
 # 09 — RÀ SOÁT CỦA KỸ SƯ, PHẠM VI ÁP DỤNG, XOẮN/DẦM CAO/LỖ MỞ, VÍ DỤ ĐỐI CHIẾU VÀ SAI KHÁC GIỮA CÁC TÀI LIỆU
 
 > Module cuối: (1) **Chương 14** cổng chặn trước khi xuất bản vẽ (R41–R46); (2) **Chương 15** xoắn và sàng lọc dầm cao, lỗ mở (R47–R52); (3) **ví dụ hoàn chỉnh** khung trục 3 (Chương 11) và ví dụ **Khung Trục 5** của rule base cũ — dùng để **đối chiếu**, không để sao chép số;
@@ -57,6 +58,7 @@ Thép dọc cột chạy **thẳng đứng**, thép dầm chạy **nằm ngang**
 
 Dầm khung và dầm dọc (hoặc dầm phụ) cùng qua một cột thường có mặt trên ngang nhau ⇒ thép trên hai dầm **cắt chéo ở cùng cao độ**: một dầm phải thấp hơn. Thép dầm **chính** đặt ngoài; thép dầm **phụ** nằm dưới [thực hành]. Khi đó $a$ của dầm thấp **tăng thêm xấp xỉ Ø thanh dầm kia**: $a'\approx a+d_{kia}$. Ví dụ dầm dọc 220×300, $a=40$, $h_0=260$ nằm dưới Ø25 của CB ⇒ $a'\approx65$, $h_0'\approx235$ (giảm ~10%) nên $A_s$ cần tăng cỡ 10% [ước lượng], phải **tính lại $M_u$** (02 Bước 8c) — không dùng $h_0$ giả thiết ban đầu.
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## 14.4. Rà soát tính hợp lý của kết quả
 
 | Kiểm tra | Cách làm | Nếu lệch |
@@ -74,6 +76,7 @@ Khối lượng 239,7 kg dầm CB (12.5) ≈ 198 kg/m³, **cận trên** của k
 
 Xác nhận mô hình ETABS (tổng phản lực = tổng tải; chu kỳ; chuyển vị đỉnh và tương đối giữa tầng); điều kiện nền và phản lực chân cột cho móng, thép chờ chân cột nối với bản vẽ móng; cấp bê tông/thép, lớp bảo vệ, cấp chịu lửa đúng hồ sơ thiết kế cơ sở; biện pháp thi công (chiều cao đổ, mạch ngừng, thép dài tối đa); động đất: đối chiếu từng điều ở 13.9 với TCVN 9386:2012, xác nhận cấp dẻo và $a_{gR}$; ký duyệt bởi kỹ sư có chứng chỉ hành nghề. **Tài liệu này là tài liệu tra cứu và hỗ trợ lập quy trình, không phải hồ sơ thiết kế.**
 
+<!-- PROMPT:BO_KET_THUC -->
 ## 14.6. Luật bổ sung cho Agent (cổng chặn trước khi xuất bản vẽ)
 
 | # | Điều kiện | Hành động của Agent |
@@ -85,6 +88,7 @@ Xác nhận mô hình ETABS (tổng phản lực = tổng tải; chu kỳ; chuy�
 | R45 | Mọi con số đưa vào dữ liệu bản vẽ | Gắn trường `basis` ∈ {`TCVN`, `thuc_hanh`, `uoc_luong`, `can_xac_nhan`}; có bất kỳ `uoc_luong` hoặc `can_xac_nhan` thì dữ liệu mang cờ **"chưa đủ để phát hành"** |
 | R46 | Hoàn tất | Không in nhãn "ĐẠT" khi còn cờ từ R41–R45 hoặc ⚠ ở Chương 13 |
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## 14.7. Phiếu kiểm tra bổ sung (thêm vào 12.8)
 
 - [ ] Mỗi nút: số thanh dầm một lớp ≤ số khe lọt giữa thép cột (14.2), cho thép trên, dưới và dầm vuông góc.
@@ -93,6 +97,7 @@ Xác nhận mô hình ETABS (tổng phản lực = tổng tải; chu kỳ; chuy�
 - [ ] Không có cấu kiện thuộc dòng "Không"/"Chưa đủ" ở 14.1 mà chưa xử lý riêng.
 - [ ] Mọi giá trị `uoc_luong`/`can_xac_nhan` đã được người có chứng chỉ xác nhận hoặc thay bằng số thật.
 
+<!-- PROMPT:BO_KET_THUC -->
 # CHƯƠNG 15. XOẮN VÀ CÁC TRƯỜNG HỢP ĐẶC BIỆT (DẦM CAO, LỖ MỞ)
 
 Lấp phần có thể lấp bằng nguồn kiểm chứng: **xoắn** (D, TCVN 5574:2018, mục 7.5–7.7, đã đọc trực tiếp trang 163–169 bản scan); **dầm cao** và **lỗ mở** chỉ ở mức **sàng lọc và nghĩa vụ phải làm**. **[suy ra từ D]** = phép biến đổi đại số của biên soạn từ công thức D (đã kiểm tính liên tục giữa các miền); ⚠ = cần đối chiếu tiêu chuẩn gốc.
@@ -141,6 +146,7 @@ $b$, $h$ cạnh nhỏ/lớn; $Z_1$ chiều dài cạnh tiết diện ở **biên
 6. **Kiểm tác dụng đồng thời:** 7.36 (có $M$), 7.37 và 7.38 (có $Q$). Không đạt ⇒ giảm bước đai và kiểm lại từ bước 5.
 7. **Cấu tạo.** Cốt dọc theo **chu vi** và neo chắc vào gối; **đai kín**, hai đầu nối đủ chiều dài nối chồng (D 7.6). [thực hành]: móc 135°; thanh dọc chu vi cách nhau không quá ~300 mm; đai xoắn trên toàn đoạn có $T$, không cắt đột ngột; bước đai xoắn không lớn hơn bước đai chống cắt cùng vùng. (Rule base cũ 53.5: nối đai ≥$30d_{sw}$; thanh dọc mặt bên ≤400, thực tế ≤200; chữ T/I: đai kín ôm bụng và cánh.)
 
+<!-- PROMPT:BO_BAT_DAU -->
 ### 15.1.4. Ví dụ minh hoạ [số giả định]
 
 Dầm biên 250×500, B30, CB500-V dọc, đai Ø8 CB240-T ($R_{sw}=170$; $A_{sw1}=50{,}3$), $h_0=460$. Thép đã có: đáy 2Ø20 (628), đỉnh 2Ø14 (308), mỗi bên 2Ø14 (308). Nội lực **giả định** cùng tổ hợp: $T=10$ kN·m, $M=80$, $Q=60$ kN. Khung đai tâm: $Z_b=202$, $Z_h=452$.
@@ -158,6 +164,7 @@ Dầm biên 250×500, B30, CB500-V dọc, đai Ø8 CB240-T ($R_{sw}=170$; $A_{sw
 
 **Kết luận:** đai **Ø8 a60** (không phải a90) vì đồng thời uốn–xoắn và cắt–xoắn; chỉ riêng $T=10$ kN·m đã phải đai dày 60 mm ⇒ nên xem lại sơ đồ khi $T$ lớn. Kết quả đã kiểm lại bằng tính toán độc lập; chỉ minh hoạ phương pháp, **không phải thiết kế một công trình**.
 
+<!-- PROMPT:BO_KET_THUC -->
 ## 15.2. Dầm cao (dầm sâu)
 
 **Sàng lọc.** EN 1992-1-1 (§5.3.1): dầm cao khi nhịp hữu hiệu $<3$ lần chiều cao ($L_{ef}<3h$); nguồn đối chiếu: *Design of Deep Beams* (Structville). ACI 318: nhịp thông thủy $\le4h$ hoặc nhịp cắt $\le2h$ cho tải tập trung — **⚠ chưa kiểm chứng**; TCVN 5574:2018 tra ngưỡng của chính tiêu chuẩn. **Khung ví dụ:** $L_{CB}/h\approx9{,}9$; BA: $2100/400\approx5{,}3$; console AE $\approx5{,}3$ — ngoài ngưỡng. Dầm chuyển tầng, dầm đỡ cột/vách tầng kỹ thuật, tường chắn tầng hầm thường thuộc loại này.
@@ -182,6 +189,7 @@ Dầm biên 250×500, B30, CB500-V dọc, đai Ø8 CB240-T ($R_{sw}=170$; $A_{sw
 Dữ liệu đầu ra dầm có xoắn thêm trường `"torsion": {"T": 10.0, "class": "equilibrium", "s_w": 60, "Z1": 202, "Z2": 452, "checks": {"7.21": 53.1, "7.36": 11.22, "7.38": 10.70}}`.
 **Nguồn của chương:** D (TCVN 5574:2018) mục 7.5–7.7, trang 163–169; EN 1992-1-1 §5.3.1 qua Structville; IDEA StatiCa (*Modern construction vs. openings in beams*).
 
+<!-- PROMPT:KET_THUC -->
 # CHƯƠNG 11. VÍ DỤ HOÀN CHỈNH — KHUNG TRỤC 3, TRƯỜNG HỌC 6 TẦNG
 
 Một bộ số liệu duy nhất (module Input Adapter, Chương 1.5). Nội lực ETABS lấy từ A (không tính lại được bằng tay); **mọi phép tính tiết diện đã được tính lại** — sai khác ghi ở Phụ lục B. **Dùng để đối chiếu logic, không dùng số cho dự án khác.**
@@ -245,10 +253,12 @@ Bảng chỉ để thấy cách chọn thép ở các cấp nội lực: dầm t
 | Cột 22 (250×600) | mỗi phía | 2Ø25+1Ø22 + 1Ø16/cạnh dài | Ø8a200 / Ø8a150 + đai phụ | nối 1150; $\mu_t=2{,}08\%$ |
 | Nút góc mái 17–50 | | 2Ø16 uốn xuống cột | | $L_{an}=450$ ($2L_{an}$ ⚠), $r\ge80$ |
 
+<!-- PROMPT:BAT_DAU -->
 # PHẦN R — VÍ DỤ ÁP DỤNG THỰC TẾ: KHUNG TRỤC 5 (rule base cũ; bằng chứng đối chiếu dữ liệu thật)
 
 Kết quả áp dụng Rule Engine lên **MỘT** bộ dữ liệu ETABS thật: **Khung Trục 5** — đồ án Kết cấu BTCT 2, ĐH Kiến trúc Hà Nội (SVTH Phan Nguyễn Thiện An, GVHD ThS. Lê Thế Anh).
 
+<!-- PROMPT:BO_BAT_DAU -->
 ### 68. Thông tin công trình và dữ liệu đầu vào
 
 | Hạng mục | Giá trị |
@@ -270,6 +280,7 @@ Quy trình: $A_{s,yc}\to A_{s,tk}=\max(A_{s,yc},A_{s,min})\to$ chọn Ø18 (quy 
 
 As từ ETABS (PMMArea) diễn giải là diện tích thép **MỘT PHÍA** ($A_s=A_s'$). Cột trục A/B (220×300): **2×2Ø18** (1016) phần lớn, **2×3Ø18** (1524) ở chân cột tầng 1; cột trục C (220×220): **2×2Ø18**. Đai Ø6 2 nhánh a180 ($\mu_t>1{,}5\%$ ⇒ điều kiện chặt E2). $\mu_t=1{,}78$–$2{,}66\%$ ($\le4\%$; D10 không kích hoạt); 12/12 cột lệch tâm LỚN (D4).
 
+<!-- PROMPT:BO_KET_THUC -->
 ### 71. Kiểm chứng Rule Engine với dữ liệu mẫu có sẵn trong hồ sơ gốc
 
 | Phần tử | Vị trí | As,chọn thuyết minh gốc | Thép gốc | As,chọn Rule Engine | Thép RE | Kết quả |
@@ -286,6 +297,7 @@ Chênh 0,9–1,4 mm² chỉ do làm tròn diện tích Ø18. **Rule Engine đạ
 (1) Đường kính chuẩn dự án Ø18 (suy từ 4/4 dòng mẫu; công trình khác cần logic chọn Ø tối ưu). (2) **As cột là diện tích MỘT PHÍA** — rủi ro cao nhất nếu sai (sai khối lượng thép cột 2 lần) — **đã xác nhận đúng**. (3) $a=40$ mm khởi đầu. (4) Đai cột hoàn toàn theo cấu tạo vì ETABS gốc không có $Q$ cột; có $Q$ ⇒ tính lại theo Bảng B, lấy nhỏ hơn.
 **Trường hợp đã THỰC SỰ xảy ra trong Khung Trục 5:** A1 (24/24, trừ nhịp BC ngắn chạm $A_{s,min}$); A2 (nhịp BC 220×300, $A_{s,yc}$ 18,33/41,39 ≪ $A_{s,min}=57{,}2$); D3–D6: cả 12/12 cột lệch tâm lớn (D4); **A3/A3a, D10/D11, B2, G7/G8, Bảng H không kích hoạt** — vẫn phải lập trình đầy đủ cho công trình khác.
 
+<!-- PROMPT:KET_THUC -->
 # PHỤ LỤC B. SAI KHÁC VÀ LỖI PHÁT HIỆN GIỮA CÁC TÀI LIỆU
 
 Bảng liệt kê **mọi sai khác** đã gặp khi đối chiếu 4 tài liệu và khi tính lại ví dụ. "Xử lý" là lựa chọn của tài liệu nguồn. Mục ⚠ cần người thiết kế xác nhận với bản gốc/tiêu chuẩn.
@@ -324,6 +336,7 @@ Bảng liệt kê **mọi sai khác** đã gặp khi đối chiếu 4 tài liệ
 | 30 | Khoảng cách đai cột trong vùng tới hạn, đường kính đai | B: $\min(8d;b/2;200)$; Ø $\ge8$ | **$\min(b_0/2;175;8d_{bL})$ (DCM)**; Ø $\ge6$ (VN dùng Ø8) | EN 1998-1:2004 (13.5) |
 | 31 | Thép dầm CB đi qua nút cột 250 (ví dụ A) | A: 2Ø25+3Ø22 (hàng ngoài 3 thanh) qua cột 250 có 3 thanh mỗi mặt | **chỉ lọt 2 thanh/lớp**; xử lý theo 14.2 (tăng $b_c$ lên 300 với 4 thanh/mặt, hoặc đổi Ø/số thanh) | kiểm tra hình học 14.2 — số liệu A đúng về chịu lực nhưng chưa đặt vừa vào nút |
 
+<!-- PROMPT:BAT_DAU -->
 ## Phụ lục B-bổ sung: sai khác phát hiện khi biên soạn skill (xung đột nội bộ, tài liệu–code–skill Vẽ)
 
 > Không thuộc 31 dòng gốc; do biên soạn skill đối chiếu `src/rule_engine/`, rule base cũ và skill Vẽ. Báo cáo đầy đủ: `BAO_CAO_DOI_CHIEU_CODE_TAI_LIEU.md`, `BAO_CAO_MAU_THUAN_SKILL_BAN_VE.md`. Mặc định = giá trị an toàn hơn.
@@ -348,6 +361,7 @@ Bảng liệt kê **mọi sai khác** đã gặp khi đối chiếu 4 tài liệ
 | B16 | Đai trong móng | tài liệu 12.6: 3 đai trong chiều cao móng | skill Vẽ M.6: đai cột kéo xuống tới sát đáy đài | **giao Drawing phương án đầy đủ** (ghi cờ) |
 | B17 | Chiều dài nối $\alpha_{ov}$, tỉ lệ 100% | D 3.4.7: 1,2/0,9 | nguồn thứ cấp: 2,0/1,2 (100%) | ⚠ `can_xac_nhan` |
 
+<!-- PROMPT:KET_THUC -->
 # PHỤ LỤC C. BIỂU MẪU
 
 ## C.1. Phiếu dữ liệu đầu vào một cấu kiện

@@ -141,10 +141,11 @@ CB: $Q_{b,min}=92{,}7<240{,}3$ ⇒ tính đai; BA: $51{,}75<117{,}99$ ⇒ tính 
 | 5 | $s=\min(s_{max};s_{tt};s_{ct})$, **làm tròn xuống bội 50 mm** | |
 | 6 | $C_0=\sqrt{2R_{bt}bh_0^2/q_{sw}}$; $C=\min(\max(C_0;h_0);2h_0)$; $Q_{u,min}=\dfrac{1{,}5R_{bt}bh_0^2}{C}+0{,}75q_{sw}C\ge Q$ | $q_{sw}$ theo bước đã chọn; **không có tool** |
 
-**CB (đầu phải, $Q=240{,}3$, $h_0=645$, Ø8 hai nhánh = 100,5 mm²):** $s_{max}=497{,}7$; $q_{sw}=107{,}3\ge71{,}9$; $s_{tt}=159{,}2$; $s_{ct}=300$ ⇒ **Ø8a150** ở $L/4=1725$ mm hai đầu; giữa dầm $s_{ct}=483\to$ **Ø8a250**. Kiểm: $q_{sw}(150)=113{,}9$; $C=2h_0=1290$; $Q_{u,min}=139{,}1+110{,}2=249{,}3\ge240{,}3$ ✓ (A in $0{,}25R_{bt}b=57{,}5$: nhầm số).
+**CB (đầu phải, $Q=240{,}3$, $h_0=645$, Ø8 hai nhánh = 100,5 mm²):** $s_{max}=497{,}7$; $q_{sw}=107{,}3\ge71{,}9$; $s_{tt}=159{,}2$; $s_{ct}=300$ ⇒ **Ø8a150** ở $L/4=1725$ mm hai đầu; giữa dầm $s_{ct}=483\to$ **Ø8a250**. Kiểm: $q_{sw}(150)=113{,}9$; $C=2h_0=1290$; $Q_{u,min}=139{,}1+110{,}2=249{,}3\ge240{,}3$ ✓ (với $q_{sw}=107{,}3$ như A: 242,9 kN ✓; A in $0{,}25R_{bt}b=57{,}5$: nhầm số).
 **BA (gối B, $Q=117{,}99$, $h_0=360$):** $s_{max}=315{,}8$; $q_{sw}=83{,}0$; $s_{tt}=205{,}8$; $s_{ct}=180$ ⇒ **Ø8a150** đầu, **Ø8a250** giữa; $Q_{u,min}=139{,}1\ge117{,}99$ ✓ (A in $\min=200$ và hệ số 1,15 thay 0,75: sai in).
 ⚠ **Khác biệt với code:** `tu_kiem_tra` (dầm) dùng tiêu chí chặt hơn $Q\le Q_{b,1}+Q_{sw,1}$ ($Q_{b,1}=0{,}5R_{bt}bh_0$, $Q_{sw,1}=q_{sw}h_0$). Với **Ø8a150 của CB ($Q=240{,}3$)** tool cho $165{,}4$ kN ⇒ **báo vi phạm** dù 11a cho $249{,}3$ kN đạt; cần đai khoảng **Ø8a70** để tool chấp nhận. Agent: làm theo tool (an toàn hơn), ghi cờ `can_xac_nhan` "tiêu chí đồ án chặt hơn 11a".
 
+<!-- PROMPT:BO_BAT_DAU -->
 ### 11b. Phương pháp D chính xác hơn (có kể tải phân bố trên đoạn nghiêng)
 
 $q_1=g+0{,}5p$. $Q_u(C)=\dfrac{1{,}5R_{bt}bh_0^2}{C}+(0{,}75q_{sw}+q_1)C$ khi $0{,}6h_0\le C\le2h_0$ (4.65a); $Q_u(C)=\dfrac{1{,}5R_{bt}bh_0^2}{C}+q_1C+1{,}5q_{sw}h_0$ khi $2h_0<C\le3h_0$ (4.65b). Cực tiểu: $C_2=\sqrt{1{,}5R_{bt}bh_0^2/(0{,}75q_{sw}+q_1)}$ (4.67), $C_3=\sqrt{1{,}5R_{bt}bh_0^2/q_1}$ (4.68); kiểm thêm $C=0$ ($Q_u(0)=2{,}5R_{bt}bh_0$), $2h_0$, $3h_0$ (4.66). Dùng khi A cho đai quá dày; **không có tool**.
@@ -153,6 +154,7 @@ $q_1=g+0{,}5p$. $Q_u(C)=\dfrac{1{,}5R_{bt}bh_0^2}{C}+(0{,}75q_{sw}+q_1)C$ khi $0
 
 $a\in[h_0;2{,}5h_0]$ ($a=1{,}5h_0$); $Q_1=Q_{max}-q_1a$; $Q_{b,1}=\dfrac{1{,}25R_{bt}bh_0^2}{a}$, giới hạn $[0{,}5;\,2{,}5]R_{bt}bh_0$ (4.82); $Q_{sw,1}=Q_1-Q_{b,1}$; $<0$ ⇒ đai cấu tạo; $\ge0$ ⇒ $q_{sw}=Q_{sw,1}/h_0$ (4.83), $q_{sw}\ge0{,}25R_{bt}b$ (tải tập trung: $q_{sw}=(Q_1-Q_{b,1})/(\lambda h_0)$, $\lambda=0{,}75;1;1{,}5$ — D 4.84).
 
+<!-- PROMPT:BO_KET_THUC -->
 ### 11d. Cốt đai cấu tạo và các yêu cầu chung (A 5.2.2; D 4.7.2; C)
 
 | Yêu cầu | Giá trị |
@@ -218,6 +220,7 @@ Cấu tạo nút (neo trong cột, móc, bán kính uốn): module 04–05.
 
 Nén $N>0{,}1R_bbh_0$ ⇒ thiết kế như **nén lệch tâm** (module 03; R12 cho kéo). **Xoắn:** điều kiện không phá hoại bê tông $T\le0{,}1R_bb^2h$; D không nêu ngưỡng bỏ qua xoắn ⇒ không tự đặt; có $T\ne0$ ⇒ module 09 mục 15.1 (R47–R50).
 
+<!-- PROMPT:BO_BAT_DAU -->
 ### 16b. Trạng thái giới hạn thứ hai: nứt và võng
 
 Chỉ cần khi nhịp lớn, tiết diện mỏng hơn $L/14$, hoặc yêu cầu chống thấm. $a_{crc}=\varphi_1\varphi_2\varphi_3\psi_s\dfrac{\sigma_s}{E_s}L_s\le a_{crc,u}$; $\varphi_1=1{,}0$ (ngắn hạn)/$1{,}4$ (dài hạn); $\varphi_2=0{,}5$ (gờ)/0,8 (trơn); $\varphi_3=1{,}0$ (uốn)/1,2 (kéo); $\psi_s=1-0{,}8\sigma_{s,crc}/\sigma_s\le1$; $\sigma_s\approx M_{tc}/(0{,}8h_0A_s)$; $L_s=0{,}5\dfrac{A_{bt}}{A_s}d$ ($10d\le L_s\le40d$, $100\le L_s\le400$). Giới hạn $a_{crc,u}=0{,}3$ (dài hạn), $0{,}4$ (ngắn hạn); chống thấm $0{,}2/0{,}3$. Võng giới hạn: $L\le1$ m: $L/120$; 3 m: $L/150$; 6 m: $L/200$; 12 m: $L/250$; 24 m: $L/300$ (nội suy); cấu tạo $L/150$. $M_{tc}$ theo tổ hợp **tiêu chuẩn** (TCVN 2737:2023). **Không có tool nứt–võng** ⇒ không đưa số, chỉ ghi "chưa kiểm nứt–võng" khi thuộc diện cần. Ví dụ minh hoạ A: $M_{tc}\approx340$ [số giả định] ⇒ $a_{crc}\approx0{,}27\le0{,}3$ [ước lượng].
@@ -233,3 +236,4 @@ Chỉ cần khi nhịp lớn, tiết diện mỏng hơn $L/14$, hoặc yêu cầ
 | 15 | 250×400 | console (trên) | $-35{,}43$ | 234 | 2Ø25 (theo thép gối B) | 982 | 1,09 | Ø8a250 |
 
 (Phép tính độc lập: gối C 1949,5; nhịp T 1108,5; BA nhịp 650,4; BA gối 766,8; console 234,0 mm² — khớp bảng.) Mẫu bảng thống kê đầy đủ cho bản vẽ: module 06 mục 12.4.
+<!-- PROMPT:BO_KET_THUC -->

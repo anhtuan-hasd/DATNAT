@@ -5,6 +5,7 @@
 
 # CHƯƠNG 9. YÊU CẦU CẤU TẠO CỐT THÉP
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## 9.1. Bảng tổng hợp nhanh các con số cấu tạo
 
 | Nhóm | Hạng mục | Giá trị | Nguồn |
@@ -34,6 +35,7 @@
 | Nối chồng | $L_{ov}=\alpha_{ov}L_{0,an}A_{s,cal}/A_{s,ef}$ | $\alpha_{ov}=1{,}2$ kéo; $0{,}9$ nén; thanh $d\le40$ mm | D 3.4.7 |
 | Uốn cong | Bán kính uốn thanh dọc | $r\ge5d$ ($d<20$); $r\ge8d$ ($d\ge20$) | A (B cũ: $r\ge10d$) |
 
+<!-- PROMPT:BO_KET_THUC -->
 ## 9.2. Lớp bảo vệ bê tông
 
 **Định nghĩa (D 3.4.4):** chiều dày bê tông từ mặt ngoài cùng đến mép **gần nhất** của cốt thép (kể cả cốt đai).

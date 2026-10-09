@@ -13,6 +13,7 @@ from typing import Any, Callable
 from ...drawing import layers, verify_drawing
 from .. import agent
 from ..loops import BoDemVongLap
+from ..shared import doc_skill
 from ..shared.hoi_nguoi_dung_tool import DINH_NGHIA_HOI_NGUOI_DUNG, hoi_nguoi_dung
 from ..shared.phien_cad import PhienCAD
 
@@ -174,7 +175,7 @@ def tao_dispatch(nc: NguCanhVerification) -> dict[str, Callable[[dict], dict]]:
 # System prompt + hàm chạy 1 phiên độc lập.
 # ---------------------------------------------------------------------------
 
-HE_THONG_PROMPT = """\
+_HE_THONG_PROMPT_GOC = """\
 Bạn là Verification Agent trong hệ thống thiết kế khung BTCT theo TCVN \
 5574:2018 (đọc chi tiết: docs/agents/VERIFICATION_AGENT.md). Bạn CHỈ đọc lại \
 bản vẽ AutoCAD hiện tại và so sánh với dữ liệu/quy ước — KHÔNG BAO GIỜ tự \
@@ -192,6 +193,21 @@ kiem_chung_ban_ve.
 Khi đã có kết quả (đạt hoặc đã báo cáo người dùng), dừng lại và tóm tắt bằng \
 văn bản — không gọi thêm tool nào nữa.
 """
+
+# Skill kiểm chứng của kỹ sư: tool kiểm được gì, việc nào chỉ báo cáo/dừng, các mâu thuẫn đã biết (không báo lỗi giả).
+_DUONG_DAN_SKILL_KIEM_CHUNG = doc_skill.THU_MUC_AGENTS / "huongdankiemchung" / "SKILL_KIEM_CHUNG_KY_SU.md"
+
+
+def _xay_dung_he_thong_prompt() -> str:
+    return doc_skill.ghep_skill_vao_prompt(
+        _HE_THONG_PROMPT_GOC, doc_skill.doc_file_skill(_DUONG_DAN_SKILL_KIEM_CHUNG),
+        "TÀI LIỆU THAM KHẢO BẮT BUỘC — skill kiểm chứng của kỹ sư",
+        "Dưới đây là skill kiểm chứng: ranh giới giữa việc tool đọc được và việc chỉ kiểm bằng dữ liệu/báo cáo, "
+        "cách viết vi_pham cụ thể, và các mâu thuẫn tài liệu đã biết. KHÔNG in 'ĐẠT' khi còn hạng mục chưa kiểm được.",
+    )
+
+
+HE_THONG_PROMPT = _xay_dung_he_thong_prompt()
 
 
 def chay_verification_agent(

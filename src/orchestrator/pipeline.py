@@ -91,6 +91,7 @@ def _chay_buoc_rule_engine(
     khong_co_Q = p.loai == "dam" and any(v.Q is None for v in p.vi_tri)
     ket_qua, _nc = rule_engine_agent.chay_rule_engine_agent(
         nha_cung_cap, mo_ta, hoi_nguoi_dung, gioi_han_vong_lap=gioi_han_vong_lap, khong_co_Q=khong_co_Q,
+        loai=p.loai,
     )
     _bao(quan_sat, "rule_engine", p.ten, ket_qua)
     phuong_an = rule_engine_agent.trich_phuong_an_thep(ket_qua, ten_phan_tu=p.ten, loai=p.loai, b=p.b, h=p.h)

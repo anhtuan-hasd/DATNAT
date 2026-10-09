@@ -15,12 +15,12 @@ từng lỗi trong `docs/agents/RULE_ENGINE_AGENT.md` mục "Lỗi thật đã t
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from pathlib import Path
 from typing import Any, Callable
 
 from ...rule_engine import cot_dai, cot_doc, neo_noi, verify
 from .. import agent
 from ..loops import BoDemVongLap
+from ..shared import doc_skill
 from ..shared.hoi_nguoi_dung_tool import DINH_NGHIA_HOI_NGUOI_DUNG, hoi_nguoi_dung
 from ..shared.hop_dong_du_lieu import KetQuaViTriDaThietKe, PhuongAnThepPhanTu
 
@@ -538,30 +538,32 @@ def tao_dispatch(nc: NguCanhRuleEngine) -> dict[str, Callable[[dict], dict]]:
 # System prompt + hàm chạy 1 phiên độc lập cho 1 PHẦN TỬ.
 # ---------------------------------------------------------------------------
 
-# Rule base hợp nhất (76 trang, người dùng biên soạn riêng — thay thế/mở rộng
-# docs/RULES_TCVN5574.md) — đọc NGUYÊN VĂN vào system prompt (xem
-# _doc_rule_base_chon_thep), cùng cách Drawing Agent đã nạp
-# SKILL_VE_KY_THUAT_BTCT.md. Gồm Phần A-P (lý thuyết/công thức/cấu tạo đầy đủ
-# TCVN 5574:2018 + TCVN 9386), Phần Q (bảng ~70 trường hợp Điều kiện→Xử lý,
-# agent tra trực tiếp khi gặp tình huống biên thay vì tự suy luận), Phần R
-# (ví dụ Khung Trục 5 thật, đối chiếu khớp 4/4 — xác nhận As cột là MỖI
-# PHÍA, khớp đúng quyết định đã áp dụng ở chon_thep_doc).
-_DUONG_DAN_RULE_BASE_CHON_THEP = (
-    Path(__file__).resolve().parents[3] / "docs" / "agents" / "huongdanchonthep" / "RULE_BASE_CHON_THEP_KHUNG_BTCT.md"
-)
+# Bộ skill chọn thép (10 module `NN_*.md` trong docs/agents/huongdanchonthep/,
+# biên soạn từ "Hướng dẫn thực hành chọn thép khung phẳng BTCT toàn khối" —
+# xem docs/agents/BAN_DO_PHU_NGUON_SANG_SKILL.md) — thay rule base 76 trang cũ
+# (đã lưu trữ ở _luu_tru/). Phần Q (bảng Điều kiện→Xử lý) và Phần R (ví dụ
+# Khung Trục 5 thật) của rule base cũ được hợp nhất vào module 08 và 09 nên
+# các test hồi quy "PHẦN Q", "D2", "Khung Trục 5" vẫn đúng.
+#
+# Ngân sách ngữ cảnh: nạp ở chế độ "gon" (module dài chỉ nạp phần thiết yếu,
+# bỏ khối mô tả ảnh trừ hình nút khung) và theo LOẠI cấu kiện (dầm không cần
+# module cột 03 và ngược lại). Chạy thật truyền `loai` (xem chay_rule_engine_agent).
+_THU_MUC_SKILL_CHON_THEP = doc_skill.THU_MUC_AGENTS / "huongdanchonthep"
+_RULE_BASE_CU_DA_LUU_TRU = _THU_MUC_SKILL_CHON_THEP / "_luu_tru" / "RULE_BASE_CHON_THEP_KHUNG_BTCT.md"
+# Module loại trừ theo loại cấu kiện: chọn thép dầm bỏ 03 (cột); chọn thép cột bỏ 02 (dầm).
+_MODULE_LOAI_TRU_THEO_LOAI = {"dam": ("03",), "cot": ("02",)}
 
 
-def _doc_rule_base_chon_thep() -> str:
-    """Đọc RULE_BASE_CHON_THEP_KHUNG_BTCT.md tại runtime. Trả về "" (không
-    raise) nếu file bị xoá/di chuyển — vẫn chạy được với prompt rút gọn thay
-    vì sập hẳn, nhưng thiếu file này là bất thường cần sửa ngay."""
-    try:
-        return _DUONG_DAN_RULE_BASE_CHON_THEP.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return ""
+def _doc_skill_chon_thep(loai: str | None = None) -> str:
+    """Nạp bộ skill chọn thép. Trả "" (không raise) nếu thiếu thư mục và cả file lưu trữ — vẫn chạy được với
+    prompt rút gọn, nhưng thiếu skill là bất thường cần sửa ngay."""
+    return doc_skill.doc_bo_skill(
+        _THU_MUC_SKILL_CHON_THEP, du_phong=_RULE_BASE_CU_DA_LUU_TRU, che_do=doc_skill.CHE_DO_GON,
+        loai_tru=_MODULE_LOAI_TRU_THEO_LOAI.get(loai or "", ()),
+    )
 
 
-def _xay_dung_he_thong_prompt() -> str:
+def _xay_dung_he_thong_prompt(loai: str | None = None) -> str:
     prompt = """\
 Bạn là Rule Engine Agent trong hệ thống thiết kế khung BTCT theo TCVN \
 5574:2018 (đọc chi tiết: docs/agents/RULE_ENGINE_AGENT.md). Bạn nhận 1 phần \
@@ -599,25 +601,38 @@ gối, 200-250mm giữa nhịp). Vẫn GỌI tu_kiem_tra bình thường — too
 kết quả chỉ kiểm tra As dọc kèm "canh_bao" rõ ràng, đây là hành vi ĐÃ THIẾT \
 KẾ, không cần hỏi người dùng thêm cho việc này.
 """
-    rule_base = _doc_rule_base_chon_thep()
-    if rule_base:
+    prompt += """
+Ngoài các tool, hệ thống CHƯA có tool cho: cấu tạo nút khung, bố trí dọc (điểm \
+cắt, chiều dài thanh, vùng đai), kiểm hình học nút, kháng chấn, xoắn/dầm \
+cao/lỗ mở. Với các việc đó bạn KHÔNG tự tính con số: áp dụng luật định tính \
+trong bộ skill bên dưới (ví dụ BẢNG ĐIỀU KIỆN THÊM THÉP ở module 05), ghi rõ \
+nguồn và nhãn basis (TCVN/thuc_hanh/uoc_luong/can_xac_nhan), gắn cờ cho mọi \
+con số do suy luận, và gọi hoi_nguoi_dung khi quyết định thuộc về kỹ sư (cấp \
+dẻo kháng chấn, loại nút khi thiếu dữ liệu, dầm cao, lỗ mở, xoắn). Tuyệt đối \
+KHÔNG in chữ "ĐẠT" trong tóm tắt cuối khi còn cờ chưa xử lý (R45, R46).
+"""
+    skill = _doc_skill_chon_thep(loai)
+    if skill:
         prompt += (
-            "\n\n# TÀI LIỆU THAM KHẢO BẮT BUỘC — Rule Base hợp nhất chọn thép khung BTCT\n"
-            "Dưới đây là toàn văn rule base (TCVN 5574:2018 + TCVN 9386, 76 trang gốc). Phần A-P là lý "
-            "thuyết/công thức/cấu tạo — các tool (chon_thep_doc, tinh_cot_dai, tinh_neo_noi, tu_kiem_tra) "
-            "ĐÃ CÀI ĐẶT ĐÚNG các công thức này, bạn KHÔNG tự tính lại, chỉ dùng để hiểu/giải thích kết quả "
-            "tool trả về. Phần Q (danh mục ~70 trường hợp Điều kiện→Xử lý, dạng bảng) là nơi TRA CỨU TRỰC "
-            "TIẾP khi gặp tình huống biên (vd As âm, N là lực kéo thay vì nén, lệch tâm bé, vượt μmax, "
-            "thiếu dữ liệu Q...) — tra đúng mã (vd D2, A3, I1) rồi làm theo cột 'Xử lý', KHÔNG tự suy luận "
-            "xử lý khác khi đã có sẵn quy tắc trong bảng này. Phần R là ví dụ đối chiếu dữ liệu thật, dùng "
-            "để hiểu đúng ý nghĩa các trường dữ liệu đầu vào (vd As_yc của cột là MỖI PHÍA, không phải "
-            "tổng — mục 71-72).\n\n"
-            f"{rule_base}"
+            "\n\n# TÀI LIỆU THAM KHẢO BẮT BUỘC — Bộ skill chọn thép khung BTCT (10 module 00–09)\n"
+            "Dưới đây là bộ skill (TCVN 5574:2018; kháng chấn theo EN 1998-1 ở mức sơ bộ ⚠). Các tool "
+            "(chon_thep_doc, tinh_cot_dai, tinh_neo_noi, tu_kiem_tra) ĐÃ CÀI ĐẶT các công thức tương ứng: "
+            "bạn KHÔNG tự tính lại, chỉ dùng skill để hiểu/giải thích kết quả tool, biết giới hạn của tool và "
+            "biết việc nào chưa có tool. Module 00 là thứ tự ưu tiên nguồn và bản đồ tool; module 05 là cấu "
+            "tạo nút khung và bảng điều kiện thêm thép; module 08 chứa PHẦN Q (danh mục ~70 trường hợp "
+            "Điều kiện→Xử lý — TRA CỨU TRỰC TIẾP khi gặp tình huống biên: As âm, N là lực kéo, lệch tâm bé, "
+            "vượt μmax, thiếu Q… tra đúng mã như D2, A3, I1 rồi làm theo cột 'Xử lý') và chỉ mục luật R1–R52; "
+            "module 09 có cổng chặn R41–R46, xoắn/dầm cao/lỗ mở R47–R52 và ví dụ đối chiếu Khung Trục 5 "
+            "(As_yc của cột là MỖI PHÍA, không phải tổng — mục 71–72). Khi nguồn tài liệu mâu thuẫn nhau "
+            "(ghi ⚠), dùng giá trị an toàn hơn và ghi cờ.\n\n"
+            f"{skill}"
         )
     return prompt
 
 
 HE_THONG_PROMPT = _xay_dung_he_thong_prompt()
+# Prompt theo loại cấu kiện (nhỏ hơn): chay_rule_engine_agent(loai=...) dùng bản tương ứng.
+HE_THONG_PROMPT_THEO_LOAI = {"dam": _xay_dung_he_thong_prompt("dam"), "cot": _xay_dung_he_thong_prompt("cot")}
 
 
 def chay_rule_engine_agent(
@@ -627,7 +642,7 @@ def chay_rule_engine_agent(
     gioi_han_vong_lap: dict[str, int] | None = None,
     so_lan_goi_toi_da: int = 30,
     khong_co_Q: bool = False,
-
+    loai: str | None = None,
 ) -> tuple[agent.KetQuaVongLapAgent, NguCanhRuleEngine]:
     """Chạy 1 phiên độc lập của Rule Engine Agent cho 1 phần tử (mô tả bằng
     văn bản, gồm mọi vị trí cần xử lý — do pipeline.py soạn từ
@@ -638,6 +653,9 @@ def chay_rule_engine_agent(
     `khong_co_Q`: True khi phần tử này (thường: dầm nguồn ETABS thật) không
     có Q thô cho bất kỳ vị trí nào — chặn `tinh_cot_dai` và làm nhẹ
     `tu_kiem_tra` ở tầng code (xem docstring `NguCanhRuleEngine`).
+
+    `loai`: "dam" | "cot" | None — chọn system prompt theo loại cấu kiện (bộ skill bỏ module không liên
+    quan để giữ ngân sách ngữ cảnh); None ⇒ prompt đầy đủ cả hai loại (hành vi cũ).
 """
     bo_dem = BoDemVongLap(gioi_han=dict(gioi_han_vong_lap) if gioi_han_vong_lap else BoDemVongLap().gioi_han)
     nc = NguCanhRuleEngine(
@@ -645,7 +663,8 @@ def chay_rule_engine_agent(
     )
     dispatch = tao_dispatch(nc)
     ket_qua = agent.chay_vong_lap_tool(
-        nha_cung_cap=nha_cung_cap, he_thong=HE_THONG_PROMPT, tin_nhan_dau=mo_ta_phan_tu,
+        nha_cung_cap=nha_cung_cap, he_thong=HE_THONG_PROMPT_THEO_LOAI.get(loai or "", HE_THONG_PROMPT),
+        tin_nhan_dau=mo_ta_phan_tu,
         tools=DINH_NGHIA_TOOL, dispatch=dispatch, so_lan_goi_toi_da=so_lan_goi_toi_da,
     )
     return ket_qua, nc

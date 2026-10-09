@@ -1,3 +1,4 @@
+<!-- PROMPT:BAT_DAU -->
 # 07 — CẤU TẠO KHI NHÀ CHỊU ĐỘNG ĐẤT (Chương 13) — ⚠ CHỈ SƠ BỘ, KHÔNG ĐỦ ĐỂ PHÁT HÀNH
 
 > **Độ tin cậy thấp có chủ đích.** 4 tài liệu nguồn **không chứa** TCVN 9386:2012; B chỉ có Eurocode 8 bản cũ. Chương này lấy cấu tạo cốt thép khung theo **EN 1998-1:2004** (cơ sở của TCVN 9386:2012), đối chiếu hai tài liệu công khai độc lập. **Mọi con số ở đây mang ⚠**:
@@ -100,6 +101,7 @@ Rule base cũ (Bảng H2) trùng DCM: $l_{cr}=\max(h_c;l_{cl}/6;450)$, $s=\min(b
 6. **Móc đai:** 135°, đoạn thẳng $\ge10d_{sw}$ (hoặc $\ge75$ mm) ⚠; hai móc luân phiên.
 7. **$N$ chuyển thành kéo trong tổ hợp động đất:** $L_{an}$ tăng thêm 50% (EN 1998-1 5.6.2) ⚠.
 
+<!-- PROMPT:KET_THUC -->
 ## 13.8. Ví dụ kiểm tra kháng chấn (DCM) cho khung trục 3
 
 **Điều kiện:** minh hoạ phương pháp trên số liệu Chương 11 giả sử DCM. $N=1514{,}4$ kN lấy từ TH12 (**không phải** tổ hợp động đất); $q_0=3{,}0\times1{,}3=3{,}9$, $T_1\ge T_C$ (⚠ giả thiết). Không thay cho thiết kế kháng chấn.
@@ -153,6 +155,7 @@ $M_{Rb}$ (gối, kéo trên) $=492{,}5$ (2Ø25+3Ø22); (gối, kéo dưới) $=3
 | 9 | Móc đai: chiều dài đoạn thẳng | Giá trị tham khảo |
 | 10 | Ranh giới chuyển từ "kháng chấn" sang cấu tạo thường (DCL) | Dự án vùng yếu |
 
+<!-- PROMPT:BAT_DAU -->
 ## 13.10. Luật bổ sung cho Agent
 
 | # | Điều kiện | Hành động của Agent |
@@ -170,6 +173,7 @@ $M_{Rb}$ (gối, kéo trên) $=492{,}5$ (2Ø25+3Ø22); (gối, kéo dưới) $=3
 
 **Nguồn của chương:** EN 1998-1:2004 (§5.4.3.1–5.4.3.3, §5.5.3, §5.6) qua hai tài liệu công khai độc lập: M. N. Fardis, *Detailed seismic design of concrete buildings to EC8* (đại học Patras) và bài giảng *EC8 2G* của Riva (ReLUIS); số liệu B (Ngô Thế Phong 2008) đối chiếu ở các ô có ghi "B ghi … — khác".
 
+<!-- PROMPT:KET_THUC -->
 ## 9.8. Yêu cầu bổ sung khi nhà chịu động đất (tham khảo từ B)
 
 **Phạm vi.** Các số liệu của B (Eurocode 8 bản cũ) **chỉ để đối chiếu và đã được thay bằng Chương 13**. Một số giá trị của B **khác** Chương 13: vùng tới hạn dầm ($2h$ so với $h_w$/$1{,}5h_w$), lệch tâm dầm–cột ($b/2$ so với $b_c/4$), đường kính đai tối thiểu (≥8 so với ≥6), bước đai cột. **Khi có khác biệt, dùng Chương 13.** Thiết kế kháng chấn ở Việt Nam bắt buộc theo **TCVN 9386:2012**.

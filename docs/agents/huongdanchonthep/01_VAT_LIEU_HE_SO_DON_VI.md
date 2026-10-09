@@ -45,6 +45,7 @@ Công thức: $\xi_R=\dfrac{0{,}8}{1+R_s/(E_s\,0{,}0035)}$; $\alpha_R=\xi_R(1-0{
 
 **Đối chiếu code:** `BANG_DUONG_KINH` có Ø6…Ø32 (làm tròn 1 chữ số thập phân: Ø12 = 113,1; Ø22 = 380,1). **Không có Ø36, Ø40** (cột cho phép tới Ø40 — D 6.2.1; Ø36/Ø40 sẽ báo `ValueError`). Diện tích 2 thanh Ø25 = 981,7 (bảng làm tròn 982); khác biệt < 0,1% không đổi kết luận.
 
+<!-- PROMPT:BO_BAT_DAU -->
 ## A.4. Diện tích thép bản trên 1 m bề rộng (mm²/m)
 
 | Khoảng cách (mm) | 70 | 100 | 120 | 125 | 150 | 175 | 200 | 250 |
@@ -62,6 +63,7 @@ Vùng áp lực gió $W_0$ (QCVN 02:2022), hệ số $k(z)$, hệ số khí đ�
 (đã chuyển cho Input Adapter, `SKILL_NHAP_DU_LIEU_ETABS.md`). Giá trị của từng dự án **tra theo QCVN 02:2022/BXD và TCVN 2737:2023**,
 không lấy từ bảng ví dụ. Rule Engine Agent **không tính tải**.
 
+<!-- PROMPT:BO_KET_THUC -->
 ## A.6. Chiều dài neo nhanh (CB500-V, B30, thép gờ, $d\le32$ mm, $L_{0,an}=37{,}8d$)
 
 | $d$ (mm) | 12 | 14 | 16 | 18 | 20 | 22 | 25 | 28 | 32 |
@@ -80,6 +82,7 @@ Cơ sở: $R_{bond}=\eta_1\eta_2R_{bt}=2{,}5\times1{,}0\times1{,}15=2{,}875$ MPa
 - Khối lượng thép: $m_1=0{,}00617\,d^2$ kg/m (Ø8 0,395; Ø12 0,888; Ø16 1,580; Ø22 2,986; Ø25 3,856). Skill Vẽ dùng $0{,}0061654\,d^2$ — chênh 0,07%, bỏ qua.
 - Lớp bảo vệ, khoảng hở, neo–nối: module 04.
 
+<!-- PROMPT:BO_BAT_DAU -->
 # PHỤ LỤC D. BẢNG CÔNG THỨC TRA NHANH
 
 > Cột "Mục" dùng số mục của tài liệu nguồn; module chứa chi tiết: dầm → 02, cột → 03, neo/nối → 04.
@@ -107,6 +110,7 @@ Cơ sở: $R_{bond}=\eta_1\eta_2R_{bt}=2{,}5\times1{,}0\times1{,}15=2{,}875$ MPa
 | Nối chồng | $L_{ov}=\alpha_{ov}L_{0,an}\dfrac{A_{s,cal}}{A_{s,ef}}$, $\alpha_{ov}=1{,}2$ (kéo), $0{,}9$ (nén) | 8.13; 9.5.2 |
 | Nứt | $a_{crc}=\varphi_1\varphi_2\varphi_3\psi_s\dfrac{\sigma_s}{E_s}L_s\le a_{crc,u}$ | 7.16b |
 
+<!-- PROMPT:BO_KET_THUC -->
 **Tool nào cài công thức nào:** $\xi_R$ (`tinh_lech_tam_cot`, `tu_kiem_tra` cột); $q_{sw}$, $Q_{b,1}$, $\varphi_n$, $s_{max}$ cấu tạo (`tinh_cot_dai`);
 $L_{0,an}$, $L_{an}$, $L_{lap}$ (`tinh_neo_noi`); $N e\le M_u$ (cột) và μ, loại Ø, $Q\le Q_{b,1}+Q_{sw,1}$ (`tu_kiem_tra`).
 **Chưa có tool:** $\alpha_m$/$\xi$/$A_s$ dầm (lấy $A_s$ từ ETABS — "As_yc"), chữ T $b_f'$, $M_u$ dầm, $Q_{u,min}$, $W$, biểu đồ tương tác, nứt–võng, xoắn.
