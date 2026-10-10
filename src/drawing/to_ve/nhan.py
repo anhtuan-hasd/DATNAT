@@ -31,7 +31,7 @@ from __future__ import annotations
 import math
 
 from .. import layers
-from .co_so import _Cot, _Dam, _Ve
+from .co_so import HE_SO_RONG_CHU, _Cot, _Dam, _Ve
 from .ke_hoach import KeHoach
 
 L_REBAR = layers.REBAR_MAIN.ten
@@ -66,17 +66,18 @@ def vong_tron_so_hieu(v: _Ve, x_tro, y_tro, x_the, y_the, so, noi_dung, huong=1)
     v.tron(x_the, y_the, r, L_SH)
     v.chu(x_the, y_the, str(so), v.h_chu, L_SH, giua=True)
     if noi_dung:
+        yc = y_the - 0.36 * v.h_chu  # AddText neo ở ĐƯỜNG CƠ SỞ: hạ xuống để chữ ngang tâm vòng tròn
         if huong >= 0:
-            v.chu(x_the + r + 0.5 * v.h_chu_nho, y_the, noi_dung, v.h_chu)
+            v.chu(x_the + r + 0.5 * v.h_chu_nho, yc, noi_dung, v.h_chu)
         else:
-            v.chu(x_the - r - 0.5 * v.h_chu_nho, y_the, noi_dung, v.h_chu, phai=True)
+            v.chu(x_the - r - 0.5 * v.h_chu_nho, yc, noi_dung, v.h_chu, phai=True)
 
 
 def vach_mat_cat_dung(v: _Ve, x, y, so):
     """Ký hiệu mặt cắt trên mặt đứng (dầm): "số ▌" — số ở BÊN TRÁI vạch đậm đứng (bản mẫu)."""
     h = 1.6 * v.cfg.ty_le * 2.4
     v.doan_net_dam(x, y - h / 2, y + h / 2, 0.9 * v.cfg.ty_le)
-    nua = 0.5 * len(str(so)) * 0.62 * v.h_chu * 1.25 + 0.9 * v.cfg.ty_le * 1.2
+    nua = 0.5 * len(str(so)) * HE_SO_RONG_CHU * v.h_chu * 1.25 + 0.9 * v.cfg.ty_le * 1.2
     v.chu(x - nua, y, str(so), v.h_chu * 1.25, giua=True)
 
 
@@ -109,7 +110,7 @@ class Cho:
         return not any(b[0] < a1 + le and b[2] > a0 - le and b[1] < b1 + le and b[3] > b0 - le for a0, b0, a1, b1 in self.hop)
 
     def chieu_rong_chu(self, s: str, cao: float | None = None) -> float:
-        return len(s) * 0.6 * (cao or self.v.h_chu)
+        return len(s) * HE_SO_RONG_CHU * (cao or self.v.h_chu)
 
     def hop_the(self, x, y, noi_dung, huong):
         v = self.v
@@ -149,7 +150,7 @@ class Cho:
 
     def vach_dung(self, x, y, so, dys=(0.0, 200.0, -200.0), dxs=(0.0, 300.0, -300.0)) -> bool:
         v = self.v
-        w = 0.9 * v.cfg.ty_le * 2.4 + len(str(so)) * 0.7 * v.h_chu * 1.25
+        w = 0.9 * v.cfg.ty_le * 2.4 + len(str(so)) * HE_SO_RONG_CHU * v.h_chu * 1.25
         for dy in dys:
             for dx in dxs:
                 b = (x + dx - w, y + dy - 150, x + dx + 60, y + dy + 150)
@@ -166,7 +167,7 @@ class Cho:
         """Ký hiệu mặt cắt dầm vẽ HAI LẦN (trên và dưới dầm) CÙNG x — đường cắt đi qua dầm. Tìm độ lệch ngang chung để cả hai
         vị trí đều trống; không được thì vẽ ở vị trí quy tắc và ghi nhận chồng."""
         v = self.v
-        w = 0.9 * v.cfg.ty_le * 2.4 + len(str(so)) * 0.7 * v.h_chu * 1.25
+        w = 0.9 * v.cfg.ty_le * 2.4 + len(str(so)) * HE_SO_RONG_CHU * v.h_chu * 1.25
         for dx in dxs:
             for dy in dys:
                 bs = [(x + dx - w, yy + dy - 150, x + dx + 60, yy + dy + 150) for yy in (y_tren, y_duoi)]
@@ -201,11 +202,11 @@ class Cho:
 def _cum_gia_cuong(v: _Ve, cho: Cho, x_dan: float, y_thanh: float, yt: float, items: list[tuple[int, int, int]], ben: str) -> None:
     """D2: cụm [chữ xếp chồng][vòng tròn] ngay trên cốt sàn; `items` = [(n, Ø, số hiệu)]."""
     r = v.r_the
-    lh = 1.2 * v.h_chu
+    lh = 1.45 * v.h_chu
     k = len(items)
     y_c = yt + D2_Y
     dong = [f"{n}Ø{dk}" for n, dk, _ in items]
-    w_chu = max(len(s) for s in dong) * 0.6 * v.h_chu
+    w_chu = max(len(s) for s in dong) * HE_SO_RONG_CHU * v.h_chu
     gap = 70.0
     if ben == "trai":
         x_chu0 = x_dan + gap
@@ -214,7 +215,7 @@ def _cum_gia_cuong(v: _Ve, cho: Cho, x_dan: float, y_thanh: float, yt: float, it
         xs_vt = [x_vt0 + i * buoc for i in range(k)]
         hop = (x_dan, y_c - r, xs_vt[-1] + r, y_c + k * lh / 2 + 40)
         for i, s in enumerate(dong):
-            v.chu(x_chu0, y_c + (k - 1) * lh / 2 - i * lh, s, v.h_chu)
+            v.chu(x_chu0, y_c + (k - 1) * lh / 2 - i * lh - 0.5 * v.h_chu, s, v.h_chu)
     else:
         x_chu1 = x_dan - gap
         x_vt0 = x_chu1 - w_chu - gap - r
@@ -222,7 +223,7 @@ def _cum_gia_cuong(v: _Ve, cho: Cho, x_dan: float, y_thanh: float, yt: float, it
         xs_vt = [x_vt0 - i * buoc for i in range(k)]
         hop = (xs_vt[-1] - r, y_c - r, x_dan, y_c + k * lh / 2 + 40)
         for i, s in enumerate(dong):
-            v.chu(x_chu1, y_c + (k - 1) * lh / 2 - i * lh, s, v.h_chu, phai=True)
+            v.chu(x_chu1, y_c + (k - 1) * lh / 2 - i * lh - 0.5 * v.h_chu, s, v.h_chu, phai=True)
     if k == 2:  # vạch ngăn giữa hai dòng chữ (khung chữ như bản mẫu)
         xa, xb = (x_chu0, x_chu0 + w_chu) if ben == "trai" else (x_chu1 - w_chu, x_chu1)
         v.doan(xa, y_c, xb, y_c, layers.TEXT.ten)

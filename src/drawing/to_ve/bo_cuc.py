@@ -90,8 +90,13 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
         x0, x1 = n["x"] - 700.0, n["x"] + 700.0
         y0, y1 = n["y"] - hb - 250.0, n["y"] + 450.0
         v_md.hcn(x0, y0, x1, y1, layers.HIDDEN.ten)
-        v_md.chu((x0 + x1) / 2, y1 + 120.0, f"CHI TIẾT {n['ten']}", v_md.h_chu_nho, giua=True)
-
+        nhan_ct = f"CHI TIẾT {n['ten']}"
+        if n["mai"]:  # tầng mái: nhãn phía trên khung (bản mẫu)
+            v_md.chu((x0 + x1) / 2, y1 + 120.0, nhan_ct, v_md.h_chu_nho, giua=True)
+        elif n["trai"] is None:  # nút biên trái: nhãn bên trái khung, ngang tâm khung
+            v_md.chu(x0 - 120.0, (y0 + y1) / 2 - 0.36 * v_md.h_chu_nho, nhan_ct, v_md.h_chu_nho, phai=True)
+        else:  # nút giữa: nhãn dưới-trái khung
+            v_md.chu(x0 + 100.0, y0 - 380.0, nhan_ct, v_md.h_chu_nho, phai=True)
     # ---- mặt cắt ----
     suot = {t.so_hieu for lst in kh.thanh_doc_dam.values() for t in lst if t.vai_tro in ("tren_suot", "tren_suot_chung")}
     mcs = []

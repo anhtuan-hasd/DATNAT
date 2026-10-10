@@ -79,6 +79,10 @@ class KetQuaToVe:
 # Tiện ích vẽ
 # ---------------------------------------------------------------------------
 
+# Bề rộng 1 ký tự / chiều cao chữ (font Arial hệ số rộng 0,65 đặt ở backend_com ⇒ ≈ 0,57 × cao; bản mẫu ≈ 0,53). Dùng cho MỌI ước lượng hộp
+# chữ để bố cục không chồng chéo ở bản vẽ thật (giữ đồng bộ với `backend_com._cau_hinh_font_tieng_viet`).
+HE_SO_RONG_CHU = 0.6
+
 _MAU_TEN_TANG = {}
 
 
@@ -143,7 +147,7 @@ class _Ve:
             xs += [c.tam.x - c.ban_kinh, c.tam.x + c.ban_kinh]
             ys += [c.tam.y - c.ban_kinh, c.tam.y + c.ban_kinh]
         for c in self.bv.chu:
-            w = len(c.noi_dung) * 0.6 * c.chieu_cao
+            w = len(c.noi_dung) * HE_SO_RONG_CHU * c.chieu_cao
             if c.canh_giua:
                 xs += [c.vi_tri.x - w / 2, c.vi_tri.x + w / 2]
             elif c.canh_phai:

@@ -11,7 +11,7 @@ import math
 
 from .. import geometry as g
 from .. import layers
-from .co_so import CauHinhToVe, _Ve
+from .co_so import HE_SO_RONG_CHU, CauHinhToVe, _Ve
 from .ke_hoach import MatCatDinhNghia
 
 L_REBAR = layers.REBAR_MAIN.ten
@@ -42,7 +42,7 @@ def _tag(v: _Ve, gom: _Gom, x_tro, y_tro, x_the, y_the, so, noi_dung, huong=1):
     v.doan(x_tro, y_tro, x_the - dx / d * r, y_the - dy / d * r, L_SH)
     v.tron(x_the, y_the, r, L_SH)
     v.chu(x_the, y_the, str(so), v.h_chu, L_SH, giua=True)
-    w = len(noi_dung) * 0.6 * v.h_chu if noi_dung else 0.0
+    w = len(noi_dung) * HE_SO_RONG_CHU * v.h_chu if noi_dung else 0.0
     if noi_dung:
         if huong >= 0:
             v.chu(x_the + r + 0.5 * v.h_chu_nho, y_the, noi_dung, v.h_chu)
@@ -159,8 +159,8 @@ def ve_mat_cat_dam(cfg: CauHinhToVe, md: MatCatDinhNghia, K: float, ten_so_hieu_
         ten, _, cos = md.cao_do_nhan.rpartition("  ")
         x_c = X(b + ext) + 150.0
         v.chu(x_c, Y(h) + 130, f"{ten} {cos}", v.h_chu_nho)
-        v.tam_giac_cao_do(x_c + len(ten) * 0.6 * v.h_chu_nho + 150, Y(h) + 40)
-        gom.mo(x_c + (len(ten) + len(cos) + 2) * 0.6 * v.h_chu_nho + 300, Y(h))
+        v.tam_giac_cao_do(x_c + len(ten) * HE_SO_RONG_CHU * v.h_chu_nho + 150, Y(h) + 40)
+        gom.mo(x_c + (len(ten) + len(cos) + 2) * HE_SO_RONG_CHU * v.h_chu_nho + 300, Y(h))
 
     # --- chú thích thép: nhóm trên (ngay trên cốt sàn), nhóm dưới (bên phải) ---
     nhom_t: dict[int, list[tuple[float, float, int, int]]] = {}

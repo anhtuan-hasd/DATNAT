@@ -106,14 +106,17 @@ def ket_noi_autocad(khoi_dong_moi: bool = False) -> Any:
         except Exception:
             pass
     app = _nang_cap_early_bound(win32com.client.Dispatch("AutoCAD.Application"))
-    app.Visible = True
+    # Khởi động nguội: AutoCAD chưa sẵn sàng nhận lệnh COM trong vài chục giây đầu ("Call was rejected by callee") — LỖI
+    # THẬT đã gặp: gán Visible/tạo Document ngay sau Dispatch làm bước vẽ đầu tiên hỏng. Chờ tới khi đọc được Documents.
+    _thu_lai_khi_com_ban(lambda: setattr(app, "Visible", True), so_lan_toi_da=200, cho_giay=0.5)
+    _thu_lai_khi_com_ban(lambda: app.Documents.Count, so_lan_toi_da=200, cho_giay=0.5)
     return app
 
 
 def tao_ban_ve_moi(app: Any) -> Any:
     """Mở 1 Document mới trong AutoCAD, khai báo đủ layer theo layers.py + cấu
     hình font chữ hỗ trợ tiếng Việt có dấu TRƯỚC khi vẽ bất kỳ chữ nào."""
-    doc = app.Documents.Add()
+    doc = _thu_lai_khi_com_ban(lambda: app.Documents.Add(), so_lan_toi_da=60, cho_giay=0.5)
     time.sleep(0.5)  # AutoCAD còn đang bận khởi tạo UI cho document mới — giảm số lần phải thử lại bên dưới
     khai_bao_layer(doc)
     _cau_hinh_font_tieng_viet(doc)
@@ -145,6 +148,12 @@ def _cau_hinh_font_tieng_viet(doc: Any) -> None:
     try:
         kieu = doc.TextStyles.Item("Standard")
         kieu.SetFont("Arial", False, False, 163, 34)
+        # Chữ HẸP như bản vẽ kỹ thuật (bản mẫu dùng font hẹp: "Ø6a150" ≈ 0,5 × cao × số ký tự). Arial rộng gấp ~1,6 lần khiến
+        # nhãn tràn khỏi chỗ đã quy hoạch — hệ số chiều rộng 0,65 ⇒ ≈ 0,57; khớp `co_so.HE_SO_RONG_CHU`.
+        try:
+            kieu.Width = 0.65
+        except Exception:
+            pass
         doc.ActiveTextStyle = kieu
     except Exception:
         pass  # không chặn cả pipeline chỉ vì lỗi font — vẽ vẫn tiếp tục, chỉ mất dấu tiếng Việt

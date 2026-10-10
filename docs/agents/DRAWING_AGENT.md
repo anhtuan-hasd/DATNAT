@@ -106,6 +106,13 @@ Sau khi lắp ráp + xuất bản vẽ xong (kết quả tool `lap_rap_mat_dung_
 6. `backend_com`: gán thuộc tính (Layer…) trong cùng hàm với `AddLine` được thử lại cả khối ⇒ đối tượng mồ côi trên layer
    "0" khi COM bận — đã tách bước tạo/gán (mỗi bước tự thử lại).
 
+## Font và ước lượng bề rộng chữ
+
+Bố cục ký hiệu dựa vào bề rộng chữ ước lượng `co_so.HE_SO_RONG_CHU = 0,6` × chiều cao × số ký tự. Hệ số này PHẢI khớp font thật
+của AutoCAD: `backend_com._cau_hinh_font_tieng_viet` đặt style Standard = Arial với hệ số chiều rộng 0,65 (≈ 0,57; bản mẫu ≈ 0,53).
+Đổi một bên phải đổi bên kia (đo từ PDF xuất, không từ hình xem trước). Chữ cạnh vòng tròn hạ 0,36×cao để ngang tâm vòng tròn
+(AddText neo ở đường cơ sở).
+
 ## Chưa có (nêu rõ để không hiểu nhầm)
 
 - **Mặt bằng kết cấu sàn**: cần dữ liệu toàn nhà (lưới Y, bố trí dầm/ô sàn) — file ETABS mẫu chỉ có 1 khung phẳng nên chưa vẽ.
