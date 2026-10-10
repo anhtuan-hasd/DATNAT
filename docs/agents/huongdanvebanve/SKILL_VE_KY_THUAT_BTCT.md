@@ -697,3 +697,11 @@ tỷ lệ 1:50/75/100), nhãn chưa tránh được chồng.
 6. Mặt cắt dầm là chữ T (cánh sàn dày 100), ghi lớp bảo vệ / bề rộng trong / tổng, cốt sàn, trục khung.
 
 **Chưa có:** mặt bằng kết cấu sàn (cần dữ liệu toàn nhà), bản vẽ móng thật, chi tiết uốn móc từng thanh.
+
+**Sắp xếp ký hiệu trên mặt đứng (đo từ bản mẫu — mã vẽ tuân theo, agent chỉ cần biết để đọc/giải thích bản vẽ):**
+- Thanh trên: có gia cường ⇒ mỗi gối một cụm [`2Ø18 / 1Ø18` xếp chồng][ⓝ ⓝ] ngay trên cốt sàn; không có ⇒ 1 nhãn giữa nhịp.
+- Ký hiệu mặt cắt dầm "số ▌" vẽ ở CẢ trên và dưới dầm, cùng x (đường cắt đi qua dầm); mặt cắt cột là vạch đậm NGANG, số trên vạch, hai bên cột.
+- Đai dầm: dây kích thước vùng `1300(Ø6a150)…` trên dầm; nhãn đai dưới dầm (đồng đều/vùng gối), vùng giữa trên dầm; nhịp ngắn trên dầm.
+- Thép dọc cột ghi bên phải cột; đai cột ghi bên trái (trục đầu/giữa) hoặc phải (trục cuối), hai nhãn: vùng dày trên sàn và vùng giữa dưới dầm.
+- Chi tiết đầy đủ và hệ số vị trí: `docs/agents/DRAWING_AGENT.md` mục "Sắp xếp ký hiệu trên mặt đứng".
+

@@ -42,6 +42,25 @@ Hình học và số liệu do mã tất định quyết định (`src/drawing/t
 - Đai dầm: gối L/4 (`s ≤ min(h/2;300)` hoặc `min(h/3;500)` khi h>450), giữa nhịp `s ≤ min(3h/4;500;15d)`; đai cột hai đầu `10d`,
   giữa `15d`. Ghi dạng `1300(Ø6a150)`.
 
+### Sắp xếp ký hiệu trên mặt đứng (đo từ bản mẫu; code `src/drawing/to_ve/nhan.py`, test `tests/test_nhan_mat_dung.py`)
+
+Khoảng cách tính bằng mm THẬT; `L` = thông thuỷ dầm; `yt` = cốt sàn (mặt trên dầm), `yb` = đáy dầm.
+
+| Mã | Quy tắc |
+|:--|:--|
+| D1 | Dầm KHÔNG có thanh gia cường: 1 nhãn thanh trên suốt (ⓝ + `nØd`) ngay trên cốt sàn (`yt+230`) tại ~0,68L (nhịp ngắn 0,56L). |
+| D2 | Dầm CÓ thanh gia cường: mỗi gối một cụm [chữ xếp chồng `2Ø18 / 1Ø18`][vòng tròn ⓝ ⓝ] = thanh suốt + gia cường, trên cốt sàn (`yt+300`); đường dẫn đứng ở 0,13L (trái) / 0,81L (phải); trái = chữ rồi vòng tròn, phải = vòng tròn rồi chữ. |
+| D3 | Ký hiệu mặt cắt "số ▌" (số bên TRÁI vạch đậm đứng) vẽ HAI LẦN, trên dầm (`yt+470`) và dưới dầm (`yb−480`), CÙNG x (đường cắt đi qua dầm); x = 0,10L / 0,45L / 0,90L cho gối trái / giữa / gối phải; trùng số trong 1 dầm chỉ ghi 1 lần; nhịp ngắn ghi ở 0,95L. |
+| D4 | Dây kích thước vùng đai ở `yt+900`: các vùng khác bước ⇒ `1300(Ø6a150) 2700(Ø6a250) 1300(Ø6a150)`; đồng đều ⇒ 1 dòng `L(Ø6a200)`. |
+| D5 | Nhãn đai: đồng đều ⇒ ⓝ Ø/bước DƯỚI dầm (`yb−320`) tại 0,24L; 3 vùng ⇒ vùng gối dưới dầm (0,27L và 0,78L), vùng giữa TRÊN dầm (`yt+210`, 0,375L) có đường dẫn xuống; nhịp ngắn ⇒ TRÊN dầm (`yt+510`). |
+| D6 | Thanh dưới: ⓝ `nØd` DƯỚI dầm (`yb−320`) tại 0,55L (nhịp ngắn: giữa nhịp). |
+| C1 | Thép dọc cột: ⓝ `nØd` bên PHẢI cột, giữa khoảng thông thuỷ, vòng tròn cách mép cột 290. |
+| C2 | Đai cột: bên TRÁI cột (trục đầu, trục giữa; vòng tròn cách mép 860, chữ rồi đường dẫn tới cột) hoặc PHẢI (trục cuối; cách mép 250). Hai nhãn: vùng dày trên sàn 250 (tầng 1: trên đỉnh móng 300), vùng giữa ngay dưới đáy dầm 190. |
+| C3 | Ký hiệu mặt cắt cột: vạch đậm NẰM NGANG, số ở TRÊN vạch, hai bên cột (cách mép 330); vùng dày tại sàn+470, vùng giữa tại đáy dầm−960. |
+
+Mặt cắt dầm (hình riêng): nhóm thép trên đầu tiên (thanh suốt) ghi BÊN TRÁI trên cùng, nhóm thứ hai (gia cường) BÊN PHẢI thấp hơn;
+thép dưới ghi bên phải; nhãn đai bên phải phía trên nhãn thép dưới.
+
 ## Xử lý phản hồi từ Verification Agent
 
 Nếu Verification Agent báo `dat=false` kèm `vi_pham[]`:
@@ -92,5 +111,5 @@ Sau khi lắp ráp + xuất bản vẽ xong (kết quả tool `lap_rap_mat_dung_
 - **Mặt bằng kết cấu sàn**: cần dữ liệu toàn nhà (lưới Y, bố trí dầm/ô sàn) — file ETABS mẫu chỉ có 1 khung phẳng nên chưa vẽ.
 - Chi tiết 3D nút là hình trục đo sơ đồ (lồng thép), chưa vẽ đầy đủ mọi thanh/móc của từng nút.
 - Hình học móng chỉ minh hoạ (không có bản vẽ móng).
-- Số hiệu/ghi chú trên mặt đứng còn nhãn chồng nhau ở vài chỗ (số chồng được báo trong `canh_bao`).
+- Nhãn trên mặt đứng bố trí theo quy tắc D1–D6/C1–C3 ở trên; một số ít chỗ còn chồng (nhịp ngắn, vùng nút) được báo trong `canh_bao`.
 

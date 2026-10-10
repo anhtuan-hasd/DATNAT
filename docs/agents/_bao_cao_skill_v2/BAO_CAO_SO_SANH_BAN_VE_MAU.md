@@ -52,4 +52,5 @@ Skill chỉ vào **system prompt của LLM**; hình học do mã tất định q
 | 7 | Cao độ vẽ đều nhau | **Đã sửa**: vẽ theo toạ độ thật |
 | 8 | Bảng đen, khung tên không đọc được, tờ nhỏ xíu | **Đã sửa**: tờ A1/A0 có khung, bảng đọc được, PDF đen trắng |
 | 9 | Ghi chú vật liệu, bảng K | Ghi chú vật liệu **đã có** (tra từ `vat_lieu`); bảng K **chưa** |
+| 11 | Ký hiệu sắp xếp chưa giống bản mẫu | **Đã sắp lại theo số đo từ bản mẫu** (quy tắc D1–D6, C1–C3; `nhan.py`; test `test_nhan_mat_dung.py`): cụm thanh trên xếp chồng ở gối, ký hiệu mặt cắt trên+dưới dầm cùng x, mặt cắt cột là vạch ngang, nhãn đai trái/phải cột và trên/dưới dầm |
 

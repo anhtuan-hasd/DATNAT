@@ -166,17 +166,20 @@ def ve_mat_cat_dam(cfg: CauHinhToVe, md: MatCatDinhNghia, K: float, ten_so_hieu_
     nhom_t: dict[int, list[tuple[float, float, int, int]]] = {}
     for item in vitri_tren:
         nhom_t.setdefault(item[3], []).append(item)
-    nl = 0
-    for so, lst in nhom_t.items():
+    # Bản mẫu (mặt cắt 1-1): nhóm thép đầu (thanh suốt, hai thanh góc) ghi ở BÊN TRÁI trên cùng; nhóm thứ hai (thanh gia
+    # cường giữa) ghi ở BÊN PHẢI, thấp hơn; mỗi nhóm một đường ngang phía trên cốt sàn + các đoạn rơi xuống từng thanh.
+    for i_g, (so, lst) in enumerate(nhom_t.items()):
         xs = [X(i[0]) for i in lst]
-        y_line = Y(h) + 800.0 + nl * 600.0
+        y_line = Y(h) + 800.0 - (i_g // 2) * 0.0 + (0.0 if i_g % 2 == 0 else -350.0) + (i_g // 2) * 700.0
         xa, xb = min(xs), max(xs)
         v.doan(xa, y_line, xb, y_line, L_SH)
         for i in lst:
             v.doan(X(i[0]), y_line, X(i[0]), Y(i[1]) + max(i[2] / 2 * K, 20) , L_SH)
         d0 = lst[0][2]
-        _tag(v, gom, xa, y_line, xa - 2.4 * cfg.ty_le - 60, y_line, so, f"{len(lst)}Ø{d0}", huong=-1)
-        nl += 1
+        if i_g % 2 == 0:  # trái: vòng tròn ở đầu trái đường ngang, chữ bên trái
+            _tag(v, gom, xa, y_line, xa - 2.4 * cfg.ty_le - 60, y_line, so, f"{len(lst)}Ø{d0}", huong=-1)
+        else:  # phải: vòng tròn ở đầu phải đường ngang, chữ bên phải
+            _tag(v, gom, xb, y_line, xb + 2.4 * cfg.ty_le + 60, y_line, so, f"{len(lst)}Ø{d0}", huong=1)
     nhom_d: dict[int, list[tuple[float, float, int, int]]] = {}
     for item in vitri_duoi:
         nhom_d.setdefault(item[3], []).append(item)
