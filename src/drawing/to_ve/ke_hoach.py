@@ -15,9 +15,11 @@ from dataclasses import dataclass, field
 from ...rule_engine import bo_tri_dai as dai
 from ...rule_engine.vat_lieu import dien_tich_1_thanh
 from ..so_hieu_thanh import SoDangKySoHieu, ThanhThep
+from . import chi_tiet_thep as ct
 from .co_so import CauHinhToVe, _Cot, _Dam, _ThanhDocVe, _dem_theo_d, _doc_cot, _doc_dam, _ten_tang, _tru_da_tap
 
 KHOANG_HO_DAU_MUT_MM = 0.0
+DAI_UOC_TINH_MM = 6.0  # Ø đai giả định khi tính vị trí thanh sát mặt cột (quyết định đai thật có sau)
 
 
 @dataclass
@@ -67,6 +69,9 @@ class KeHoach:
     gan_mat_cat_dam: dict[tuple[str, str], int]  # (tên dầm, "trai"/"giua"/"phai") → số mặt cắt
     gan_mat_cat_cot: dict[tuple[str, int], int]  # (tên cột, chỉ số vùng đai) → số mặt cắt
     canh_bao: list[str] = field(default_factory=list)
+    doan_cot: dict[str, tuple] = field(default_factory=dict)  # tên cột → chiều dài từng đoạn thanh (mm)
+    dam_thieu_q: list[str] = field(default_factory=list)  # dầm mà Rule Engine báo thiếu Q ⇒ đai chỉ theo cấu tạo (R56)
+    dam_dai_etabs: list[str] = field(default_factory=list)  # dầm có đai lấy theo Asw/s do ETABS thiết kế (chưa kiểm lại bằng Q)
     be_rong_dai: dict[str, float] = field(default_factory=dict)  # theo trục
 
 
@@ -76,6 +81,15 @@ def _cot_tai(cots: list[_Cot], truc: str, y: float) -> _Cot | None:
     duoi = [c for c in ung if abs(c.y1 - y) < 1.0]
     tren = [c for c in ung if abs(c.y0 - y) < 1.0]
     return (duoi or tren or [None])[0]
+
+
+def _l_an_cua(raw: dict, vi_tri: str | None = None) -> float | None:
+    """L_an (mm) do tool `tinh_neo_noi` đã tính cho một vị trí của phần tử (cột: vị trí đầu tiên; dầm: theo tên vị trí)."""
+    for v in raw.get("vi_tri") or []:
+        if vi_tri is None or v.get("vi_tri") == vi_tri:
+            l_an = (v.get("neo_noi") or {}).get("L_an")
+            return float(l_an) if l_an else None
+    return None
 
 
 def _lam_tron_50(x: float) -> float:
@@ -169,13 +183,27 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
             d_c, n_c = 0, 0
         for c in chuoi:
             d_tren_suot[c.ten], so_tren_suot[c.ten] = d_c, n_c
+        # chân uốn xuống cột ở hai đầu chuỗi: h_dầm + 100 (bản mẫu: 600 với dầm 500, 400 với dầm 300), không nhỏ hơn
+        # bội 50 ≥ L_an tính toán (R57) — vượt thì ghi ⚠ chứ không im lặng
+        l_xuong = []
+        for dau, ten_vt in ((chuoi[0], "goi_trai"), (chuoi[-1], "goi_phai")):
+            l, vuot = ct.chieu_dai_neo_nut(_l_an_cua(dau.raw, ten_vt), dau.h + 100.0)
+            l_xuong.append(l)
+            if vuot:
+                canh_bao.append(f"Dầm {dau.ten}: L_an tính toán lớn hơn h+100 — chân uốn xuống cột lấy {l:g} mm (thuyết minh gốc lấy 600).")
+        # chân thanh trên dầm nằm TRONG thanh dọc ngoài của cột (bản mẫu, nút biên): mép trong thanh cột + 1 mm
+        c_tr, c_ph = _cot_tai(cots, chuoi[0].truc1, chuoi[0].y), _cot_tai(cots, chuoi[-1].truc2, chuoi[-1].y)
+        cv_c = cfg.lop_bao_ve_cot
+        x_tr0 = chuoi[0].x1 - chuoi[0].hc1 / 2 + cv_c + DAI_UOC_TINH_MM + (c_tr.d if c_tr else d_c) + 1.0
+        x_ph0 = chuoi[-1].x2 + chuoi[-1].hc2 / 2 - (cv_c + DAI_UOC_TINH_MM + (c_ph.d if c_ph else d_c) + 1.0)
+        for c in chuoi:
+            c._chuoi = {"dams": [x.ten for x in chuoi], "d": d_c, "l_tr": l_xuong[0], "l_ph": l_xuong[1],  # type: ignore[attr-defined]
+                        "x_tr0": x_tr0, "x_ph0": x_ph0, "x_tr": x_tr0 + d_c / 2.0, "x_ph": x_ph0 - d_c / 2.0}
         if n_c:
-            x_tr = chuoi[0].x1 - chuoi[0].hc1 / 2 + cv
-            x_ph = chuoi[-1].x2 + chuoi[-1].hc2 / 2 - cv
-            h_min = min(c.h for c in chuoi)
-            l_hook = min(max(15.0 * d_c, 250.0), h_min - 2 * cv - 50.0)
-            chieu_dai = (x_ph - x_tr) + 2 * l_hook
-            thanh_doc_dam[chuoi[0].ten].append(_ThanhDocVe("tren_suot", d_c, n_c, chieu_dai))
+            chieu_dai = (x_ph0 - d_c / 2.0) - (x_tr0 + d_c / 2.0) + l_xuong[0] + l_xuong[1]
+            thanh_doc_dam[chuoi[0].ten].append(_ThanhDocVe(
+                "tren_suot", d_c, n_c, chieu_dai,
+                doan=(l_xuong[0], round((x_ph0 - d_c / 2.0) - (x_tr0 + d_c / 2.0)), l_xuong[1])))
             for c in chuoi[1:]:
                 thanh_doc_dam[c.ten].append(_ThanhDocVe("tren_suot_chung", d_c, n_c, 0.0))
 
@@ -183,10 +211,9 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
     for d in dams:
         d_c, n_c = d_tren_suot.get(d.ten, 0), so_tren_suot.get(d.ten, 0)
         x_cat = max(50.0, _lam_tron_50(d.l_tt / 4.0))
-        l_hook = max(100.0, min(max(15.0 * (d_c or 16), 250.0), d.h - 2 * cv - 50.0))
         d._extras_l = _thanh_gia_cuong(d.top_l, d_c, n_c)  # type: ignore[attr-defined]
         d._extras_r = _thanh_gia_cuong(d.top_r, d_c, n_c)  # type: ignore[attr-defined]
-        d._x_cat, d._l_hook = x_cat, l_hook  # type: ignore[attr-defined]
+        d._x_cat = x_cat  # type: ignore[attr-defined]
         d._so_ben = {"trai": {}, "phai": {}}  # type: ignore[attr-defined]  # {Ø: [(số lượng, thanh)]}
 
     for d in dams:
@@ -195,7 +222,10 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
         # --- gối trái ---
         for dk, n in d._extras_l.items():  # type: ignore[attr-defined]
             if ke_trai is None:
-                t = _ThanhDocVe("tren_cat_trai", dk, n, (d.hc1 - cv) + d._x_cat + d._l_hook)  # type: ignore[attr-defined]
+                ch = d._chuoi  # type: ignore[attr-defined]
+                x_leg = ch["x_tr0"] + ch["d"] + dk / 2.0 + (1.0 if ch["d"] else 0.0)  # trong thanh suốt (nếu có)
+                ngang = d.x1 + d.hc1 / 2 + d._x_cat - x_leg  # type: ignore[attr-defined]
+                t = _ThanhDocVe("tren_cat_trai", dk, n, ngang + ch["l_tr"], doan=(ch["l_tr"], round(ngang)))
                 tl.append(t)
                 d._so_ben["trai"].setdefault(dk, []).append((n, t))  # type: ignore[attr-defined]
             else:
@@ -213,7 +243,10 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
         # --- gối phải ---
         for dk, n in d._extras_r.items():  # type: ignore[attr-defined]
             if ke_phai is None:
-                t = _ThanhDocVe("tren_cat_phai", dk, n, (d.hc2 - cv) + d._x_cat + d._l_hook)  # type: ignore[attr-defined]
+                ch = d._chuoi  # type: ignore[attr-defined]
+                x_leg = ch["x_ph0"] - ch["d"] - dk / 2.0 - (1.0 if ch["d"] else 0.0)
+                ngang = x_leg - (d.x2 - d.hc2 / 2 - d._x_cat)  # type: ignore[attr-defined]
+                t = _ThanhDocVe("tren_cat_phai", dk, n, ngang + ch["l_ph"], doan=(round(ngang), ch["l_ph"]))
                 tl.append(t)
                 d._so_ben["phai"].setdefault(dk, []).append((n, t))  # type: ignore[attr-defined]
             else:
@@ -223,16 +256,20 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
                     t = _ThanhDocVe("tren_cat_phai", dk, con, d._x_cat + d.hc2 + 20.0 * dk)  # type: ignore[attr-defined]
                     tl.append(t)
                     d._so_ben["phai"].setdefault(dk, []).append((con, t))  # type: ignore[attr-defined]
-        # --- thanh dưới: chạy hết thông thuỷ; biên = tới mặt ngoài cột − lớp bảo vệ + móc; giữa = tới tim cột ---
+        # --- thanh dưới: chạy hết thông thuỷ, THẲNG (không móc); biên = tới mặt ngoài cột − lớp bảo vệ; giữa = tới tim cột ---
         for dk, n in _dem_theo_d(d.bot).items():
-            e1 = (d.hc1 - cv) + d._l_hook if ke_trai is None else d.hc1 / 2  # type: ignore[attr-defined]
-            e2 = (d.hc2 - cv) + d._l_hook if ke_phai is None else d.hc2 / 2  # type: ignore[attr-defined]
+            e1 = (d.hc1 - cv) if ke_trai is None else d.hc1 / 2
+            e2 = (d.hc2 - cv) if ke_phai is None else d.hc2 / 2
+            for e, ben in ((e1, "trái"), (e2, "phải")):
+                if (ke_trai is None if ben == "trái" else ke_phai is None) and e < 15.0 * dk:
+                    canh_bao.append(f"Dầm {d.ten}: thanh dưới Ø{dk} vào cột biên {ben} chỉ {e:.0f} mm < 15d — cần móc/neo thêm.")
             tl.append(_ThanhDocVe("duoi", dk, n, d.l_tt + e1 + e2))
 
     # --- cấp số hiệu thanh dọc dầm theo thứ tự xuất hiện ---
     for d in dams:
         for t in thanh_doc_dam[d.ten]:
             if t.chieu_dai > 0:
+                t.chieu_dai = ct.lam_tron_len(t.chieu_dai)  # làm tròn lên bội 50
                 t.so_hieu = so_dk.lay_so_hieu(ThanhThep(t.duong_kinh, round(t.chieu_dai)))
     for d in dams:  # thanh suốt "chung": dùng số hiệu của thanh suốt đầu chuỗi (cùng tầng, cùng Ø, cùng chiều dài)
         for t in thanh_doc_dam[d.ten]:
@@ -246,6 +283,9 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
 
     # --- cột: thanh dọc + đai ---
     thanh_doc_cot: dict[str, tuple[int, int, float]] = {}
+    doan_cot: dict[str, tuple] = {}
+    dam_thieu_q: list[str] = []
+    dam_dai_etabs: list[str] = []
     thieu_dai: list[str] = []  # phần tử mà agent chưa chốt đai (tool bo_tri_dai) — dùng đai cấu tạo mặc định
     dai_cot: dict[str, list[ThanhDai]] = {}
     tang_thap_nhat = min(moc.values())
@@ -254,15 +294,30 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
     for c in cots:
         la_tang1 = abs(c.y0 - tang_thap_nhat) < 1.0
         la_tang_cuoi = abs(c.y1 - max(moc.values())) < 1.0
-        l_lap = c.l_lap or cfg.chieu_dai_nen_noi_mac_dinh * c.d
+        l_lap = ct.lam_tron_len(c.l_lap or cfg.chieu_dai_nen_noi_mac_dinh * c.d)  # làm tròn LÊN bội 50 (bản mẫu: 500)
         if not c.l_lap:
             canh_bao.append(f"Cột {c.ten}: không có L_lap từ tool — dùng {cfg.chieu_dai_nen_noi_mac_dinh:g}d [thực hành].")
         chan = 0.0
         if la_tang1:
-            chan = (cfg.day_dai_mong - 75.0) + 200.0  # thép chờ: sâu hết đài (trừ lớp bảo vệ đáy) + chân L 200 [NK-16]
-        chieu_dai = (c.y1 - c.y0) + (0.0 if la_tang_cuoi else l_lap) + chan
+            chan = (cfg.day_dai_mong - ct.CAO_CHAN_L) + ct.CHAN_L_NGANG  # thép chờ: xuống tới sát lưới đáy + chân L ≥200 [NK-16]
+        # tầng mái: MỌI thanh cột uốn vào dầm (bản mẫu: thanh số 5 "500|3200" ×12 = 4 thanh × 3 cột)
+        c._l_vao = 0.0  # type: ignore[attr-defined]
+        if la_tang_cuoi:
+            c._l_vao, vuot = ct.chieu_dai_neo_nut(_l_an_cua(c.raw), ct.L_COT_VAO_DAM_TOI_THIEU)  # type: ignore[attr-defined]
+            if vuot:
+                canh_bao.append(f"Cột {c.ten}: L_an tính toán lớn hơn 500 — đoạn uốn vào dầm lấy {c._l_vao:g} mm.")  # type: ignore[attr-defined]
+            ben_trai = any(d.truc2 == c.truc and abs(d.y - c.y1) < 1.0 for d in dams)
+            ben_phai = any(d.truc1 == c.truc and abs(d.y - c.y1) < 1.0 for d in dams)
+            # hướng uốn của (thanh mặt trái, thanh mặt phải): -1 sang trái, +1 sang phải, 0 không uốn
+            c._huong_uon = ((-1, 1) if ben_trai and ben_phai else (1, 1) if ben_phai else (-1, -1) if ben_trai else (0, 0))  # type: ignore[attr-defined]
+        chieu_dai = (c.y1 - c.y0) + (c._l_vao if la_tang_cuoi else l_lap) + chan  # type: ignore[attr-defined]
+        chieu_dai = ct.lam_tron_len(chieu_dai)  # chiều dài cắt thép làm tròn lên bội 50 ⇒ cột cùng Ø cùng loại chung số hiệu
         so_hieu = so_dk.lay_so_hieu(ThanhThep(c.d, round(chieu_dai)))
         thanh_doc_cot[c.ten] = (so_hieu, c.n_tong, chieu_dai)
+        if la_tang_cuoi:
+            doan_cot[c.ten] = ((c.y1 - c.y0) + (chan - ct.CHAN_L_NGANG if la_tang1 else 0.0), c._l_vao)  # type: ignore[attr-defined]
+        elif la_tang1:
+            doan_cot[c.ten] = (chieu_dai - ct.CHAN_L_NGANG, ct.CHAN_L_NGANG)
         c.so_hieu_thep = so_hieu
         # đai
         ag = c.raw.get("dai") or {}
@@ -300,6 +355,10 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
         ag = d.raw.get("dai") or {}
         if not ag:
             thieu_dai.append(f"dầm {d.ten}")
+        elif ag.get("nguon_buoc") == "ETABS":
+            dam_dai_etabs.append(d.ten)
+        elif ag.get("canh_bao"):
+            dam_thieu_q.append(d.ten)
         vung = dai.bo_tri_dai_dam(
             d.h, d.l_tt, d_max, d_min,
             duong_kinh_dai=ag.get("duong_kinh_dai"), buoc_goi=ag.get("buoc_goi"), buoc_giua=ag.get("buoc_giua"),
@@ -319,7 +378,10 @@ def lap_ke_hoach(du_lieu: dict, cfg: CauHinhToVe) -> KeHoach:
             f"{len(thieu_dai)} phần tử chưa có quyết định đai từ Rule Engine Agent (tool bo_tri_dai): "
             + ", ".join(thieu_dai[:6]) + (" …" if len(thieu_dai) > 6 else "") + " — dùng đai cấu tạo mặc định [thực hành]."
         )
-    kh = KeHoach(cfg, truc, moc, cots, dams, so_dk, thanh_doc_dam, dai_dam, dai_cot, thanh_doc_cot, [], {}, {}, canh_bao, be_rong_dai)
+    kh = KeHoach(cfg, truc, moc, cots, dams, so_dk, thanh_doc_dam, dai_dam, dai_cot, thanh_doc_cot, [], {}, {}, canh_bao=canh_bao, be_rong_dai=be_rong_dai)
+    kh.doan_cot = doan_cot
+    kh.dam_thieu_q = dam_thieu_q
+    kh.dam_dai_etabs = dam_dai_etabs
     _lap_mat_cat(kh)
     return kh
 
@@ -377,18 +439,15 @@ def _lap_mat_cat(kh: KeHoach) -> None:
     for c in kh.cots:
         dai_ds = kh.dai_cot[c.ten]
         so_h = kh.thanh_doc_cot[c.ten][0]
-        vung_dung = [(i, v) for i, v in enumerate(c.vung)]
-        # mỗi bước đai khác nhau → 1 mặt cắt
-        thay: dict[float, int] = {}
-        for i, v in vung_dung:
-            if v.buoc_mm in thay:
-                kh.gan_mat_cat_cot[(c.ten, i)] = thay[v.buoc_mm]
-                continue
-            dm = dai_ds[i] if i < len(dai_ds) else dai_ds[-1]
-            khoa = ("cot", c.b, c.h, c.d, c.n_b, c.n_h, dm.so_hieu, so_h)
-            so = them(khoa, lambda s, c=c, dm=dm, so_h=so_h, v=v: MatCatDinhNghia(
-                s, "cot", c.b, c.h, [], [(c.d, c.n_tong, so_h)], (dm.so_hieu, v.nhan()), c.ten, "", c.truc,
-                {"d": c.d, "n_b": c.n_b, "n_h": c.n_h, "so_hieu": so_h}))
-            thay[v.buoc_mm] = so
+        # MỘT mặt cắt cho mỗi cấu hình thép dọc (bản mẫu: 5 mặt cắt cột cho 12 đoạn cột) — hình mặt cắt không phụ thuộc bước đai;
+        # nhãn đai trên mặt cắt là đai CHÍNH (vùng dài nhất = giữa cột); đai từng vùng đã ghi riêng trên mặt đứng.
+        i_chinh = max(range(len(c.vung)), key=lambda i: c.vung[i].chieu_dai) if c.vung else 0
+        v = c.vung[i_chinh]
+        dm = dai_ds[i_chinh] if i_chinh < len(dai_ds) else dai_ds[-1]
+        khoa = ("cot", c.b, c.h, c.d, c.n_b, c.n_h, so_h)
+        so = them(khoa, lambda s, c=c, dm=dm, so_h=so_h, v=v: MatCatDinhNghia(
+            s, "cot", c.b, c.h, [], [(c.d, c.n_tong, so_h)], (dm.so_hieu, v.nhan()), c.ten, "", c.truc,
+            {"d": c.d, "n_b": c.n_b, "n_h": c.n_h, "so_hieu": so_h}))
+        for i in range(len(c.vung)):
             kh.gan_mat_cat_cot[(c.ten, i)] = so
     kh.mat_cat = ds_mc

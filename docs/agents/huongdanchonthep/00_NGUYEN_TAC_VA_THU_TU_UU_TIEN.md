@@ -106,6 +106,7 @@ Hệ thống chỉ có 7 tool cho agent này. Bảng dưới là sự thật v�
 | Lệch tâm cột (03) | `tinh_lech_tam_cot` (tuỳ chọn) | $\eta=1$ |
 | **Cấu tạo nút khung (05)** | **không có tool** | `src/rule_engine/nut_khung.py` có 13 loại nút nhưng **chưa nối vào agent** |
 | **Cốt đai theo vùng (06 B8/C4; 02 Bước 11; 03 Bước 12)** | **`bo_tri_dai`** | Gọi **1 lần/phần tử** sau khi mọi vị trí đạt `tu_kiem_tra`: truyền `loai`, `h` (dầm: h; cột: cạnh lớn). Ø thép dọc và bước đai tính toán (`tinh_cot_dai`) tool **tự lấy** — không tự điền. Trả Ø đai + bước gối/giữa (dầm) hoặc đầu/giữa (cột); chiều dài vùng do bản vẽ tính theo thông thuỷ thật. Kết quả được bàn giao cho bản vẽ |
+| **Gom nhóm thép giữa các phần tử (02 Bước 8d; 03 Bước 9d; R53–R54)** | **Không phải tool của agent** — bước `gom_nhom` tất định của pipeline sau khi mọi phần tử đạt | Cột cùng tầng/tiết diện chung thép của cột bất lợi nhất; hai gối dầm cùng bố trí (chỉ **nâng** thép). Agent **không** tự nâng/hạ thép của vị trí/phần tử khác. Kết quả ghi vào nhật ký pipeline và `gom_nhom_tu` của vị trí |
 | Bố trí dọc: điểm cắt, chiều dài thanh, nối thép (06) | **không có tool** | Bản vẽ tự lập **sơ bộ** (thanh trên suốt + gia cường cắt L/4, thanh dưới chạy suốt, móc vào cột biên) theo 06 B2–B7 và ghi cảnh báo; agent KHÔNG tự tính; số liệu ghi `basis` |
 | Cổng hình học nút 14.2/14.3 (09) | **không có tool** | R41, R43 |
 | Kháng chấn (07), xoắn, dầm cao, lỗ mở (09) | **không có tool** | R31–R40, R47–R52 chỉ là luật dừng/hỏi |

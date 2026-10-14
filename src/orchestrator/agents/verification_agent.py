@@ -124,6 +124,23 @@ def _kiem_tra_mat_dung_khung(doc: Any, dau_vao: dict) -> list[str]:
                 f"({so_ky_hieu_ky_vong}) — nghi thiếu ký hiệu thép ở 1 số vị trí."
             )
 
+    so_cung_ky_vong = dau_vao.get("so_cung_uon_ky_vong")
+    if so_cung_ky_vong is not None:
+        so_cung_thuc = verify_drawing.dem_cung_theo_layer_com(doc, layers.REBAR_BAR.ten)
+        if so_cung_thuc < so_cung_ky_vong:
+            vi_pham.append(
+                f"Số cung uốn thanh thép dọc (layer REBAR_BAR) vẽ ra ({so_cung_thuc}) ít hơn kỳ vọng ({so_cung_ky_vong}) — "
+                "nghi thiếu chỗ bo cung ở nút mái / chân cột trong móng (KC-25)."
+            )
+
+    if dau_vao.get("co_ghi_chu_thieu_q_ky_vong"):
+        van_ban = " ".join(verify_drawing.doc_noi_dung_text_com(doc, layer=layers.TEXT.ten))
+        if "THIẾU Q" not in van_ban.upper():
+            vi_pham.append(
+                "Dầm không có Q (đai chỉ theo cấu tạo) nhưng bản vẽ KHÔNG có ghi chú cảnh báo 'THIẾU Q' — bản vẽ trông như đã kiểm "
+                "khả năng chịu cắt (KC-27)."
+            )
+
     ten_truc_ky_vong = dau_vao.get("ten_truc_ky_vong")
     if ten_truc_ky_vong:
         so_vong_tron = verify_drawing.dem_vong_tron_theo_layer_com(doc, layers.AXIS.ten)
@@ -175,6 +192,8 @@ DINH_NGHIA_TOOL: list[dict] = [
                 },
                 "ten_truc_ky_vong": {"type": "array", "items": {"type": "string"}},
                 "so_da_giac_outline_ky_vong": {"type": "integer", "description": "Tuỳ chọn — hệ thống tự điền từ lúc lắp ráp tờ vẽ."},
+                "so_cung_uon_ky_vong": {"type": "integer", "description": "Tuỳ chọn — số cung uốn thanh dọc (KC-25); hệ thống tự điền."},
+                "co_ghi_chu_thieu_q_ky_vong": {"type": "boolean", "description": "Tuỳ chọn — có dầm thiếu Q ⇒ bản vẽ phải có ghi chú 'THIẾU Q' (KC-27); hệ thống tự điền."},
                 "mat_cat_ky_vong": {
                     "type": "array", "items": {"type": "object"},
                     "description": "Tuỳ chọn — [{nhan, rong_ve, cao_ve}] kích thước từng mặt cắt TRÊN BẢN VẼ; hệ thống tự điền.",

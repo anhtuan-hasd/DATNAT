@@ -15,7 +15,7 @@ pywin32>=306; sys_platform == "win32"
 # matplotlib (render DXF -> PNG) đã bỏ cùng ezdxf — webapp giờ phục vụ trực
 # tiếp PDF do AutoCAD COM xuất, không cần render ảnh riêng nữa.
 flask>=3.0
-python-dotenv>=1.0  # tự nạp OPENAI_API_KEY từ file .env ở gốc dự án — dùng bởi webapp/app.py VÀ scripts/*.py
+python-dotenv>=1.0  # tự nạp OPENROUTER_API_KEY/OPENAI_API_KEY từ file .env ở gốc dự án — dùng bởi webapp/app.py VÀ scripts/*.py
 
 # Agent điều phối (Phase 4) — LLM duy nhất dùng trong toàn hệ thống là OpenAI GPT.
 openai>=1.50

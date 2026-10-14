@@ -37,11 +37,11 @@ class OpenAIMappingProvider:
     này chỉ hỏi 1 câu, không cần model mạnh.
     """
 
-    def __init__(self, model: str = "gpt-5.6-luna", api_key: str | None = None):
-        import openai
+    def __init__(self, model: str | None = None, api_key: str | None = None):
+        from ..llm_client import chon_model, tao_client_openai
 
-        self._client = openai.OpenAI(api_key=api_key)
-        self._model = model
+        self._client = tao_client_openai(api_key)
+        self._model = chon_model(model, api_key)
 
     def hoi(self, prompt: str) -> str:
         resp = self._client.chat.completions.create(

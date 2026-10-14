@@ -17,7 +17,9 @@ def test_do_day_net_theo_thu_tu_dam_nhat():
     # OUTLINE_CUT) phải MẢNH NHẤT, cốt thép dọc (REBAR_MAIN) ĐẬM NHẤT.
     assert layers.REBAR_MAIN.do_day_net_mm > layers.REBAR_STIRRUP.do_day_net_mm
     assert layers.REBAR_STIRRUP.do_day_net_mm > layers.OUTLINE.do_day_net_mm
-    assert layers.OUTLINE.do_day_net_mm == layers.OUTLINE_CUT.do_day_net_mm == layers.DIM.do_day_net_mm
+    # bản mẫu: đường bao MẶT ĐỨNG mảnh (= DIM), đường bao MẶT CẮT đậm (= cốt đai)
+    assert layers.OUTLINE.do_day_net_mm == layers.DIM.do_day_net_mm
+    assert layers.OUTLINE_CUT.do_day_net_mm == layers.REBAR_STIRRUP.do_day_net_mm > layers.OUTLINE.do_day_net_mm
 
 
 def test_net_dut_va_net_cham_gach_dung_kieu():

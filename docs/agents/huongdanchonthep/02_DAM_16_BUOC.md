@@ -119,6 +119,23 @@ $a=\dfrac{\sum A_{si}y_i}{\sum A_{si}}$, $h_0^{thực}=h-a$, $x=\dfrac{R_sA_s}{R
 **Nhịp CB:** $3\varnothing22=1140$; $h_0=661$; $x=11{,}9$; $M_u=325{,}0\ge315{,}47$.
 **Cảnh báo:** thép hàng ngoài 3 thanh trong cột 250 **không lọt qua thép cột** (R41, module 09 mục 14.2).
 
+### 8d. Thống nhất thép giữa các vị trí của một dầm (thực hành thuyết minh Khung Trục 5)
+
+> **Nguồn và mức tin cậy:** các quy tắc dưới đây **rút ra từ số liệu** Bảng 27 của thuyết minh Khung Trục 5 (dầm 32, 34, 36, 38, 39, 41, 43, 45) và từ nhãn thép trên bản vẽ mẫu; thuyết minh **không viết thành điều khoản**. Nhãn **[thực hành thuyết minh KT5]**: dùng như mặc định, không thay cho tính toán; tiêu chuẩn và tool vẫn là cái quyết định về an toàn.
+
+Kỹ sư không dừng ở "mỗi vị trí chọn riêng": sau khi cả ba vị trí (gối trái, giữa nhịp, gối phải) đã có $A_{s,tt}$, họ thống nhất lại để thép **thi công được** (một lô thép trên chạy suốt, ít loại Ø, cùng một cách đặt ở hai gối).
+
+| # | Quy tắc | Ví dụ trong thuyết minh KT5 |
+|:-:|:--|:--|
+| 1 | **Thép trên chạy suốt nhịp ⇒ hai gối cùng bố trí, theo gối lớn hơn.** Nhịp (thép dưới) chọn riêng. | Dầm 45 (220×300): gối trái $A_{s,tt}=439{,}35\to$ 2Ø18; gối phải chỉ cần $388{,}69$ (2Ø16 = 402 đã đủ) nhưng **vẫn lấy 2Ø18**; nhịp $292{,}01\to$ 2Ø16. Dầm 32: hai gối 686/654 ⇒ cùng 3Ø18. |
+| 2 | **Mỗi vị trí chọn tổ hợp ít thừa diện tích nhất** (≥2 thanh, ≤3 thanh một hàng khi $b=220$, kiểm khoảng hở). Đây đúng là cách `chon_thep_doc` đang xếp thứ tự. | Dầm 32 nhịp $473{,}67\to$ **2Ø18 (509)**, không phải 3Ø16 (603). Dầm 34 gối $546{,}78\to$ 3Ø16 (603) vì 2Ø18 = 509 không đủ. |
+| 3 | **Tối thiểu cấu tạo 2Ø16** mỗi lớp, kể cả khi $A_{s,tt}$ rất nhỏ. | Dầm 39: $18{,}33\to$ 2Ø16; dầm 38: $120{,}60\to$ 2Ø16. |
+| 4 | **Ít loại Ø trong toàn khung** (thuyết minh KT5: chỉ Ø16 và Ø18 cho thép dọc, Ø6 cho đai). Không phát sinh Ø thứ ba nếu một Ø đã dùng cũng đạt. | Toàn bộ Bảng 27 chỉ có Ø16/Ø18. |
+| 5 | **Không giảm thép** ở một vị trí chỉ vì vị trí kia nhỏ hơn: quy tắc 1 chỉ **nâng** thép lên, không bao giờ giảm dưới $A_{s,tt}$. | — |
+
+**Phân công:** việc "đưa hai gối về cùng bố trí" (quy tắc 1) và gom cột cùng tầng (module 03, 9d) là **bước tất định `gom_nhom` của pipeline** chạy **sau khi mọi phần tử đã đạt** (agent chỉ thấy từng phần tử một nên không tự làm được). Agent chọn đúng $A_{s,yc}$ cho từng vị trí như bình thường; **không** tự nâng/hạ thép của vị trí khác, **không** ghi "đã gom nhóm" trong báo cáo. Kết quả gom nhóm được ghi vào nhật ký và vào ghi chú của từng vị trí (`gom_nhom_tu`).
+**Giới hạn trung thực:** quy tắc 1 và 2 khớp với toàn bộ dầm trong Bảng 27, nhưng mới được kiểm trên **một** công trình; quy tắc 4 là sở thích, không phải điều khoản. Thuyết minh KT5 cũng có chỗ chưa nhất quán (hàm lượng $\mu$ ghi cho dầm 34 gối là của 3Ø18, không khớp 3Ø16 đã chọn) — coi là **mẫu tham chiếu**, không phải chân lý.
+
 ## Bước 9. Kiểm tra ứng suất nén chính trên dải nghiêng
 
 $Q\le0{,}3\varphi_nR_bbh_0$ (D 4.49; A 5.14), $\varphi_n=1$ khi không có lực dọc đáng kể. Không đạt ⇒ **tăng tiết diện/cấp bê tông** (R6), không bù bằng đai.

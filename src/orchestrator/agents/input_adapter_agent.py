@@ -101,7 +101,7 @@ def doc_etabs_that(nc: NguCanhInputAdapter, dau_vao: dict) -> dict:
             "vi_tri": [
                 {
                     "vi_tri": v.vi_tri, "As_yc": v.As_yc,
-                    "M": v.noi_luc.M, "N": v.noi_luc.N, "Q": v.noi_luc.Q,
+                    "M": v.noi_luc.M, "N": v.noi_luc.N, "Q": v.noi_luc.Q, "Asw_s": v.noi_luc.Asw_s,
                     "to_hop": v.noi_luc.to_hop_chi_phoi,
                 }
                 for v in p.du_lieu_vi_tri
@@ -230,7 +230,7 @@ def chuan_hoa_du_lieu(nc: NguCanhInputAdapter, dau_vao: dict) -> dict:
             "vi_tri": [
                 {
                     "vi_tri": v.vi_tri, "As_yc": v.As_yc,
-                    "M": v.noi_luc.M, "N": v.noi_luc.N, "Q": v.noi_luc.Q,
+                    "M": v.noi_luc.M, "N": v.noi_luc.N, "Q": v.noi_luc.Q, "Asw_s": v.noi_luc.Asw_s,
                     "to_hop": v.noi_luc.to_hop_chi_phoi,
                 }
                 for v in p.du_lieu_vi_tri

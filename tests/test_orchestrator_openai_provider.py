@@ -205,3 +205,21 @@ def test_rate_limit_qua_nhieu_lan_van_raise(monkeypatch):
     with pytest.raises(Exception):
         agent._thu_lai_khi_mang_loi(goi)
     assert dem["n"] == 4  # 1 lần đầu + 3 lần thử lại
+
+
+def test_thong_ke_ghi_nhan_429_va_thoi_gian_cho(monkeypatch):
+    from src.orchestrator import agent
+
+    monkeypatch.setattr(agent.time, "sleep", lambda s: None)
+    tk = agent.ThongKeGoiModel()
+    lan = {"n": 0}
+
+    def goi():
+        lan["n"] += 1
+        if lan["n"] < 3:
+            raise _loi_429("Please try again in 4s.")
+        return "ok"
+
+    assert agent._thu_lai_khi_mang_loi(goi, thong_ke=tk) == "ok"
+    assert tk.so_lan_429 == 2 and tk.giay_cho_thu_lai == pytest_approx(10.0)  # (4+1)s mỗi lần
+    assert "2 lần 429" in tk.tom_tat()

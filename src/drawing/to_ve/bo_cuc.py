@@ -1,7 +1,7 @@
 """Bố cục TỜ VẼ và hàm vào chính `lap_ban_ve_khung`.
 
 Bố cục (toạ độ model, mm thật ở tỷ lệ in 1:ty_le):
-  trái: mặt đứng khung, phía trên là dải hình chi tiết nút 3D | giữa: lưới mặt cắt (dầm trước, cột sau) |
+  trái: mặt đứng khung, phía trên là dải hình chi tiết nút 3D (thu nhỏ vừa MỘT hàng) | giữa: lưới mặt cắt (dầm trước, cột sau) |
   phải: bảng thống kê, ghi chú, khung tên.
 Chọn tự động (tỷ lệ in, khổ giấy) nhỏ nhất đủ chỗ theo thứ tự ưu tiên `UU_TIEN`; hệ số phóng mặt cắt tự giảm khi cấu kiện
 lớn. Không vừa khổ nào ⇒ vẽ ở phương án ít tràn nhất và ghi cảnh báo rõ.
@@ -23,8 +23,21 @@ KHO_GIAY = {"A1": (841.0, 594.0), "A0": (1189.0, 841.0)}
 UU_TIEN = [("A1", 50.0), ("A0", 50.0), ("A1", 75.0), ("A0", 75.0), ("A1", 100.0), ("A0", 100.0)]
 RONG_KHOI_PHAI = 7900.0
 KHOANG = 400.0
-HE_SO_3D = 2.2  # phóng hình chi tiết nút 3D (so với mm thật)
+HE_SO_3D = 1.6  # phóng hình chi tiết nút 3D (so với mm thật)
 RONG_MAT_CAT_TOI_DA_GIAY_MM = 44.0  # bề rộng lớn nhất của một mặt cắt trên giấy (quyết định hệ số phóng)
+
+
+def _dung_cho_khac(v: _Ve, x: float, y: float, w: float, h: float) -> bool:
+    """Hộp chữ (x..x+w, y..y+h) có đè chữ hoặc vòng tròn số hiệu đã vẽ trong `v` không (ước lượng bề rộng chữ 0,6·cao·số ký tự)."""
+    for c in v.bv.chu:
+        wc = len(c.noi_dung) * 0.6 * c.chieu_cao
+        xa = c.vi_tri.x - wc / 2 if c.canh_giua else (c.vi_tri.x - wc if c.canh_phai else c.vi_tri.x)
+        if xa < x + w and x < xa + wc and c.vi_tri.y - 0.6 * c.chieu_cao < y + h and y < c.vi_tri.y + 1.1 * c.chieu_cao:
+            return True
+    for t in v.bv.vong_tron:
+        if t.layer == layers.SO_HIEU.ten and abs(t.tam.x - (x + w / 2)) < t.ban_kinh + w / 2 and abs(t.tam.y - (y + h / 2)) < t.ban_kinh + h:
+            return True
+    return False
 
 
 def _chon_nut(kh) -> list[dict]:
@@ -66,7 +79,7 @@ class _UngVien:
 def _he_so_phong(cfg: CauHinhToVe, kh) -> float:
     """Hệ số phóng mặt cắt: tối đa `cfg.he_so_mat_cat`, giảm khi cấu kiện lớn sao cho bề rộng mặt cắt ≤ ~44 mm giấy."""
     T = cfg.ty_le
-    rong_max = max([d.b + 2 * cfg.canh_ban_cua_t for d in kh.dams] + [c.h for c in kh.cots] + [1.0])
+    rong_max = max([mat_cat.rong_bao_dam(d.b, cfg) for d in kh.dams] + [c.h for c in kh.cots] + [1.0])
     k = RONG_MAT_CAT_TOI_DA_GIAY_MM * T / rong_max
     return max(1.0, min(cfg.he_so_mat_cat, math.floor(k * 2) / 2))
 
@@ -78,6 +91,8 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
     rg, cg = KHO_GIAY[kho]
     W, H = rg * T, cg * T
     canh_bao = list(kh.canh_bao)
+    if kh.dam_thieu_q:
+        canh_bao.append("Dầm " + ", ".join(kh.dam_thieu_q) + ": đai CHỈ theo cấu tạo, chưa kiểm chịu cắt (thiếu Q từ ETABS).")
 
     # ---- mặt đứng ----
     v_md = _Ve(cfg, "MAT_DUNG")
@@ -95,8 +110,12 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
             v_md.chu((x0 + x1) / 2, y1 + 120.0, nhan_ct, v_md.h_chu_nho, giua=True)
         elif n["trai"] is None:  # nút biên trái: nhãn bên trái khung, ngang tâm khung
             v_md.chu(x0 - 120.0, (y0 + y1) / 2 - 0.36 * v_md.h_chu_nho, nhan_ct, v_md.h_chu_nho, phai=True)
-        else:  # nút giữa: nhãn dưới-trái khung
-            v_md.chu(x0 + 100.0, y0 - 380.0, nhan_ct, v_md.h_chu_nho, phai=True)
+        else:  # nút giữa: nhãn dưới khung, thử các vị trí cho tới khi không đè chữ/vòng tròn khác
+            w_ct = len(nhan_ct) * 0.6 * v_md.h_chu_nho
+            ung_vien = [(x0 + 100.0, y0 - 380.0, True), (x0 + 100.0, y0 - 1100.0, True), (x1 - 100.0 - w_ct, y0 - 1100.0, False),
+                        (x0 + 100.0, y0 - 1800.0, True), (x1 + 200.0, y0 - 380.0, False)]
+            chon = next((c for c in ung_vien if not _dung_cho_khac(v_md, c[0] if not c[2] else c[0] - w_ct, c[1], w_ct, v_md.h_chu_nho)), ung_vien[0])
+            v_md.chu(chon[0], chon[1], nhan_ct, v_md.h_chu_nho, phai=chon[2])
     # ---- mặt cắt ----
     suot = {t.so_hieu for lst in kh.thanh_doc_dam.values() for t in lst if t.vai_tro in ("tren_suot", "tren_suot_chung")}
     mcs = []
@@ -110,7 +129,16 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
     cell = {k: (max((m[2] for m in ls), default=0.0) + KHOANG, max((m[3] for m in ls), default=0.0) + KHOANG) for k, ls in nhom.items()}
 
     # ---- 3D ----
-    ds3 = [chi_tiet_nut.ve_chi_tiet_nut(kh, n["ten"], n["cot"], n["phai"], n["trai"], n["mai"], HE_SO_3D) for n in nut]
+    def _ve_3d(he_so: float):
+        return [chi_tiet_nut.ve_chi_tiet_nut(kh, n["ten"], n["cot"], n["phai"], n["trai"], n["mai"], he_so) for n in nut]
+
+    he_3d = HE_SO_3D
+    ds3 = _ve_3d(he_3d)
+    # Hình chi tiết nút xếp lưới NGAY DƯỚI mặt đứng (cùng cột trái, như bản mẫu đặt cụm chi tiết cạnh mặt đứng). Cần ít nhất 2 hình
+    # một hàng: thu nhỏ (chữ/nhãn giữ cỡ giấy nên bề rộng không tỷ lệ thuận) tới khi vừa, không nhỏ hơn 0,8.
+    while ds3 and he_3d > 0.8 and w_el // (max(w for _, w, _, _ in ds3) + KHOANG) < min(2, len(ds3)):
+        he_3d = max(0.8, he_3d * 0.9)
+        ds3 = _ve_3d(he_3d)
 
     # ---- kiểm tra chỗ ----
     x_sec0 = 25 * T + 500.0 + w_el + KHOANG
@@ -136,10 +164,11 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
         ch3 = max(h for _, _, h, _ in ds3) + KHOANG
         cols3 = max(1, int(w_el // cw3))
         rows3 = math.ceil(len(ds3) / cols3)
-        y_free = 5 * T + 700.0 + h_el + 500.0
-        du_3d = (H - 5 * T - 400.0 - rows3 * ch3) >= y_free
+        y_free = 5 * T + 300.0  # mép dưới vùng vẽ (trên khung)
+        y_dinh_3d = H - 5 * T - 400.0 - h_el - 600.0  # ngay dưới mặt đứng
+        du_3d = (y_dinh_3d - rows3 * ch3) >= y_free
         if not du_3d:
-            tran += (y_free + rows3 * ch3) - (H - 5 * T - 400.0)
+            tran += y_free - (y_dinh_3d - rows3 * ch3)
     else:
         cw3 = ch3 = 0.0
         cols3 = 1
@@ -152,7 +181,7 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
     khung = _Ve(cfg, "KHUNG")
     bang.ve_khung_to(cfg, khung, W, H)
     tong.gop(khung.bv)
-    tong.gop(v_md.bv.dich_chuyen(25 * T + 500.0 - info["x_trai"], 5 * T + 700.0 - info["y_thap"]))
+    tong.gop(v_md.bv.dich_chuyen(25 * T + 500.0 - info["x_trai"], H - 5 * T - 400.0 - info["y_cao"]))  # mặt đứng ở ĐẦU cột trái
 
     mat_cat_ve: list[dict] = []
     y_cur = H - 5 * T - 400.0
@@ -166,14 +195,14 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
             c, r = i % cols, i // cols
             tong.gop(v.bv.dich_chuyen(x_sec0 + c * cw - ox, y_cur - (r + 1) * ch - oy))
             if md.loai == "dam":
-                rong_ve, cao_ve = (md.b + 2 * cfg.canh_ban_cua_t) * K, md.h * K
+                rong_ve, cao_ve = mat_cat.rong_bao_dam(md.b, cfg) * K, md.h * K
             else:
                 rong_ve, cao_ve = md.h * K, md.b * K
             mat_cat_ve.append({"nhan": f"{md.so}-{md.so}", "loai": md.loai, "b": md.b, "h": md.h, "rong_ve": rong_ve, "cao_ve": cao_ve})
         y_cur -= rows * ch
 
     if ds3 and du_3d:
-        y_3d_top = H - 5 * T - 400.0
+        y_3d_top = y_dinh_3d
         for i, (v3, w3, h3, (ox3, oy3)) in enumerate(ds3):
             c3, r3 = i % cols3, i // cols3
             tong.gop(v3.bv.dich_chuyen(25 * T + 500.0 + c3 * cw3 - ox3, y_3d_top - (r3 + 1) * ch3 - oy3))
@@ -211,7 +240,7 @@ def _thu(du_lieu: dict, cfg: CauHinhToVe, kho: str) -> _UngVien:
         so_ky_hieu_ky_vong=sum(1 for c in tong.vong_tron if c.layer == layers.SO_HIEU.ten),
         mat_cat=mat_cat_ve, he_so_mat_cat=K, canh_bao=canh_bao, kho_giay=kho,
         so_da_giac_outline=sum(1 for dg in tong.da_giac if dg.layer == layers.OUTLINE.ten),
-        ty_le_in=T,
+        ty_le_in=T, so_cung_uon=sum(1 for c in tong.cung if c.layer == layers.REBAR_BAR.ten), dam_thieu_q=list(kh.dam_thieu_q),
     )
     return _UngVien(cfg, kho, vua, tran, kq)
 

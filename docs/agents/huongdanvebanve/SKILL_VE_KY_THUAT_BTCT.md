@@ -698,6 +698,32 @@ tỷ lệ 1:50/75/100), nhãn chưa tránh được chồng.
 
 **Chưa có:** mặt bằng kết cấu sàn (cần dữ liệu toàn nhà), bản vẽ móng thật, chi tiết uốn móc từng thanh.
 
+**Hình thái nét thép trên mặt đứng — đối chiếu phóng to bản mẫu `BoTriThep_KhungTruc5_mau.pdf` (mã vẽ tuân theo):**
+1. **Thanh dọc là MỘT nét mảnh theo đường tim** (layer `REBAR_BAR`, 0,25 mm — đọc rõ khi in), góc uốn bo cung. **Cốt đai là một nét ĐẬM** hơn thanh dọc; trên **mặt đứng KHÔNG vẽ chấm tròn ở đầu đai** (làm rối hình). Phân cấp nét: đai > thanh dọc (thanh dọc đậm hơn đai là LỖI). Chấm đặc chỉ dùng cho **mặt cắt** và hàng thanh lưới đáy móng.
+2. **Góc uốn bo cung**, không gấp nhọn. Đường kính uốn **trong** tối thiểu lấy từ `tinh_neo_noi.duong_kinh_uon_toi_thieu` (có gờ: $5d$ khi $d<20$; $8d$ khi $d\ge20$), bán kính tim cung $=D_{uốn}/2+d/2$. Đường bao cột tầng 1 **dừng ở mặt trên đài**; trong đài chỉ có thép chờ uốn L, đai và lưới thép đáy.
+3. **Nút mái biên:** thép cột phía ngoài uốn vào dầm 500 mm (hoặc $\max(500;\lceil L_{an}\rceil_{50})$), thép trên dầm uốn xuống cột $h_{dầm}+100$ (dầm 500 ⇒ 600; dầm 300 ⇒ 400; hoặc $\max(h_{dầm}+100;\lceil L_{an}\rceil_{50})$); **hai cung lồng nhau** (cung thép cột ở trong). **Nút giữa mái:** thép trên dầm chạy suốt; thép cột hai mặt uốn vào hai dầm, đoạn ngang nằm dưới thanh trên dầm. Nếu $L_{an}$ tính toán vượt giá trị tối thiểu ⇒ ghi ⚠ trong `canh_bao`.
+4. **Chân cột trong móng:** thép chờ xuống đáy đài rồi **uốn chữ L ra ngoài** (bo cung), đoạn ngang $\ge200$ **nằm trên lưới thép đáy**: lưới đáy là một thanh ngang kèm hàng chấm tiết diện, **cao độ khác** chân L (không để hai nét trùng nhau).
+5. **Cốt đai cột chạy qua nút**; đai nút ≤300 và ≤$10\varnothing_{min}$ trên đoạn $L_{an}$ phía trên nút (module Rule Engine 05, 9.7.8).
+6. **Ghi cảnh báo thiếu dữ liệu:** dữ liệu ETABS không có $Q$ ⇒ ghi chú trên bản vẽ "Cốt đai dầm theo cấu tạo, chưa kiểm khả năng chịu cắt (thiếu Q)"; **không** để bản vẽ trông như đã kiểm.
+7. **Thống nhất thép giữa các cấu kiện** (cột cùng tầng/tiết diện chung thép; hai gối dầm cùng bố trí) đã được pipeline xử lý **trước** khi vẽ: bản vẽ chỉ thể hiện kết quả (Rule Engine 02 Bước 8d, 03 Bước 9d).
+
+
+**Bảng thống kê, chi tiết nút 3D và nét khuất — theo bản mẫu (thay thế bộ 8 tiêu đề cũ của Phần K khi vẽ khung):**
+1. **Bảng:** có tiêu đề **"BẢNG THỐNG KÊ CỐT THÉP"**; cột **CẤU KIỆN là ô gộp** chữ đứng "THÉP CỘT (SL: n)" / "THÉP DẦM (SL: n)"; các cột STT · HÌNH DẠNG, KÍCH THƯỚC · ĐƯỜNG KÍNH (mm) · CHIỀU DÀI THANH (mm) · SỐ LƯỢNG (1 CK | T. BỘ) · TỔNG CHIỀU DÀI (m) · TRỌNG LƯỢNG (kG). Thanh dọc trước, đai sau; mỗi nhóm kết bằng dòng **TỔNG HỢP KHỐI LƯỢNG (kG): Ø ≤ 10 · Ø ≤ 18 · Ø > 18** (ô gộp, không có đường dọc đi qua chữ). Hình dạng ghi **số đo ngay trên hình**: thanh thẳng "4700"; một móc "500 ┌ 3200"; hai móc "600 ┌ 7100 ┐ 400"; đai "170 [250] 50" (trái = cạnh ngắn, giữa = cạnh dài, phải = móc). `kiem_chung_ban_ve` chấp nhận cả bộ tiêu đề cũ lẫn bộ tiêu đề này.
+2. **Chi tiết nút 3D (CHI TIẾT 1–4):** chỉ lồng thép; thanh dọc **một nét mảnh**; đai **thưa theo sơ đồ** (cột 4 đai dưới nút, dầm 5 đai) kèm móc 135° — **không** vẽ đúng bước đai thật (bước thật ghi ở nhãn); nhãn "ⓝ nội dung" xếp hai cột dọc hai bên hình; nút mái: thép cột uốn vào dầm; nút biên: thép trên dầm uốn xuống cột.
+3. **Nét khuất:** bê tông coi là **trong suốt**, mọi thanh nhìn thấy đều vẽ nét liền mảnh; **chỉ phần lồng thép nằm ở mặt XA người xem (bị đai phía trước che) trên hình 3D mới vẽ NÉT ĐỨT mảnh** (layer `HIDDEN`). Khung viền "CHI TIẾT n" trên mặt đứng cũng là nét đứt. Mặt đứng và mặt cắt **không** có nét khuất.
+
+**Mặt cắt dầm và cột — hình thái đo phóng to bản mẫu (mã vẽ tuân theo; `src/drawing/to_ve/mat_cat.py`):**
+1. **Thanh thép là CHẤM ĐEN ĐẶC** đúng đường kính (không phải vòng tròn rỗng). Đai là nét **đậm** bo góc, **có móc 135° vẽ bằng hai vạch chéo song song** ở một góc (dầm: góc trên phải; cột: góc trên trái), dài $10\varnothing_{đai}$, cách nhau $2\varnothing_{đai}$.
+2. **Đường bao bê tông MẶT CẮT đậm** (cùng cỡ cốt đai); chỉ đường bao MẶT ĐỨNG mới mảnh. Mặt sàn là nét **đậm** hơn nữa.
+3. **Cánh sàn chỉ lộ ra ngắn** (≈0,3·b mỗi bên) và kết thúc bằng **nét gãy zigzag** (dọc xuống, chéo, ngang, chéo, dọc), vạch đứng nhô lên trên mặt sàn ≈18 mm. Ký hiệu cao độ: "TẦNG n ▼ +x.xxx" — tam giác **đặc** đỉnh chạm đường, chữ không bị tam giác đè.
+4. **Số hiệu thép dạng "ⓝ nội dung"** (vòng tròn TRƯỚC, chữ SAU) ở mọi nhãn. Thanh trên: khung ngang phía trên cốt sàn thả xuống từng thanh; nhóm thanh suốt ở bên trái, nhóm gia cường bên phải. Thanh dưới: khung ngang phía **trên** thanh (sườn cao ≥300) hoặc **ngay dưới đáy dầm** (sườn thấp) rồi ra vòng tròn. Đai: **đoạn ngang ngắn** ở ≈49% chiều cao. Cột: các đường toả từ **một điểm neo sát mặt cắt** tới từng thanh, rồi đoạn ngang ngắn tới vòng tròn; đai: thả xuống dưới đáy cột rồi ngang ra.
+5. **Kích thước tới TIM ĐAI**: $c_v+\varnothing_{đai}/2$ · $b-2c_v-\varnothing_{đai}$ · $c_v+\varnothing_{đai}/2$ (28 · 164 · 28 với $c_v=25$, đai Ø6), thêm kích thước đứng lớp bảo vệ đáy. Đoạn kích thước **hẹp hơn chữ** ⇒ chữ nằm **ngoài** vạch, không để các chữ dính nhau ("25170"). Chữ đứng xoay 90°.
+6. Bong bóng trục đặt **sát** mặt cắt (≈15 mm giấy), không kéo xa.
+7. **Khử trùng mặt cắt:** cột — **một mặt cắt cho mỗi cấu hình thép dọc** (tiết diện + Ø + số thanh + số hiệu thanh), nhãn đai là đai chính (vùng dài nhất); đai từng vùng đã ghi riêng trên mặt đứng (bản mẫu: 5 mặt cắt cột cho 12 đoạn cột). Dầm — khử trùng theo thép trên/dưới + đai; hai gối giống hệt gộp một mặt cắt. Chiều dài thanh cắt **làm tròn lên bội 50** nên cột cùng Ø cùng loại chung số hiệu.
+8. **Bố cục tờ:** mặt đứng ở cột trái; dải chi tiết nút 3D thu nhỏ nằm **một hàng** phía trên mặt đứng; lưới mặt cắt ở giữa (dầm trước, cột sau, số liền nhau); bảng thống kê/ghi chú/khung tên bên phải. Bản mẫu và bộ vẽ này cùng vừa khổ **A1 1:50**. Cột lệch tâm so với trục (bản mẫu: 110 | 190) **chưa vẽ được** vì dữ liệu ETABS không có.
+
+
 **Sắp xếp ký hiệu trên mặt đứng (đo từ bản mẫu — mã vẽ tuân theo, agent chỉ cần biết để đọc/giải thích bản vẽ):**
 - Thanh trên: có gia cường ⇒ mỗi gối một cụm [`2Ø18 / 1Ø18` xếp chồng][ⓝ ⓝ] ngay trên cốt sàn; không có ⇒ 1 nhãn giữa nhịp.
 - Ký hiệu mặt cắt dầm "số ▌" vẽ ở CẢ trên và dưới dầm, cùng x (đường cắt đi qua dầm); mặt cắt cột là vạch đậm NGANG, số trên vạch, hai bên cột.

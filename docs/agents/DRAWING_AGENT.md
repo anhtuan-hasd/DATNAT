@@ -37,8 +37,21 @@ Hình học và số liệu do mã tất định quyết định (`src/drawing/t
 - **Mặt trên mọi dầm bằng cốt sàn**; dầm cao/thấp đều treo xuống (cũ: dầm đối xứng qua cốt sàn — SAI).
 - COS ±0.000 = đỉnh móng + 1000 (`CauHinhToVe.cao_do_ton_nen_tren_dinh_mong`); COS tự nhiên thấp hơn 450. **Đây là GIẢ ĐỊNH**
   (dữ liệu ETABS không có) — ghi rõ trong khối ghi chú của tờ vẽ cùng kích thước đài/lót/dày sàn.
-- Thanh trên: 2 thanh chạy suốt chuỗi dầm liền nhau (móc xuống cột ở đầu biên); thanh gia cường gối cắt ở L/4 thông thuỷ.
-  Thanh dưới chạy hết thông thuỷ, neo vào cột. Bố trí SƠ BỘ [thực hành] — cần kỹ sư xác nhận.
+- Thanh trên: 2 thanh chạy suốt chuỗi dầm liền nhau, **uốn xuống cột ở đầu biên bằng $h_{dầm}+100$** (bản mẫu: 600 với dầm 500,
+  400 với dầm 300; không nhỏ hơn bội 50 ≥ $L_{an}$, vượt ⇒ ⚠); thanh gia cường gối cắt ở L/4 thông thuỷ. Thanh dưới chạy hết
+  thông thuỷ, **thẳng**, vào cột biên tới mặt ngoài − lớp bảo vệ (không móc; $<15d$ ⇒ ⚠). Bố trí SƠ BỘ [thực hành] — cần kỹ sư xác nhận.
+- **Hình thái nét (đo phóng to bản mẫu; module `src/drawing/to_ve/chi_tiet_thep.py`, layer `REBAR_BAR`):** thanh dọc = **một nét mảnh theo đường tim** (0,25 mm); góc uốn **bo cung** (bán kính tim = đường kính uốn trong tối thiểu/2 + Ø/2, từ `tinh_neo_noi`);
+  cốt đai **đậm hơn** thanh dọc, vạch móc ngắn luân phiên; **không** có chấm ở đầu đai trên mặt đứng.
+- **Nút mái:** mọi thanh cột tầng mái uốn ngang vào dầm $\max(500;\lceil L_{an}\rceil_{50})$ (nút biên: thanh phía ngoài bẻ cao, cung ngoài;
+  nút giữa: mỗi mặt về dầm phía mình, dưới thanh trên dầm chạy suốt). Thanh trên dầm biên uốn xuống nằm **trong** thanh cột.
+- **Chân cột trong móng:** thép chờ xuống sát lưới đáy rồi uốn L ra ngoài ≥200, **cao hơn** lưới (không trùng nét); lưới đáy là
+  một thanh ngang hai nét + hàng chấm tiết diện.
+- **Bảng thống kê:** cột HÌNH DÁNG ghi **chiều dài từng đoạn** (vd `600 7100 400`, `3200 500`, đai `170 250 50`); `so_khung_tuong_tu`
+  (T. BỘ, mặc định 1; bản mẫu 12) nhân số lượng/tổng dài/khối lượng và được ghi chú dưới bảng. Chiều dài thanh cột tầng 1 gồm
+  cả đoạn xuống đài + chân L (bản mẫu không tính phần này — ở đây tính, trung thực hơn).
+- **Mặt cắt** (`mat_cat.py`; skill Vẽ Phần Q mục "Mặt cắt dầm và cột"): chấm đặc, đai đậm có móc 135°, đường bao mặt cắt đậm (layer `OUTLINE_CUT` 0,35), cánh sàn ngắn kết thúc bằng nét gãy zigzag, nhãn "ⓝ nội dung" kiểu khung ngang/điểm neo, kích thước tới tim đai (28·164·28) với chữ hẹp đặt ngoài vạch; chữ kích thước đứng xoay 90° (`VeChu.goc_do`). Cột khử trùng theo **cấu hình thép dọc** (không theo vùng đai). Chiều dài thanh làm tròn lên bội 50. Bố cục: chi tiết nút 3D thu nhỏ một hàng trên mặt đứng ⇒ vừa A1 1:50.
+- **Thiếu Q:** dầm mà `bo_tri_dai` báo `canh_bao` (ETABS không có Q) ⇒ khối ghi chú có dòng `⚠ THIẾU Q …` và `canh_bao` của tool
+  nêu tên dầm; Verification kiểm có dòng này (KC-27).
 - Đai dầm: gối L/4 (`s ≤ min(h/2;300)` hoặc `min(h/3;500)` khi h>450), giữa nhịp `s ≤ min(3h/4;500;15d)`; đai cột hai đầu `10d`,
   giữa `15d`. Ghi dạng `1300(Ø6a150)`.
 
@@ -90,6 +103,7 @@ Sau khi lắp ráp + xuất bản vẽ xong (kết quả tool `lap_rap_mat_dung_
   "duong_dan_pdf": "output/khung_truc5/KHUNG_TRUC5.pdf",
   "duong_dan_dwg": "output/khung_truc5/KHUNG_TRUC5.dwg",
   "so_cot": 12, "so_dam": 8,
+  "so_cung_uon_ky_vong": 44, "co_ghi_chu_thieu_q_ky_vong": true,
   "nhan_ky_vong_theo_cau_kien": {"32": ["goi_trai", "giua_nhip", "goi_phai"]}
 }
 ```
@@ -116,7 +130,9 @@ của AutoCAD: `backend_com._cau_hinh_font_tieng_viet` đặt style Standard = A
 ## Chưa có (nêu rõ để không hiểu nhầm)
 
 - **Mặt bằng kết cấu sàn**: cần dữ liệu toàn nhà (lưới Y, bố trí dầm/ô sàn) — file ETABS mẫu chỉ có 1 khung phẳng nên chưa vẽ.
-- Chi tiết 3D nút là hình trục đo sơ đồ (lồng thép), chưa vẽ đầy đủ mọi thanh/móc của từng nút.
+- Chi tiết 3D nút là hình trục đo sơ đồ (lồng thép), chưa vẽ đầy đủ mọi thanh/móc của từng nút (thanh vẫn một nét, chưa bo cung).
+- **Bảng K / phân loại ô sàn** và chi tiết thép sàn: không có dữ liệu.
+- Chưa kiểm hết các hướng uốn thép cột tầng mái cho nút có dầm gãy khúc hoặc đổi tiết diện cột tại nút.
 - Hình học móng chỉ minh hoạ (không có bản vẽ móng).
 - Nhãn trên mặt đứng bố trí theo quy tắc D1–D6/C1–C3 ở trên; một số ít chỗ còn chồng (nhịp ngắn, vùng nút) được báo trong `canh_bao`.
 

@@ -25,6 +25,7 @@ from typing import Any, Callable
 from ..drawing import backend_com
 from . import agent
 from .agents import drawing_agent, input_adapter_agent, rule_engine_agent, verification_agent
+from .gom_nhom_khung import ap_dung_gom_nhom
 from .loops import BoDemVongLap
 from .shared.hop_dong_du_lieu import BoDuLieuKhungChuanHoa, KetQuaKhung, KetQuaPhanTu, PhuongAnThepPhanTu
 from .shared.phien_cad import PhienCAD
@@ -85,8 +86,9 @@ def _mo_ta_yeu_cau_rule_engine(ten_khung: str, p) -> str:  # p: PhanTuChuanHoa
         # thay thế. Khớp đúng câu chữ HE_THONG_PROMPT của rule_engine_agent
         # đang tìm ("Q: KHÔNG CÓ") để agent nhận diện đúng tình huống.
         Q_hien_thi = "KHÔNG CÓ (nguồn ETABS design summary không xuất raw force cho dầm)" if v.Q is None else v.Q
+        asw = f", Asw/s do ETABS thiết kế = {v.Asw_s:.4g} mm²/mm (tool bo_tri_dai tự dùng — không chép số)" if v.Asw_s else ""
         dong.append(
-            f"- Vị trí '{v.vi_tri}': As_yc={v.As_yc}mm², M={v.M}, N={v.N}, Q: {Q_hien_thi} (kN/kN·m), "
+            f"- Vị trí '{v.vi_tri}': As_yc={v.As_yc}mm², M={v.M}, N={v.N}, Q: {Q_hien_thi} (kN/kN·m){asw}, "
             f"tổ hợp chi phối '{v.to_hop}'."
         )
     h_dai = p.h if p.loai == "dam" else max(p.b, p.h)
@@ -108,7 +110,7 @@ def _chay_buoc_rule_engine(
     khong_co_Q = p.loai == "dam" and any(v.Q is None for v in p.vi_tri)
     ket_qua, _nc = rule_engine_agent.chay_rule_engine_agent(
         nha_cung_cap, mo_ta, hoi_nguoi_dung, gioi_han_vong_lap=gioi_han_vong_lap, khong_co_Q=khong_co_Q,
-        loai=p.loai,
+        loai=p.loai, asw_s=max([v.Asw_s for v in p.vi_tri if v.Asw_s] or [0.0]) or None if p.loai == "dam" else None,
     )
     _bao(quan_sat, "rule_engine", p.ten, ket_qua)
     phuong_an = rule_engine_agent.trich_phuong_an_thep(ket_qua, ten_phan_tu=p.ten, loai=p.loai, b=p.b, h=p.h)
@@ -446,6 +448,15 @@ def chay_toan_bo_khung(
             KetQuaPhanTu(ten_phan_tu=p.ten, loai=p.loai, trang_thai="cho_ve_mat_cat", phuong_an_thep=phuong_an, rule_engine_dat=True)
         )
         ket_qua_khung.ghi(f"Phần tử '{p.ten}': Rule Engine ĐẠT ({len(phuong_an.vi_tri)} vị trí) — chờ vẽ mặt cắt.")
+        if phuong_an.dai.get("nguon_buoc") == "ETABS":
+            ket_qua_khung.ghi(f"  ⚠ Dầm '{p.ten}': đai theo Asw/s do ETABS thiết kế (VRebar), chưa kiểm lại bằng Q (không có Q thô); bản vẽ có ghi chú.")
+        elif phuong_an.dai.get("canh_bao"):
+            ket_qua_khung.ghi(f"  ⚠ Dầm '{p.ten}': thiếu Q từ ETABS — đai CHỈ theo cấu tạo, chưa kiểm khả năng chịu cắt (R56); bản vẽ có ghi chú.")
+
+    # Gom nhóm thép giữa các phần tử (R53 cột cùng tầng/tiết diện, R54 hai gối dầm) — bước tất định, chỉ NÂNG thép; mỗi
+    # phiên Rule Engine chỉ thấy một phần tử nên không tự làm được. Ghi nhật ký từng lần nâng để người dùng thấy.
+    for dong in ap_dung_gom_nhom(bo_du_lieu, ket_qua_khung.ket_qua_phan_tu):
+        ket_qua_khung.ghi(dong)
 
     # Kết nối AutoCAD SAU KHI Rule Engine đã xong (không phải trước): Rule Engine với LLM thật chạy hàng chục phút; mở
     # AutoCAD từ đầu rồi để nhàn rỗi từng bị mất kết nối ("RPC server is unavailable") khi có tiến trình khác (vd webapp)
@@ -466,9 +477,11 @@ def chay_toan_bo_khung(
         from .shared.hop_dong_du_lieu import KetQuaKiemChung
 
         ket_qua_khung.kiem_chung_tong_the = KetQuaKiemChung(
-            dat=bool(ket_qua_kiem_chung.get("dat")), vi_pham=ket_qua_kiem_chung.get("vi_pham", []),
+            dat=bool(ket_qua_kiem_chung.get("dat")),
+            vi_pham=list(ket_qua_kiem_chung.get("vi_pham", [])) + ([f"Lỗi khi kiểm chứng: {ket_qua_kiem_chung['loi']}"] if ket_qua_kiem_chung.get("loi") else []),
         )
-        ket_qua_khung.ghi(f"Kiểm chứng bản vẽ bố trí khung: {'ĐẠT' if ket_qua_kiem_chung.get('dat') else 'CHƯA ĐẠT'} — {ket_qua_kiem_chung.get('vi_pham')}")
+        ket_qua_khung.ghi(f"Kiểm chứng bản vẽ bố trí khung: {'ĐẠT' if ket_qua_kiem_chung.get('dat') else 'CHƯA ĐẠT'} — "
+                          f"{ket_qua_kiem_chung.get('vi_pham') or ket_qua_kiem_chung.get('loi')}")
     elif any(kq.rule_engine_dat for kq in ket_qua_khung.ket_qua_phan_tu):
         # Rule Engine đã đạt nhưng bước LẮP RÁP bản vẽ không thành (tool lap_rap_mat_dung_khung lỗi — vd AutoCAD COM
         # "RPC server is unavailable"): KHÔNG nói "không có phần tử nào đạt Rule Engine" (sai sự thật).

@@ -18,12 +18,14 @@ rõ trên tờ vẽ là giả định — KHÔNG phải kết quả tính toán.
 
 from __future__ import annotations
 
+import math
 from collections import defaultdict
 from dataclasses import dataclass, field
 
 from .. import geometry as g
 from .. import layers
 from ..geometry import BanVe, Diem, VeChu, VeCung, VeDaGiac, VeDoanThang, VeKichThuoc, VeVongTron
+from . import chi_tiet_thep
 
 # ---------------------------------------------------------------------------
 # Cấu hình
@@ -49,8 +51,10 @@ class CauHinhToVe:
     rong_dai_them_moi_ben: float = 400.0  # đài rộng hơn cột mỗi bên
     lop_bao_ve_dam: float = 25.0
     lop_bao_ve_cot: float = 25.0
-    canh_ban_cua_t: float = 150.0  # cánh sàn mỗi bên trên mặt cắt chữ T
+    canh_ban_cua_t: float = 70.0  # đoạn cánh sàn lộ ra mỗi bên trên mặt cắt chữ T (bản mẫu ≈ 0,3·b), kết thúc bằng nét gãy
     chieu_dai_nen_noi_mac_dinh: float = 45.0  # hệ số × d khi không có L_lap từ tool [thực hành]
+    # T. BỘ: số khung giống hệt (khung trục 5 bản mẫu: 12 khung). KHÔNG có trong dữ liệu ETABS — người dùng nêu; mặc định 1.
+    so_khung_tuong_tu: int = 1
     thong_tin_khung_ten: dict = field(default_factory=dict)
     ghi_chu_vat_lieu: list[str] = field(default_factory=list)
 
@@ -73,6 +77,8 @@ class KetQuaToVe:
     kho_giay: str = "A1"
     so_da_giac_outline: int = 0
     ty_le_in: float = 50.0
+    so_cung_uon: int = 0  # số cung uốn (layer REBAR_BAR) kỳ vọng — thanh dọc bo cung ở nút mái/chân cột (KC-25)
+    dam_thieu_q: list[str] = field(default_factory=list)  # dầm đai theo cấu tạo vì thiếu Q — ghi chú trên tờ vẽ (KC-27)
 
 
 # ---------------------------------------------------------------------------
@@ -124,8 +130,33 @@ class _Ve:
     def cung(self, x, y, r, a0, a1, layer):
         self.bv.cung.append(VeCung(Diem(x, y), r, a0, a1, layer))
 
-    def chu(self, x, y, noi_dung, cao=None, layer=layers.TEXT.ten, giua=False, phai=False):
-        self.bv.chu.append(VeChu(Diem(x, y), noi_dung, cao or self.h_chu, layer, giua, phai))
+    def thanh(self, pts, d, r=None, layer=layers.REBAR_BAR.ten, hai_net=False):
+        """Thanh thép dọc trên mặt đứng: MỘT nét mảnh theo đường tim (mặc định — dễ đọc khi in), góc uốn bo cung bán kính tim `r`
+        (mặc định theo đường kính uốn tối thiểu của `d`). `hai_net=True`: hai nét song song cách nhau `d` (mm thật), đóng hai đầu."""
+        r = chi_tiet_thep.ban_kinh_tim(d) if r is None else r
+        if not hai_net:
+            for p in chi_tiet_thep.duong_tim(pts, r):
+                if p[0] == "doan":
+                    self.doan(p[1][0], p[1][1], p[2][0], p[2][1], layer)
+                else:
+                    _, tam, rr, a0, a1, trai = p
+                    self.cung(tam[0], tam[1], rr, a0 if trai else a1, a1 if trai else a0, layer)
+            return
+        doan, cung = chi_tiet_thep.net_song_song(pts, r, d)
+        for x1, y1, x2, y2 in doan:
+            self.doan(x1, y1, x2, y2, layer)
+        for cx, cy, rr, a0, a1 in cung:
+            self.cung(cx, cy, rr, a0, a1, layer)
+
+    def chu(self, x, y, noi_dung, cao=None, layer=layers.TEXT.ten, giua=False, phai=False, goc=0.0):
+        self.bv.chu.append(VeChu(Diem(x, y), noi_dung, cao or self.h_chu, layer, giua, phai, goc_do=goc))
+
+    def cham(self, x, y, r, layer=layers.REBAR_MAIN.ten):
+        """CHẤM ĐẶC (tiết diện thanh thép nhìn đầu thanh) bán kính `r`: đa giác 20 đỉnh bán kính r/2 có độ rộng nét r nên lấp
+        kín từ tâm tới r. Vòng tròn rỗng (AddCircle) bị hở lõi khi mặt cắt phóng to — bản mẫu là chấm đen đặc."""
+        n = 20
+        pts = tuple(Diem(x + 0.5 * r * math.cos(2 * math.pi * i / n), y + 0.5 * r * math.sin(2 * math.pi * i / n)) for i in range(n))
+        self.bv.da_giac.append(VeDaGiac(pts, layer, True, r))
 
     def kt(self, p1, p2, nhan, layer=layers.DIM.ten, co=None):
         self.bv.kich_thuoc.append(VeKichThuoc(Diem(*p1), Diem(*p2), 0.0, layer, nhan, co or self.h_chu_nho))
@@ -179,6 +210,15 @@ class _Ve:
     def doan_net_dam(self, x, y0, y1, rong):
         """Vạch đậm đứng (ký hiệu mặt cắt trên mặt đứng): polyline có độ rộng hình học."""
         self.duong([(x, y0), (x, y1)], layers.REBAR_MAIN.ten, False, rong)
+
+    def tam_giac_dac(self, x, y, k, layer=layers.OUTLINE.ten):
+        """Tam giác ĐẶC chĩa xuống (ký hiệu cao độ): đỉnh tại (x, y), đáy rộng k ở y + 0.8k. Vẽ tam giác thu nhỏ một nửa có độ
+        rộng nét 0,5k để lấp đặc."""
+        a = 0.5
+        cx, cy = x, y + 0.8 * k * 2 / 3  # trọng tâm
+        pts = [(x, y), (x - k / 2, y + 0.8 * k), (x + k / 2, y + 0.8 * k)]
+        nho = tuple(Diem(cx + (px - cx) * a, cy + (py - cy) * a) for px, py in pts)
+        self.bv.da_giac.append(VeDaGiac(nho, layer, True, 0.5 * k))
 
     def tam_giac_cao_do(self, x, y, layer=layers.AXIS.ten):
         k = 2.4 * self.cfg.ty_le
@@ -288,6 +328,7 @@ class _ThanhDocVe:
     so_luong: int
     chieu_dai: float
     so_hieu: int = 0
+    doan: tuple = ()  # chiều dài từng đoạn thẳng của thanh uốn (mm), vd (600, 7100, 400) — ghi cạnh hình dáng
 
 
 def _tru_da_tap(ds: list[int], d: int, n: int) -> list[int]:

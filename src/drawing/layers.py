@@ -60,7 +60,8 @@ _MAU_CAT_ROI = 5  # xanh dương — nét cắt rời khi vẽ rút ngắn (BREA
 OUTLINE_CUT = DinhNghiaLayer(
     "OUTLINE_CUT",
     "Đường bao mặt cắt bê tông tại đúng vị trí bị cắt qua (contour tiết diện dầm/cột trên mặt cắt ngang)",
-    mau_acad=_MAU_BETONG, kieu_net="Continuous", do_day_net_mm=_MANH_BETONG,
+    # Bản mẫu (phóng to mặt cắt 1-1): đường bao bê tông MẶT CẮT ĐẬM (cùng cỡ cốt đai); chỉ đường bao MẶT ĐỨNG mới mảnh.
+    mau_acad=_MAU_BETONG, kieu_net="Continuous", do_day_net_mm=_DAM_THEP_DAI,
 )
 OUTLINE = DinhNghiaLayer(
     "OUTLINE",
@@ -71,6 +72,11 @@ REBAR_MAIN = DinhNghiaLayer(
     "REBAR_MAIN",
     "Tiết diện thật cốt thép dọc (vòng tròn đặc, nhìn dọc trục) trên mặt cắt ngang — mục 1.2 KY_HIEU (đậm nhất bản vẽ)",
     mau_acad=_MAU_THEP_DOC, kieu_net="Continuous", do_day_net_mm=_DAM_THEP_DOC,
+)
+REBAR_BAR = DinhNghiaLayer(
+    "REBAR_BAR",
+    "Thanh thép dọc trên MẶT ĐỨNG: MỘT nét mảnh theo đường tim, bo cung ở chỗ uốn (đai đậm hơn thanh dọc)",
+    mau_acad=_MAU_THEP_DOC, kieu_net="Continuous", do_day_net_mm=0.25,
 )
 SO_HIEU = DinhNghiaLayer(
     "SO_HIEU",
@@ -121,7 +127,7 @@ BREAK = DinhNghiaLayer(
 )
 
 TAT_CA_LAYER: tuple[DinhNghiaLayer, ...] = (
-    OUTLINE_CUT, OUTLINE, REBAR_MAIN, REBAR_STIRRUP, SO_HIEU, DIM, HATCH, TEXT, HIDDEN, AXIS, BREAK,
+    OUTLINE_CUT, OUTLINE, REBAR_MAIN, REBAR_BAR, REBAR_STIRRUP, SO_HIEU, DIM, HATCH, TEXT, HIDDEN, AXIS, BREAK,
 )
 
 _THEO_TEN: dict[str, DinhNghiaLayer] = {lp.ten: lp for lp in TAT_CA_LAYER}

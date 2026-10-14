@@ -58,6 +58,8 @@ class NguCanhRuleEngine:
     duong_kinh_da_dung: set[int] = field(default_factory=set)
     # Bước đai nhỏ nhất theo TÍNH TOÁN (tinh_cot_dai) đã gặp trong phần tử — tool `bo_tri_dai` tự dùng, LLM không phải chép số.
     buoc_dai_tinh_toan: float | None = None
+    # Asw/s (mm²/mm) cốt đai cần thiết do ETABS thiết kế (dầm không có Q thô) — pipeline truyền, `bo_tri_dai` tự dùng.
+    asw_s: float | None = None
 
 
 def _loi(thong_diep: str) -> dict[str, Any]:
@@ -294,10 +296,13 @@ def bo_tri_dai(nc: NguCanhRuleEngine, dau_vao: dict) -> dict:
     if not h or h <= 0:
         return _loi("Thiếu 'h' (chiều cao tiết diện dầm, hoặc cạnh lớn của tiết diện cột) — chép đúng từ mô tả phần tử.")
     ds = nc.duong_kinh_da_dung
-    ket_qua = mod.quyet_dinh_dai(loai, float(h), max(ds), min(ds), nc.buoc_dai_tinh_toan)
+    ket_qua = mod.quyet_dinh_dai(loai, float(h), max(ds), min(ds), nc.buoc_dai_tinh_toan, asw_s=nc.asw_s if loai == "dam" else None)
     ket_qua["duong_kinh_doc_max"], ket_qua["duong_kinh_doc_min"] = max(ds), min(ds)
     if nc.buoc_dai_tinh_toan is not None:
         ket_qua["buoc_tinh_toan_da_xet"] = nc.buoc_dai_tinh_toan
+    elif ket_qua.get("nguon_buoc") == "ETABS":
+        ket_qua["canh_bao"] = ("Bước đai gối dầm lấy theo Asw/s do ETABS thiết kế (VRebar); không có Q thô nên CHƯA kiểm lại "
+                               "khả năng chịu cắt bằng Q — không in 'ĐẠT' cho phần cắt.")
     elif nc.khong_co_Q and loai == "dam":
         ket_qua["canh_bao"] = ("Dầm nguồn ETABS không có Q thô: bước đai CHỈ theo cấu tạo, chưa kiểm khả năng chịu cắt "
                                "(cờ can_xac_nhan) — không in 'ĐẠT' cho phần cắt.")
@@ -628,6 +633,7 @@ cần thêm 'h' và As_target là As MỖI PHÍA, khác hẳn cách bố trí c�
 3. Gọi tinh_cot_dai và tinh_neo_noi, dùng đúng Rb/Rbt/Rs/Rsc/Rsw đã lấy ở \
 bước 1. Với CỘT có N: truyền 'h' cho tinh_cot_dai để tool tự tính A=b*h — \
 KHÔNG tự nhân b*h rồi truyền 'A'.
+   Với tinh_neo_noi: truyền thêm As_cal = As_yc của vị trí (cột: As_yc mỗi \nphía) và As_ef = As thực vừa chọn (dầm: As_thuc; cột: As_thuc_moi_phia) để \nL_an = α·L0,an·As_cal/As_ef như thuyết minh; bỏ trống thì tool coi \nAs_cal=As_ef (L_an lớn hơn, thiên về an toàn nhưng bản vẽ sẽ ghi cảnh báo \nvì L_an vượt chân uốn tối thiểu 500 / h+100).
 4. Gọi tu_kiem_tra. Với CỘT: truyền N, M — KHÔNG truyền "e"/"x", tool tự \
 tính nội bộ. Nếu "dat"=false: xem "so_lan_tu_sua_con_lai" — nếu còn > 0, \
 quay lại bước 2 với điều kiện đã điều chỉnh dựa trên "vi_pham" (vd nới \
@@ -695,6 +701,7 @@ def chay_rule_engine_agent(
     so_lan_goi_toi_da: int = 30,
     khong_co_Q: bool = False,
     loai: str | None = None,
+    asw_s: float | None = None,
 ) -> tuple[agent.KetQuaVongLapAgent, NguCanhRuleEngine]:
     """Chạy 1 phiên độc lập của Rule Engine Agent cho 1 phần tử (mô tả bằng
     văn bản, gồm mọi vị trí cần xử lý — do pipeline.py soạn từ
@@ -711,7 +718,7 @@ def chay_rule_engine_agent(
 """
     bo_dem = BoDemVongLap(gioi_han=dict(gioi_han_vong_lap) if gioi_han_vong_lap else BoDemVongLap().gioi_han)
     nc = NguCanhRuleEngine(
-        hoi_nguoi_dung=hoi_nguoi_dung, bo_dem=bo_dem, khong_co_Q=khong_co_Q
+        hoi_nguoi_dung=hoi_nguoi_dung, bo_dem=bo_dem, khong_co_Q=khong_co_Q, asw_s=asw_s
     )
     dispatch = tao_dispatch(nc)
     ket_qua = agent.chay_vong_lap_tool(

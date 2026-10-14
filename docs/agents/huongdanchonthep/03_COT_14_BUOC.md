@@ -128,6 +128,27 @@ Bảng diện tích một phía: 2Ø16 402; 3Ø16 603; 2Ø18 509; 3Ø18 763; 2Ø
 **Cột 22:** $A_{s,tt}=1275\to$ **2Ø25+1Ø22 = 1362** (dư 6,8%); $a=(2\times490{,}9\times40{,}5+380{,}1\times39)/1362=40{,}1$ ✓; hở Ø25–Ø22 $=61\ge50$ ✓; khoảng cách tim hai hàng chịu lực $=519>500$ ⇒ **bắt buộc 1Ø16 mỗi cạnh dài** ($A_{s,tot}=3126$; $\mu_t=2{,}08\%$); cốt cấu tạo không tính vào khả năng chịu lực.
 ⚠ **Tool:** `chon_thep_doc(loai="cot")` dùng **một** đường kính cho mọi thanh, `cover=40` (=a), khoảng hở 25, khoảng cách tối đa 400 cho cả hai phương. Với cột 22 tool chọn **8Ø25** (1473 mm²/phía, thừa 15,5%) thay vì 2Ø25+1Ø22 + 2Ø16. **Chấp nhận được** nếu `tu_kiem_tra` đạt; nhưng thanh giữa cạnh ngắn cùng Ø25 trong $b=250$ là **3 thanh — hở $=(250-2\times28-3\times25)/2=59$ ✓ ≥50**. Với $b$ nhỏ hơn hoặc nhiều thanh: tool dùng hở 25 ⇒ **agent phải đối chiếu bảng $b_{min}$ ở trên** (R4, R11, I6).
 
+### 9d. Gom cột cùng tầng, cùng tiết diện; thép giảm dần theo tầng (thực hành thuyết minh Khung Trục 5)
+
+> **Nguồn và mức tin cậy:** rút ra từ Bảng 26 của thuyết minh KT5 và nhãn thép trên bản vẽ mẫu (suy ra từ số liệu, thuyết minh không viết thành điều khoản). Dùng như mặc định **[thực hành thuyết minh KT5]**; không thay cho `tu_kiem_tra`.
+
+**"Mỗi phía" nghĩa là gì.** Thuyết minh thiết kế **đối xứng** $A_s=A_s'$ cho **phía bề rộng $b$** (phía vuông góc với mặt phẳng uốn). "2Ø16 mỗi phía" = 2 thanh trên mỗi phía = **4 thanh góc**; "3Ø18 mỗi phía" = 3 thanh mỗi phía = **6Ø18** (mỗi mặt $b$ có 3 thanh, mặt $h$ chỉ có hai thanh góc dùng chung). Cột 220×220 vẫn chỉ 2Ø/phía = 4 thanh góc, **không có thanh giữa cạnh**. Khoảng hở kiểm $c_1=(b-2c_0-n\varnothing)/(n-1)\ge50$ mm, $c_0=20$ (3Ø18, $b=220$: $c_1=63$ ✓). Quy ước hiển thị trên bản vẽ và bảng: **tổng số thanh** (4Ø16, 6Ø18).
+
+**Gom cột.** Các cột **cùng tầng, cùng tiết diện, cùng vật liệu** lấy **chung một bố trí thép = bố trí của cột bất lợi nhất** (lớn nhất theo $A_{s,thực}$ mỗi phía), dù cột kia chỉ cần ít hơn:
+
+| Tầng | Cột A ($A_{s,tt}$) | Cột B ($A_{s,tt}$) | Chọn chung (mỗi phía) | Ghi chú |
+|:--|:--:|:--:|:--:|:--|
+| Mái | 304,57 | 275,78 | 2Ø16 | cả hai đều ≤402 |
+| 4 | 312,91 | 327,39 | 2Ø16 | — |
+| 3 | **382,13** | 503,59 | **2Ø18** | A chỉ cần 382 (2Ø16 = 402 đủ) nhưng lấy theo B |
+| 2 | 743,19 | 752,76 | 3Ø18 | — |
+
+Khớp **4/4 tầng**. Cột C (220×220) là tiết diện khác ⇒ tính riêng: tầng 2 cần 420,11 > 402 ⇒ 2Ø18; các tầng khác 2Ø16 (kể cả khi chỉ cần 71–123 mm²: tối thiểu cấu tạo 2Ø16).
+
+**Thép giảm dần theo tầng.** Trong thuyết minh KT5 thép cột giảm **số thanh trước, Ø sau**: A: 3Ø18 → 2Ø18 → 2Ø16 → 2Ø16 mỗi phía (6Ø18 → 4Ø18 → 4Ø16 → 4Ø16); không có trường hợp nhảy từ 3Ø18 xuống 2Ø16 trong một tầng. (Ghi chú "tầng trên giảm Ø giữ số thanh" ở trên cũng là thực hành thường gặp; chọn theo cái nào cho thép nối thuận lợi, **không** có tool ép.)
+
+**Phân công:** việc gom cột là **bước tất định `gom_nhom` của pipeline** (xem module 02, 8d) chạy sau khi mọi phần tử đã đạt; thép chỉ được **nâng** (không giảm dưới $A_{s,yc}$). Agent chọn cho từng cột đúng $A_{s,yc}$ của nó, **không** tự lấy thép của cột khác.
+
 ## Bước 10. Kiểm tra khả năng chịu lực của tiết diện đã chọn
 
 ### 10a. Trong mặt phẳng uốn (D 6.13)

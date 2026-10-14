@@ -199,10 +199,12 @@ def lap_rap_mat_dung_khung(nc: NguCanhDrawing, dau_vao: dict) -> dict:
     nc.phien_cad.kho_giay = kq.kho_giay
     nc.phien_cad.ky_vong_to_ve = {
         "so_da_giac_outline_ky_vong": kq.so_da_giac_outline, "so_ky_hieu_ky_vong": kq.so_ky_hieu_ky_vong,
+        "so_cung_uon_ky_vong": kq.so_cung_uon, "co_ghi_chu_thieu_q_ky_vong": bool(kq.dam_thieu_q),
         "mat_cat_ky_vong": [{"nhan": m["nhan"], "rong_ve": m["rong_ve"], "cao_ve": m["cao_ve"]} for m in kq.mat_cat],
     }
     return {
         "so_cot": kq.so_cot, "so_dam": kq.so_dam, "so_ky_hieu_ky_vong": kq.so_ky_hieu_ky_vong,
+        "so_cung_uon_ky_vong": kq.so_cung_uon,
         "so_mat_cat": len(kq.mat_cat), "so_dong_thong_ke": len(kq.thong_ke), "co_bang_thong_ke": bool(kq.thong_ke),
         "kho_giay": nc.phien_cad.kho_giay, "canh_bao": kq.canh_bao,
     }

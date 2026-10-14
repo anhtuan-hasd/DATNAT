@@ -256,3 +256,18 @@ GHI kết quả + basis + cờ [R45]; KHÔNG in "ĐẠT" khi còn cờ [R46]
 <!-- PROMPT:BO_BAT_DAU -->
 **Danh sách đầy đủ để tra nhanh:** R1 • R2 • R3 • R4 • R5 • R6 • R7 • R8 • R9 • R10 • R11 • R12 • R13 • R14 • R15 • R16 • R17 • R18 • R19 • R20 • R21 • R22 • R23 • R24 • R25 • R26 • R27 • R28 • R29 • R30 • R31 • R32 • R33 • R34 • R35 • R36 • R37 • R38 • R39 • R40 • R41 • R42 • R43 • R44 • R45 • R46 • R47 • R48 • R49 • R50 • R51 • R52.
 <!-- PROMPT:BO_KET_THUC -->
+
+---
+
+## Luật bổ sung R53–R58 (từ đối chiếu với thuyết minh Khung Trục 5 — **chưa nằm trong tài liệu nguồn R1–R52**)
+
+> Các luật này rút ra từ số liệu thuyết minh KT5 và bản vẽ mẫu **[thực hành thuyết minh KT5]**, kiểm trên **một** công trình; là mặc định cho bản vẽ, **không** thay tính toán, **không** có trong tài liệu nguồn 115 trang. Chi tiết và ví dụ ở các module đã nêu.
+
+| Luật | Nội dung | Ở đâu | Ai làm |
+|:--|:--|:--|:--|
+| **R53** | Cột **cùng tầng, cùng tiết diện, cùng vật liệu** ⇒ **chung một bố trí thép** = của cột bất lợi nhất; chỉ nâng thép | 03, Bước 9d | pipeline (`gom_nhom`) |
+| **R54** | Thép trên dầm chạy suốt ⇒ **hai gối cùng bố trí** theo gối lớn hơn; nhịp chọn riêng | 02, Bước 8d | pipeline (`gom_nhom`) |
+| **R55** | Ít loại Ø toàn khung; tối thiểu cấu tạo **2Ø16** mỗi lớp/phía | 02, 03 | `chon_thep_doc` (sở thích) |
+| **R56** | Đai dầm theo $Q$: $Q$ so $Q_{b,min}=0{,}75R_{bt}bh_0$; $q_{sw}\ge0{,}25R_{bt}b$ ⇒ s≤166 (Ø6) ⇒ 150; giữa nhịp ≤$\min(3h_0/4;500)$ ⇒ 200; **thiếu Q ⇒ chỉ cấu tạo + cảnh báo** | 06, B8 | `bo_tri_dai` |
+| **R57** | Chân uốn nút: cột vào dầm $\max(500;\lceil L_{an}\rceil_{50})$, thanh trên dầm xuống cột $\max(h_{dầm}+100;\lceil L_{an}\rceil_{50})$; vượt giá trị tối thiểu ⇒ ghi ⚠ | 05, 9.7.8 | bản vẽ |
+| **R58** | Nút mái biên: cột uốn vào dầm + dầm uốn xuống cột, ≥2 thanh, hai lớp cung lồng nhau, bán kính theo `duong_kinh_uon_toi_thieu` | 05, 9.7.8; Vẽ Phần Q | bản vẽ |

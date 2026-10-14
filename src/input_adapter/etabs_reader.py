@@ -50,6 +50,15 @@ _TIEN_TO_SUM_COT = "ConcSum1"  # bảng tổng hợp thiết kế CỘT (PMM —
 _CAC_SHEET_NHAN_DIEN = {_SHEET_GRID, _SHEET_JOINT, _SHEET_CONN, _SHEET_SECTION_ASSIGN}
 
 
+def _doc_asw_s(hang) -> float | None:
+    """VRebar (m²/m) → Asw/s (mm²/mm) = ×1000. Thiếu cột/giá trị rỗng/âm ⇒ None (không bịa)."""
+    try:
+        v = float(hang["VRebar"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    return v * 1000.0 if v == v and v > 0 else None
+
+
 def nhan_dien_file_etabs_that(duong_dan: Path) -> bool:
     """True nếu file có đủ các sheet đặc trưng của báo cáo ETABS thật (đa
     bảng quan hệ) — dùng để lớp gọi (webapp) quyết định rẽ sang
@@ -227,7 +236,7 @@ def doc_etabs_thuc(duong_dan: Path) -> tuple[BoDuLieuKhung, dict[str, float], di
                         # dầm (chỉ có VRebar — Asw/s đã thiết kế sẵn) — xem
                         # docstring module. Không được LLM tự bịa Q để lấp chỗ
                         # trống này (đúng nguyên tắc đã thiết lập trong tools.py).
-                        noi_luc=NoiLuc(M=None, N=0.0, Q=None, to_hop_chi_phoi=str(to_hop)),
+                        noi_luc=NoiLuc(M=None, N=0.0, Q=None, Asw_s=_doc_asw_s(hang), to_hop_chi_phoi=str(to_hop)),
                     )
                 )
 

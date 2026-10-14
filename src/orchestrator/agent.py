@@ -49,7 +49,31 @@ def _thoi_gian_cho_rate_limit(thong_diep: str, lan: int) -> float:
     return min(70.0, 5.0 * (lan + 1))
 
 
-def _thu_lai_khi_mang_loi(ham: Callable[[], _T], so_lan_toi_da: int = 5, cho_giay: float = 2.0) -> _T:
+@dataclass
+class ThongKeGoiModel:
+    """Số liệu đo thời gian của OpenAIChatProvider — để biết thời gian chạy mất ở đâu (API chậm / bị 429 / prompt lớn)."""
+
+    so_luot: int = 0
+    giay_goi_api: float = 0.0  # tổng thời gian trong các lần gọi API (không tính thời gian chờ thử lại)
+    giay_cho_thu_lai: float = 0.0  # tổng thời gian ngủ chờ (429 + lỗi mạng)
+    so_lan_429: int = 0
+    so_lan_loi_mang: int = 0
+    token_vao: int = 0
+    token_ra: int = 0
+    luot_cham_nhat_giay: float = 0.0
+
+    def tom_tat(self) -> str:
+        tb = self.giay_goi_api / self.so_luot if self.so_luot else 0.0
+        return (
+            f"{self.so_luot} lượt gọi model | gọi API {self.giay_goi_api:.1f}s (TB {tb:.1f}s/lượt, "
+            f"chậm nhất {self.luot_cham_nhat_giay:.1f}s) | chờ thử lại {self.giay_cho_thu_lai:.1f}s "
+            f"({self.so_lan_429} lần 429, {self.so_lan_loi_mang} lỗi mạng) | token vào {self.token_vao:,}, ra {self.token_ra:,}"
+        )
+
+
+def _thu_lai_khi_mang_loi(
+    ham: Callable[[], _T], so_lan_toi_da: int = 5, cho_giay: float = 2.0, thong_ke: ThongKeGoiModel | None = None,
+) -> _T:
     """Gọi 1 hàm gọi OpenAI API, tự thử lại khi gặp lỗi THOÁNG QUA:
     (1) MẠNG (mất kết nối/timeout, backoff tuyến tính) — LỖI THẬT đã gặp khi chạy pipeline dài (hàng trăm lượt gọi): 1 lần
     mất mạng đủ dài làm SẬP toàn bộ pipeline, mất hết tiến độ;
@@ -69,7 +93,11 @@ def _thu_lai_khi_mang_loi(ham: Callable[[], _T], so_lan_toi_da: int = 5, cho_gia
             so_mang += 1
             if so_mang >= so_lan_toi_da:
                 raise
-            time.sleep(cho_giay * so_mang)
+            giay_cho = cho_giay * so_mang
+            if thong_ke is not None:
+                thong_ke.so_lan_loi_mang += 1
+                thong_ke.giay_cho_thu_lai += giay_cho
+            time.sleep(giay_cho)
         except openai.RateLimitError as e:
             tm = str(e)
             if "insufficient_quota" in tm:
@@ -77,7 +105,11 @@ def _thu_lai_khi_mang_loi(ham: Callable[[], _T], so_lan_toi_da: int = 5, cho_gia
             so_rl += 1
             if so_rl > SO_LAN_RATE_LIMIT:
                 raise
-            time.sleep(_thoi_gian_cho_rate_limit(tm, so_rl))
+            giay_cho = _thoi_gian_cho_rate_limit(tm, so_rl)
+            if thong_ke is not None:
+                thong_ke.so_lan_429 += 1
+                thong_ke.giay_cho_thu_lai += giay_cho
+            time.sleep(giay_cho)
     raise loi_cuoi  # pragma: no cover
 
 
@@ -99,7 +131,8 @@ class OpenAIChatProvider:
     file) để agent.py vẫn import được trên môi trường chưa cài `openai`,
     cùng cách làm đã dùng cho `anthropic` trước đây ở llm_mapping.py.
 
-    Mặc định dùng `gpt-5.6-luna` — model rẻ nhất trong dòng GPT-5.6 (GA
+    Nếu có biến môi trường `OPENROUTER_API_KEY` thì đi qua OpenRouter (model miễn phí mặc định, xem
+    `src/llm_client.py`); không thì dùng OpenAI với `gpt-5.6-luna` — model rẻ nhất trong dòng GPT-5.6 (GA
     07/2026) vẫn hỗ trợ đầy đủ function calling, phù hợp cho việc test pipeline
     lặp nhiều vòng tool-calling mà không tốn kém. Đổi `model` nếu cần model
     mạnh hơn (vd "gpt-5.6-sol", "gpt-5.6-terra").
@@ -118,33 +151,49 @@ class OpenAIChatProvider:
 
     def __init__(
         self,
-        model: str = "gpt-5.6-luna",
+        model: str | None = None,
         api_key: str | None = None,
         max_completion_tokens: int = 1024,
         reasoning_effort: str | None = "none",
     ):
-        import openai
+        from ..llm_client import chon_model, dung_openrouter, tao_client_openai
 
-        self._client = openai.OpenAI(api_key=api_key)
-        self._model = model
+        self._client = tao_client_openai(api_key)
+        self._model = chon_model(model, api_key)
         self._max_completion_tokens = max_completion_tokens
-        self._reasoning_effort = reasoning_effort
+        # `reasoning_effort="none"` chỉ là yêu cầu riêng của gpt-5.6-luna trên OpenAI; model trên
+        # OpenRouter không nhận tham số này nên không gửi.
+        self._reasoning_effort = None if dung_openrouter(api_key) else reasoning_effort
+        self.thong_ke = ThongKeGoiModel()
 
     def goi(self, he_thong: str, messages: list[dict], tools: list[dict]) -> dict:
         openai_messages = _messages_noi_bo_sang_openai(he_thong, messages)
         openai_tools = _tools_noi_bo_sang_openai(tools) if tools else None
         tham_so_them = {"reasoning_effort": self._reasoning_effort} if self._reasoning_effort else {}
+        tk = self.thong_ke
 
         def _goi_1_lan():
-            return self._client.chat.completions.create(
-                model=self._model,
-                messages=openai_messages,
-                tools=openai_tools,
-                max_completion_tokens=self._max_completion_tokens,
-                **tham_so_them,
-            )
+            # Đo riêng từng lần gọi (không gồm thời gian ngủ chờ thử lại) — lần gọi lỗi cũng được tính vì API vẫn tốn thời gian.
+            bat_dau = time.perf_counter()
+            try:
+                return self._client.chat.completions.create(
+                    model=self._model,
+                    messages=openai_messages,
+                    tools=openai_tools,
+                    max_completion_tokens=self._max_completion_tokens,
+                    **tham_so_them,
+                )
+            finally:
+                giay = time.perf_counter() - bat_dau
+                tk.giay_goi_api += giay
+                tk.luot_cham_nhat_giay = max(tk.luot_cham_nhat_giay, giay)
 
-        resp = _thu_lai_khi_mang_loi(_goi_1_lan)
+        resp = _thu_lai_khi_mang_loi(_goi_1_lan, thong_ke=tk)
+        tk.so_luot += 1
+        usage = getattr(resp, "usage", None)
+        if usage is not None:
+            tk.token_vao += getattr(usage, "prompt_tokens", 0) or 0
+            tk.token_ra += getattr(usage, "completion_tokens", 0) or 0
         return _response_openai_sang_noi_bo(resp.choices[0].message)
 
 

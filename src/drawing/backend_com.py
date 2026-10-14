@@ -251,6 +251,8 @@ def _ve_1_chu(msp: Any, c) -> None:
     elif getattr(c, "canh_phai", False):
         _gan(e, "Alignment", 2)  # acAlignmentRight (AcAlignment enum COM)
         _gan(e, "TextAlignmentPoint", _mang_diem(c.vi_tri.x, c.vi_tri.y, 0.0))
+    if getattr(c, "goc_do", 0.0):
+        _gan(e, "Rotation", math.radians(c.goc_do))  # AutoCAD COM nhận RADIAN
 
 
 def _ve_1_kich_thuoc(msp: Any, kt) -> None:

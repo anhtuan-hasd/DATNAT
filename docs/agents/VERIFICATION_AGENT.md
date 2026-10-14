@@ -65,7 +65,8 @@ Khi đạt (`dat=true`), bàn giao đơn giản `{"dat": true, "vi_pham": []}`.
 ## Skill được nạp vào system prompt
 
 `SKILL_KIEM_CHUNG_KY_SU.md` (thư mục `docs/agents/huongdankiemchung/`) được ghép vào cuối system prompt qua
-`shared/doc_skill.py`. Skill phân ranh: KC-01…KC-07 là việc tool `kiem_chung_ban_ve` đọc được; KC-10…KC-24 là việc
+`shared/doc_skill.py`. Skill phân ranh: KC-01…KC-07, **KC-25 (số cung uốn thép dọc) và KC-27 (ghi chú 'THIẾU Q')** là việc tool `kiem_chung_ban_ve`
+đọc được (kỳ vọng do mã lắp ráp tự điền); KC-10…KC-24 và KC-26 (gom nhóm thép) là việc
 kỹ sư phải kiểm nhưng tool chưa đọc được (đối chiếu bằng dữ liệu/báo cáo hoặc ghi cờ; KC-08/09 để trống có chủ
 đích). Quy tắc: chỉ báo "đạt" cho đúng phạm vi tool đã kiểm; còn cờ `uoc_luong`/`can_xac_nhan`/⚠ ⇒ "chưa đủ để
 phát hành" (R46); hết lượt ⇒ `hoi_nguoi_dung` báo toàn bộ `vi_pham[]`. Bảng mâu thuẫn tài liệu đã biết giúp agent không

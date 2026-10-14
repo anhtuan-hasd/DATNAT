@@ -47,6 +47,9 @@ Dầm thường: **3** mặt cắt (gối trái, giữa nhịp, gối phải); c
 | KC-22 | Công trình thuộc diện **dừng** (kháng chấn, xoắn, dầm cao, lỗ mở, vách…) | 09, 14.1; R42, R51, R52 | **dừng**, `hoi_nguoi_dung` |
 | KC-23 | Bảng thống kê: cột 7 = cột 5/1000 × T. BỘ; cột 8 = cột 7 × $0{,}0061654d^2$; T. BỘ = 1 CK × số cấu kiện; chiều dài đai là chiều dài trải thẳng gồm móc | skill Vẽ K.1 | kiểm số học nếu bảng hiển thị trong yêu cầu; lệch >1% ⇒ `vi_pham` |
 | KC-24 | Mặt cắt khớp bảng thống kê (số hiệu, Ø, số thanh) | 06, 12.4/12.8 | so với danh sách nhãn |
+| KC-25 | Cung uốn thép ở nút mái và chân cột: số cung (layer REBAR_BAR) **≥ kỳ vọng** do mã lắp ráp tính từ chính tờ vẽ (mỗi chỗ uốn = 2 nét × 1 cung: thép chờ chân cột, thanh cột tầng mái, thanh trên dầm biên) | skill Vẽ Phần Q | tool, `mat_dung_khung`, tham số `so_cung_uon_ky_vong` (lấy từ kết quả `lap_rap_mat_dung_khung`) |
+| KC-26 | Thép cột **cùng tầng, cùng tiết diện** có **cùng** bố trí (R53); hai gối một dầm **cùng** bố trí thép trên (R54) | 02 Bước 8d; 03 Bước 9d | so các nhãn thép trong yêu cầu/bản vẽ; lệch ⇒ `vi_pham` nêu cả hai nhãn |
+| KC-27 | Dầm thiếu Q: ghi chú cảnh báo "cốt đai theo cấu tạo, chưa kiểm cắt" có trên bản vẽ; **không** in "ĐẠT" phần cắt | 06 B8; R56 | đọc `canh_bao` của Drawing; thiếu ⇒ `vi_pham` |
 
 ![Ma trận kiểm chứng: việc tool đọc được, việc chỉ kiểm bằng dữ liệu và việc phải báo cáo/dừng](img/bs_13_kiem_chung_ma_tran.png)
 

@@ -101,7 +101,9 @@ class LLMGia:
             if "loi" in kq_cuoi:
                 return {"content": [tu(id_, "chon_thep_doc", self._chon(loai, as_yc, b, h, BAC[min(so_chon, len(BAC) - 1)]))]}
             dk = kq_cuoi["duong_kinh"] if loai == "cot" else max(t_["duong_kinh"] for t_ in kq_cuoi["thanh"])
-            return {"content": [tu(id_, "tinh_neo_noi", {"duong_kinh": dk, "Rs": Rs, "Rbt": Rbt})]}
+            as_ef = kq_cuoi["As_thuc_moi_phia"] if loai == "cot" else kq_cuoi["As_thuc"]
+            # As_cal/As_ef như prompt dặn: L_an = α·L0,an·As_cal/As_ef (không truyền ⇒ L_an lớn hơn, bản vẽ ghi ⚠)
+            return {"content": [tu(id_, "tinh_neo_noi", {"duong_kinh": dk, "Rs": Rs, "Rbt": Rbt, "As_cal": min(as_yc, as_ef), "As_ef": as_ef})]}
         if ten_cuoi == "tinh_neo_noi":
             chon = next(ket_qua_tool(messages, i_) for n_, i_, _ in reversed(da_goi) if n_ == "chon_thep_doc" and "loi" not in (ket_qua_tool(messages, i_) or {}))
             if loai == "cot":
@@ -129,7 +131,7 @@ kq = pipeline.chay_toan_bo_khung(
     quan_sat=lambda gd, ten, k: print(f"  [{gd}] {ten} — {k.so_lan_goi_model} lượt, dừng: {k.dung_vi}") if gd != "rule_engine" else None,
 )
 print(f"({time.time()-t0:.0f}s, {llm.so_lan} lượt LLM giả)")
-for d in kq.nhat_ky[-8:]:
+for d in kq.nhat_ky[-60:]:
     print("  ", d[:200])
 print("PDF:", kq.duong_dan_pdf)
 print("đạt:", kq.so_phan_tu_dat, "/", len(kq.ket_qua_phan_tu), "| kiểm chứng tổng thể:", kq.kiem_chung_tong_the)

@@ -1,8 +1,7 @@
-"""Smoke test thủ công cho OpenAIChatProvider — gọi OpenAI thật với 1 tool
+"""Smoke test thủ công cho OpenAIChatProvider — gọi LLM thật (OpenRouter nếu có OPENROUTER_API_KEY, không thì OpenAI) với 1 tool
 đơn giản (cộng 2 số) để xác nhận lớp chuyển đổi định dạng hoạt động đúng với
-API thật, không chỉ với client giả lập. Chi phí cực nhỏ (model gpt-5.6-luna,
-vài chục token). Chạy: python scripts/smoke_test_openai.py — tự nạp
-OPENAI_API_KEY từ file `.env` ở gốc dự án nếu có (như webapp/app.py); nếu
+API thật, không chỉ với client giả lập. Chi phí cực nhỏ (vài chục token). Chạy: python scripts/smoke_test_openai.py — tự nạp
+OPENROUTER_API_KEY/OPENAI_API_KEY từ file `.env` ở gốc dự án nếu có (như webapp/app.py); nếu
 chưa có `.env`, đặt trực tiếp: $env:OPENAI_API_KEY = "sk-...".
 """
 import sys
@@ -17,7 +16,7 @@ load_dotenv(THU_MUC_GOC / ".env")
 
 from src.orchestrator import agent
 
-print("1. Khởi tạo OpenAIChatProvider (gpt-5.6-luna)...", flush=True)
+print("1. Khởi tạo OpenAIChatProvider...", flush=True)
 provider = agent.OpenAIChatProvider()
 print("   OK", flush=True)
 

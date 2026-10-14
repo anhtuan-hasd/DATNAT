@@ -57,19 +57,20 @@ trong `output/smoke_test_com/`.
 ## Bước 3 — Chạy TOÀN TRÌNH 4-agent trên dữ liệu ETABS thật (tốn vài chục US cent)
 
 Đặt API key — **không dán key vào chat với AI, đặt trực tiếp trên máy**.
-Script tự nạp `OPENAI_API_KEY` từ file `.env` ở gốc dự án nếu có (qua
+Script tự nạp `OPENROUTER_API_KEY` (ưu tiên — model miễn phí, đổi model bằng `OPENROUTER_MODEL`) hoặc `OPENAI_API_KEY` từ file `.env` ở gốc dự án nếu có (qua
 `python-dotenv`, giống `webapp/app.py`):
 
 ```
 # D:\DA\.env
-OPENAI_API_KEY=sk-proj-...key-thật-của-bạn...
+OPENROUTER_API_KEY=sk-or-v1-...key-thật-của-bạn...
+# hoặc dùng OpenAI chính hãng: OPENAI_API_KEY=sk-proj-...
 ```
 
 Nếu chưa có `.env`, tạo file này (1 dòng như trên) hoặc đặt biến môi trường
 trực tiếp trong phiên PowerShell đang chạy:
 
 ```powershell
-$env:OPENAI_API_KEY = "sk-proj-...key-thật-của-bạn..."
+$env:OPENROUTER_API_KEY = "sk-or-v1-...key-thật-của-bạn..."
 ```
 
 Mở sẵn AutoCAD (như Bước 2), rồi:
@@ -142,8 +143,8 @@ hiện PDF xem trước ngay trên trang + link tải DWG, không cần mở ter
 python webapp/app.py
 ```
 
-(Server tự nạp `OPENAI_API_KEY` từ file `.env` ở gốc dự án nếu có; nếu chưa
-tạo `.env`, đặt `$env:OPENAI_API_KEY = "sk-..."` trước khi chạy như Bước 3.)
+(Server tự nạp `OPENROUTER_API_KEY`/`OPENAI_API_KEY` từ file `.env` ở gốc dự án nếu có; nếu chưa
+tạo `.env`, đặt `$env:OPENROUTER_API_KEY = "sk-or-v1-..."` trước khi chạy như Bước 3.)
 
 Mở trình duyệt tại `http://127.0.0.1:5000`, chọn file (có thể dùng
 `data/KhungTruc5_BaoCaoETABS_TaiTao.xlsx` để thử ngay với dữ liệu ETABS

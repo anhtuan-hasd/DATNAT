@@ -98,6 +98,7 @@ def dem_thanh_thep_ir(ban_ve: BanVe) -> int:
 _OBJECTNAME_POLYLINE = "AcDbPolyline"
 _OBJECTNAME_TEXT = "AcDbText"
 _OBJECTNAME_CIRCLE = "AcDbCircle"
+_OBJECTNAME_ARC = "AcDbArc"
 
 
 def _duyet_modelspace(doc: Any) -> Iterator[Any]:
@@ -229,6 +230,12 @@ def dem_vong_tron_theo_layer_com(doc: Any, layer: str) -> int:
     return _thu_lai_khi_com_ban(lambda: sum(1 for t in _duyet_modelspace(doc) if t.ObjectName == _OBJECTNAME_CIRCLE and t.Layer == layer))
 
 
+def dem_cung_theo_layer_com(doc: Any, layer: str) -> int:
+    """Đếm số cung tròn (AcDbArc) trên 1 layer — dùng kiểm số cung UỐN của thanh thép dọc (layer REBAR_BAR): nút mái, chân
+    cột trong móng (skill Vẽ Phần Q; KC-25)."""
+    return _thu_lai_khi_com_ban(lambda: sum(1 for t in _duyet_modelspace(doc) if t.ObjectName == _OBJECTNAME_ARC and t.Layer == layer))
+
+
 def kiem_tra_nhan_thep_du_vi_tri_com(doc: Any, ten_phan_tu: str, vi_tri_ky_vong: list[str]) -> list[str]:
     """Với 1 dầm cụ thể, kiểm tra nhãn thép gộp trên mặt đứng khung (layer
     TEXT, do `khung_ve.lap_rap_mat_dung_khung` gộp) có nhắc tới CẢ 3 vị trí
@@ -248,6 +255,8 @@ def kiem_tra_nhan_thep_du_vi_tri_com(doc: Any, ten_phan_tu: str, vi_tri_ky_vong:
 
 
 _TIEU_DE_BANG_THONG_KE_8_COT = ["CẤU KIỆN", "SỐ HIỆU", "HÌNH DÁNG", "Ø(mm)", "DÀI 1CK(mm)", "SL", "TỔNG DÀI(m)", "K.LƯỢNG(kG)"]
+# Bộ tiêu đề của bản vẽ mẫu (bảng `to_ve/bang.py`) — chấp nhận thay cho bộ cũ
+_TIEU_DE_BANG_THEO_MAU = ["CẤU KIỆN", "STT", "HÌNH DẠNG, KÍCH THƯỚC", "ĐƯỜNG KÍNH", "CHIỀU DÀI THANH", "SỐ LƯỢNG", "TỔNG CHIỀU DÀI", "TRỌNG LƯỢNG"]
 
 
 def kiem_tra_bang_thong_ke_du_cot_com(doc: Any) -> list[str]:
@@ -256,4 +265,6 @@ def kiem_tra_bang_thong_ke_du_cot_com(doc: Any) -> list[str]:
     luôn vẽ đúng 8 tiêu đề này — hàm ở đây xác nhận lại trên bản vẽ THẬT,
     phòng trường hợp Drawing Agent gọi sai tham số/dùng phiên bản cũ)."""
     text_hien_co = set(doc_noi_dung_text_com(doc, layer=layers_module.TEXT.ten))
-    return [t for t in _TIEU_DE_BANG_THONG_KE_8_COT if t not in text_hien_co]
+    thieu_cu = [t for t in _TIEU_DE_BANG_THONG_KE_8_COT if t not in text_hien_co]
+    thieu_moi = [t for t in _TIEU_DE_BANG_THEO_MAU if t not in text_hien_co]
+    return [] if (not thieu_cu or not thieu_moi) else thieu_moi if len(thieu_moi) <= len(thieu_cu) else thieu_cu

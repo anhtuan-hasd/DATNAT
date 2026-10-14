@@ -11,7 +11,7 @@ cũ (`chay_lien_mach_khung.py`, `ve_khung_truc5_day_du.py`, `demo_ve_phase3.py`,
 
 YÊU CẦU trước khi chạy:
 1. Mở sẵn AutoCAD (Windows Start -> AutoCAD), đóng hết hộp thoại lần đầu chạy.
-2. Đặt OPENAI_API_KEY — script TỰ NẠP từ file `.env` ở gốc dự án nếu có
+2. Đặt OPENROUTER_API_KEY (hoặc OPENAI_API_KEY) — script TỰ NẠP từ file `.env` ở gốc dự án nếu có
    (giống webapp/app.py, dùng python-dotenv); nếu chưa có `.env`, đặt trực
    tiếp bằng biến môi trường trước khi chạy: $env:OPENAI_API_KEY = "sk-...".
 
@@ -110,6 +110,8 @@ def main() -> None:
         print(f"Bản vẽ PDF: {ket_qua.duong_dan_pdf}")
     if ket_qua.duong_dan_dwg:
         print(f"Bản vẽ DWG: {ket_qua.duong_dan_dwg}")
+    print("=" * 78)
+    print(f"THỜI GIAN GỌI LLM: {provider.thong_ke.tom_tat()}")
     print("=" * 78)
 
 

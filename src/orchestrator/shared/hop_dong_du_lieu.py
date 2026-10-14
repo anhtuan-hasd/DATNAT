@@ -32,6 +32,7 @@ class ViTriChuanHoa:
     N: float | None = None
     Q: float | None = None
     to_hop: str | None = None
+    Asw_s: float | None = None  # mm²/mm — cốt đai cần thiết do ETABS (VRebar) thiết kế sẵn; None nếu nguồn không có
 
 
 @dataclass

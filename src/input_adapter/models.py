@@ -49,6 +49,9 @@ class NoiLuc:
     M: float | None = None  # kN·m
     N: float | None = None  # kN — lực dọc (thường 0 với dầm, khác 0 với cột)
     Q: float | None = None  # kN
+    # Asw/s — diện tích cốt đai CẦN THIẾT trên một đơn vị dài (mm²/mm) do chính phần mềm thiết kế (ETABS: cột VRebar, m²/m ×1000).
+    # Dầm ETABS không xuất Q thô nhưng xuất đại lượng này ⇒ dùng được để chọn bước đai theo tính toán.
+    Asw_s: float | None = None
     to_hop_chi_phoi: str | None = None
 
 

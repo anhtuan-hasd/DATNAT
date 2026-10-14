@@ -75,6 +75,19 @@ có) — agent **không** chép số. Kết quả (Ø đai + bước gối/giữ
 thông thuỷ thật). Không gọi ⇒ bản vẽ dùng đai cấu tạo mặc định và ghi cảnh báo. Dầm ETABS không có Q ⇒ tool trả `canh_bao`
 (chỉ theo cấu tạo). Quy tắc: skill 06 B8/C4, `src/rule_engine/bo_tri_dai.py`.
 
+## Sau khi mọi phần tử đã đạt: gom nhóm thép (bước của pipeline, KHÔNG phải tool của agent)
+
+Mỗi phiên agent chỉ thấy một phần tử, nên việc thống nhất thép giữa các phần tử do `pipeline` làm **tất định** ngay sau Bước A
+(`src/orchestrator/gom_nhom_khung.py`, luật `src/rule_engine/gom_nhom.py`; nguồn: thuyết minh Khung Trục 5 — skill 02 Bước 8d,
+03 Bước 9d, 08 R53–R54):
+
+- **R53:** cột cùng tầng + cùng tiết diện + cùng vật liệu ⇒ chung bố trí thép của cột bất lợi nhất (As thực mỗi phía lớn nhất).
+- **R54:** hai gối một dầm (thép trên chạy suốt) ⇒ cùng bố trí theo gối lớn hơn; nhịp giữ riêng.
+- Chỉ **nâng** thép (As thực không bao giờ giảm); `neo_noi` và `dai` của phần tử bị nâng được tính lại theo Ø mới.
+- Mỗi lần nâng ghi 1 dòng vào nhật ký pipeline và `thep_doc["gom_nhom_tu"]`. Agent **không** tự nâng/hạ thép của nơi khác.
+- `tinh_neo_noi`: agent truyền `As_cal = As_yc`, `As_ef = As thực` để $L_{an}=\alpha L_{0,an}A_{s,cal}/A_{s,ef}$ như thuyết minh;
+  bỏ trống ⇒ $L_{an}$ lớn hơn và bản vẽ ghi ⚠.
+
 ## Hợp đồng đầu ra (`shared/hop_dong_du_lieu.py::PhuongAnThepPhanTu`)
 
 ```json

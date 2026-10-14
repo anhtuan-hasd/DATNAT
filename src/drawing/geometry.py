@@ -98,6 +98,7 @@ class VeChu:
     canh_phai: bool = False  # True -> chữ mọc về BÊN TRÁI điểm neo (kết thúc tại vi_tri) —
     # dùng cho chú thích cần "mọc ra ngoài" bản vẽ (vd tên tầng/cao độ bên trái
     # khung) thay vì mặc định mọc sang phải, tránh đè lên nội dung bên trong.
+    goc_do: float = 0.0  # góc xoay chữ quanh điểm neo (độ, ngược chiều kim đồng hồ) — chữ kích thước đứng: 90
 
 
 @dataclass(frozen=True)

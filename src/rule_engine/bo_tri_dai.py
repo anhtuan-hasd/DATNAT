@@ -144,9 +144,22 @@ def vi_tri_dai(vung: list[VungDai]) -> list[float]:
     return ket_qua
 
 
+# Bước đai tối đa vùng giữa dầm khi dùng đai Ø6 (CB240-T) [thực hành thuyết minh KT5: mọi dầm chọn d6a200 ở giữa nhịp]. Giữ như một
+# trần thực hành, không phải điều khoản TCVN.
+BUOC_DAI_GIUA_DAM_TOI_DA = 200.0
+
+
+def buoc_dai_tu_asw_s(duong_kinh_dai: int, asw_s: float, so_nhanh: int = 2) -> float:
+    """Bước đai theo Asw/s (mm²/mm) do phần mềm thiết kế cung cấp: s = n·a_sw/(Asw/s), làm tròn XUỐNG bội 50 (tối thiểu 50). ETABS làm
+    tròn VRebar nên cho phép dư 1% trước khi cắt xuống (VRebar 0,377 mm²/mm, Ø6 hai nhánh ⇒ 150,0 chứ không phải 100)."""
+    a_sw = so_nhanh * math.pi * duong_kinh_dai ** 2 / 4.0
+    s = a_sw / asw_s
+    return lam_tron_xuong(s * 1.01, 50.0, 50.0)
+
+
 def quyet_dinh_dai(
     loai: str, h: float, duong_kinh_doc_max: float, duong_kinh_doc_min: float,
-    buoc_tinh_toan: float | None = None, co_thep_nen: bool = True,
+    buoc_tinh_toan: float | None = None, co_thep_nen: bool = True, asw_s: float | None = None,
 ) -> dict:
     """QUYẾT ĐỊNH đai cho 1 phần tử (không phụ thuộc hình học thông thuỷ): Ø đai và bước theo vùng, có xét bước đai TÍNH
     TOÁN (`tinh_cot_dai`) nếu có — lấy giá trị NHỎ HƠN. Đây là kết quả tool `bo_tri_dai` của Rule Engine Agent; chiều dài
@@ -160,10 +173,16 @@ def quyet_dinh_dai(
         return {"loai": "cot", "duong_kinh_dai": d_w, "buoc_dau": s_dau, "buoc_giua": s_giua,
                 "vung_dau": "l_d = max(h_c; H_n/6; 450) mỗi đầu; nối chồng và nút dùng bước đầu",
                 "co_so": "skill 06 C4 (s ≤ 10d_min hai đầu/đoạn nối; s ≤ min(15d_min;500) giữa) [D, A]; l_d [thực hành]"}
+    nguon = "cau_tao"
     s_goi = buoc_dai_goi_dam(h)
-    if buoc_tinh_toan is not None:
+    if asw_s:
+        # Dầm có Asw/s do ETABS thiết kế (SP 63-13330: đã gồm yêu cầu cấu tạo): bước gối = bước theo Asw/s, KHÔNG áp thêm bước
+        # cấu tạo h/3 của B8 (ETABS đã thiết kế đai cho cả chiều dài dầm; bản mẫu: Asw/s tối thiểu ⇒ d6a200 cả hai đầu).
+        s_goi = buoc_dai_tu_asw_s(d_w, asw_s)
+        nguon = "ETABS"
+    elif buoc_tinh_toan is not None:
         s_goi = min(s_goi, lam_tron_xuong(buoc_tinh_toan, 50.0, 50.0))
-    s_giua = max(s_goi, buoc_dai_giua_dam(h, duong_kinh_doc_min, co_thep_nen))
-    return {"loai": "dam", "duong_kinh_dai": d_w, "buoc_goi": s_goi, "buoc_giua": s_giua,
+    s_giua = max(s_goi, min(buoc_dai_giua_dam(h, duong_kinh_doc_min, co_thep_nen), BUOC_DAI_GIUA_DAM_TOI_DA if d_w <= 6 else 1e9))
+    return {"loai": "dam", "duong_kinh_dai": d_w, "buoc_goi": s_goi, "buoc_giua": s_giua, "nguon_buoc": nguon,
             "vung_goi": "L/4 thông thuỷ mỗi đầu (nhịp ngắn: 1 vùng bước gối)",
             "co_so": "skill 06 B8 (gối s ≤ min(h/2;300) h≤450, min(h/3;500) h>450; giữa ≤ min(3h/4;500;15d_min khi có thép nén)) [D; A]"}

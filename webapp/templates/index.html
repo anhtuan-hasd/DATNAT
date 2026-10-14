@@ -28,9 +28,9 @@
 
     <p class="mo-ta">
       Lưu ý: cần mở sẵn AutoCAD (vẽ 100% qua AutoCAD COM) và đặt biến môi
-      trường <code>OPENAI_API_KEY</code> trước khi chạy
-      <code>python webapp/app.py</code> (xem docs/HUONG_DAN_CHAY.md). Mỗi lần
-      chạy tốn 1 khoản phí API nhỏ. Server chỉ chạy local, phục vụ 1 người
+      trường <code>OPENROUTER_API_KEY</code> (hoặc <code>OPENAI_API_KEY</code>) trước khi chạy
+      <code>python webapp/app.py</code> (xem docs/HUONG_DAN_CHAY.md). Mặc định dùng model miễn phí
+      của OpenRouter. Server chỉ chạy local, phục vụ 1 người
       dùng tại 1 thời điểm — nhiều job tải lên cùng lúc sẽ tự xếp hàng chạy
       lần lượt (AutoCAD chỉ vẽ được 1 việc tại 1 thời điểm).
     </p>
